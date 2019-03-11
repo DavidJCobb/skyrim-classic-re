@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{45d41acc-2c3c-43d2-bc10-02aa73ffc7c7}</ItemsProjectGuid>
+    <ItemsRootNamespace>
+    </ItemsRootNamespace>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\ExtraData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Actor.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\ActorValueInfo.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\base.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESFurniture.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectACTI.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectLIGH.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectWEAP.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSAcousticSpace.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEncounterZone.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSLightingTemplate.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESEffectShader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESFaction.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESForm.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESGlobal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESImageSpace.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectCELL.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectLAND.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESPackage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESRace.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWeather.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWorldSpace.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\INI.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Miscellaneous.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\controllers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\havok.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\NiExtraData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\objects.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\types.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\ActiveEffect.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\Alias.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\BGSPrimitive.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\Navmesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\Sky.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Player\PlayerCharacter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Player\PlayerSkills.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\012E32E8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\012E59D4.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B115D8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B2E724.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B9ED08.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ActorAI\base.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTaskPool.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTEvent.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ChangeForms.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\DefaultObjects.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\EquipManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ExteriorCellLoaderTask.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\GameData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\GameInput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Main.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Navmesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ReferenceEffects.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Response\BSResponse.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Savedata\BGSLoadGameBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Savedata\BGSSaveFormBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Savedata\BGSSaveLoadManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Sound.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\TESCamera.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\TESFile.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ThreadLocalStorage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Timing.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Types.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\MessageBoxCallbacks.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\Miscellaneous.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Shared.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\ExtraData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Actor.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\ActorValueInfo.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESForm.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESPackage.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWorldSpace.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\INI.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Miscellaneous.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\BGSPrimitive.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Shared.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\DefaultObjects.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\GameData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Main.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Sound.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Timing.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\Miscellaneous.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="$(MSBuildThisFileDirectory)ReverseEngineered\Notes.txt" />
+  </ItemGroup>
+</Project>
