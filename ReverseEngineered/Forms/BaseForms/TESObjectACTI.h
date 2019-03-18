@@ -3,6 +3,8 @@
 #include "ReverseEngineered/Forms/BaseForms/base.h"
 
 namespace RE {
+   class TESWaterForm;
+   //
    class TESObjectACTI : public TESBoundAnimObject {
       public:
          enum { kTypeID = kFormType_Activator };
@@ -28,7 +30,7 @@ namespace RE {
          // Members:
          void*  soundLooping;    // 5C // value is SNDR form // meaning confirmed by inspecting TESObjectACTI::LoadForm
          void*  soundActivation; // 60 // value is SNDR form // meaning confirmed by inspecting TESObjectACTI::LoadForm
-         void*  waterType;       // 64 // value is WATR form // meaning confirmed by inspecting TESObjectACTI::LoadForm
+         TESWaterForm* waterType; // 64 // value is WATR form // meaning confirmed by inspecting TESObjectACTI::LoadForm
          UInt16 flags;     // 68 // meaning confirmed by inspecting TESObjectACTI::LoadForm
          UInt8  pad6A[2];  // 6A
          //

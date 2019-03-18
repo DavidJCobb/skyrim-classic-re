@@ -300,8 +300,8 @@ namespace RE {
          tArray<BGSOutfit*>           outfits;
          tArray<BGSArtObject*>        artObjects;
          tArray<BGSMaterialObject*>   materialObjects;    // 05F0
-         tArray<BGSMovementType*>     movementTypes;
-         tArray<BGSSoundDescriptorForm*> soundDescriptors;
+         tArray<BGSMovementType*>     movementTypes;      // 05FC
+         tArray<BGSSoundDescriptorForm*> soundDescriptors;// 0608
          tArray<BGSDualCastData*>     dualCastData;
          tArray<BGSSoundCategory*>    soundCategories;    // 0620
          tArray<BGSSoundOutput*>      soundOutputs;

@@ -781,10 +781,10 @@ namespace RE {
             return (this->flags04 >> 0x12) & 5;
          }
          //
-         // For documentation purposes; do not call:
-         //
          MEMBER_FN_PREFIX(ActorState);
-         DEFINE_MEMBER_FN(LoadSavedata, void, 0x006F11D0, BGSLoadGameBuffer*);
+         DEFINE_MEMBER_FN(ClearMovementFlags, void, 0x006F0F60, UInt32 flags);
+         DEFINE_MEMBER_FN(SetMovementFlags,   void, 0x006E0F40, UInt32 flags);
+         DEFINE_MEMBER_FN(LoadSavedata,       void, 0x006F11D0, BGSLoadGameBuffer*); // for documentation; do not call
    };
 
    struct SimpleAnimationGraphManagerHolder {
@@ -888,7 +888,7 @@ namespace RE {
          virtual void Unk_BE(void);
          virtual void StartVampireFeed(Actor* target, TESObjectREFR* targetUsingFurniture); // BF // 0x00731350? // vampire feed? first argument is target. second is furniture that the target is using. runs AI packages on all involved actors.
          virtual void Unk_C0(void);
-         virtual void Unk_C1(void);
+         virtual void Unk_C1(NiPoint3&, UInt32, UInt32); // C1 // works with first-person camera position // args 2 and 3 unknown
          virtual void Unk_C2(void);
          virtual void Unk_C3(void);
          virtual void Unk_C4(void);
@@ -993,7 +993,7 @@ namespace RE {
          virtual void Unk_11F();       // 11F // related to skeleton nodes
          virtual void Unk_120(UInt32, UInt32, UInt32, UInt32, UInt32, UInt32); // 120 // related to inventory
          virtual void Unk_121(UInt32); // 121
-         virtual void Unk_122(UInt32); // 122 // related to dialogue and the skeleton // checks several INI settings; we should see which ones
+         virtual void Unk_122(UInt32); // 122 // related to dialogue, headtracking, and the skeleton // checks several INI settings; we should see which ones
          virtual void Unk_123(UInt32); // 123 // related to facial animations/expressions
          virtual ActorMover* ResetUnkCC(); // 124 // creates unkCC (first destroying it if it already exists) and returns the new instance
          virtual void DestroyUnkCC();      // 125 // destroys unkCC
@@ -1039,6 +1039,7 @@ namespace RE {
          enum Flags2 : UInt32 {
             kFlags_Flag2_00000002         = 0x00000002,
             kFlags_NoBleedoutRecovery     = 0x00000020,
+            kFlags_Flag2_00000040         = 0x00000040, // related to bleedout?
             kFlags_CanDoFavor             = 0x00000080,
             kFlags_Flag2_00000100         = 0x00000100,
             kFlags_AllowBleedoutDialogue  = 0x00000200,
@@ -1263,6 +1264,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetHealthPercentage,   float,   0x006A8320); // just a convenience wrapper for GetActorValuePercentage
          DEFINE_MEMBER_FN(GetLevel,              UInt16,  0x006A7320);
          DEFINE_MEMBER_FN(GetLightLevel,         double,  0x006AE980); // places result on the FPU stack
+         DEFINE_MEMBER_FN(GetMaxCarryWeight,     float,   0x006A8600); // gets the CarryWeight actor value and then applies the GetMaxCarryWeight perk entry point
          DEFINE_MEMBER_FN(GetPickupPutdownSoundFor, BGSSoundDescriptorForm*, 0x006B2470, TESBoundObject* itemBaseForm, bool isPickup, bool forceDefaultSoundForItemFormType); // just checks data on the item; never accesses (this) at all
          DEFINE_MEMBER_FN(GetThreatLevel,        float,   0x006E0DE0, float UnkModifier_LessOrEqualZeroUsesSomeDefault); // the "threat ratio" between two actors is one actor's threat level divided by the other's
          DEFINE_MEMBER_FN(GetSoulSize,           UInt32,  0x006E8BC0); // returns ExtraSoul::SoulSize enum
@@ -1283,10 +1285,12 @@ namespace RE {
          DEFINE_MEMBER_FN(IsHostileToActor,      bool,    0x006D4360, Actor* actor);
          DEFINE_MEMBER_FN(IsInCombatAndNotIgnoringCombat, bool, 0x006E1360);
          DEFINE_MEMBER_FN(IsInKillMove,          bool,    0x006E16F0);
+         DEFINE_MEMBER_FN(IsInMidAir,            bool,    0x006A6EB0); // used to disallow waiting/sleeping in midair; not necessarily the best check for other use cases
          DEFINE_MEMBER_FN(IsIntimidated,         bool,    0x006AA3E0);
+         DEFINE_MEMBER_FN(IsOverencumbered,      bool,    0x006AFED0); // always false for NPCs; always false if god mode is enabled; always false if the actor has ExtraInteraction; otherwise, compare max carry weight (with perk entry points) with inventory weight
          DEFINE_MEMBER_FN(IsRunning,             bool,    0x006AB210);
          DEFINE_MEMBER_FN(IsSneaking,            bool,    0x004D9290);
-         DEFINE_MEMBER_FN(Kill,                  void,    0x006AC3A0, UInt32, float, UInt32, UInt32);
+         DEFINE_MEMBER_FN(Kill,                  void,    0x006AC3A0, UInt32, float, UInt32, UInt32); // not instantaneous; queues via the BSTaskPool
          DEFINE_MEMBER_FN(ModifyYaw,             void,    0x006A9A50, float); // Sets yaw to GetHeading(0) + Arg1. Uses Actor::SetYaw.
          DEFINE_MEMBER_FN(OnKillmoveDone,        void,    0x006E3CC0);
          DEFINE_MEMBER_FN(OnKillmoveStart,       void,    0x006E3C20, Actor* killer); // for paired anims, call for both actors; killer should use nullptr as argument
@@ -1305,6 +1309,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetPlayerControls,     void,    0x008DC790, bool);
          DEFINE_MEMBER_FN(SetPlayerResistingArrest, void, 0x006AEF40, bool isResisting, TESFaction*); // literally doesn't matter what actor you call this on; hell, you can call it on nullptr
          DEFINE_MEMBER_FN(SetRace,               void,    0x006AF590, TESRace*, bool isPlayer);
+         DEFINE_MEMBER_FN(SetSwimming,           bool,    0x006B9670, bool); // returns previous state?
          DEFINE_MEMBER_FN(SetVoiceRecoveryTime,  void,    0x006E8B10, float);
          DEFINE_MEMBER_FN(SetYaw,                void,    0x006A8910, float); // Honors actor-specific settings, like the race "immobile" flag. Uses underlying SetYaw method on TESObjectREFR.
          DEFINE_MEMBER_FN(TrapSoul,              bool,    0x006EC950, Actor* target); // (this) traps the soul of (target)

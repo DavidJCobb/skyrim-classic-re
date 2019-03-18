@@ -92,12 +92,8 @@ namespace RE {
          UInt32 unk3E0 = -1;
          UInt32 unk3E4 = 0; // these could be individual bytes
          UInt32 unk3E8 = 0;
-         UInt32 unk3EC = -1;
-         UInt32 unk3F0 = 0; // these could be individual bytes
-         UInt32 unk3F4 = 0;
-         UInt32 unk3F8 = -1;
-         UInt32 unk3FC = 0; // these could be individual bytes
-         UInt32 unk400 = 0;
+         ExtraSound::Data unk3EC; // 3EC
+         ExtraSound::Data unk3F8; // 3F8
          TESPackage* unk404 = nullptr; // 404 // DialoguePackage* specifically?
          UInt32 unk408;
          TESPackage* unk40C = nullptr; // 40C // DialoguePackage* specifically?

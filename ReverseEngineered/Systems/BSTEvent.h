@@ -34,7 +34,7 @@ namespace RE {
       typedef BSTEventSink<EventStruct>* pSink;
       public:
          SimpleLock lock; // 00
-         tArray<pSink> activeSinks; // tArray<BSTEventSink*> ?
+         tArray<pSink> activeSinks; // tArray<BSTEventSink*> ? // 08
          tArray<pSink> sinksToAdd;
          tArray<pSink> sinksToRemove;
          UInt8  unk2C = 0; // actually an int
@@ -51,6 +51,15 @@ namespace RE {
    static_assert(sizeof(BSTEventSource<UInt32>) >= 0x30, "BSTEventSource is too small!");
    static_assert(sizeof(BSTEventSource<UInt32>) <= 0x30, "BSTEventSource is too large!");
 
+   struct BGSActorCellEvent { // fired by PlayerCharacter::Unk_98; likely doesn't exist on other actors
+      enum Type : UInt32 {
+         kType_EnteringCell = 0,
+         kType_ExitingCell  = 1,
+      };
+      UInt32 actorRefHandle; // 00
+      UInt32 cellFormID;     // 04
+      Type   eventType;      // 08
+   };
    struct TESFormDeleteEvent {
       UInt32 refrFormID;
    };
@@ -61,9 +70,9 @@ namespace RE {
          kType_PackageChange = 2, // package form ID is for the old package
       };
       //
-      TESObjectREFR* target;
-      UInt32 packageFormID;
-      Type   eventType;
+      TESObjectREFR* target; // 00
+      UInt32 packageFormID; // 04
+      Type   eventType; // 08
    };
 
    extern BSTEventSource<UInt32>* g_menuModeChangeEventSource; // 0x01271CE8
@@ -91,7 +100,7 @@ namespace RE {
          BSTEventSource<UInt32> death; // 1E0
          BSTEventSource<UInt32> unk210; // 210
          BSTEventSource<UInt32> unk240;
-         BSTEventSource<UInt32> unk270;
+         BSTEventSource<UInt32> unk270; // 270 // equip or unequip
          BSTEventSource<TESFormDeleteEvent> formDelete; // 2A0 // TESObjectREFR only, though
          BSTEventSource<UInt32> unk2D0;
          BSTEventSource<UInt32> unk300;

@@ -6,6 +6,7 @@ class TESWorldSpace;
 namespace RE {
    class TESObjectCELL; // Forward-declare instead of #including, so the compiler doesn't choke on a circular dependency
    class TESObjectREFR;
+   class TESWaterForm;
 
    struct MapMarkerOperation {
       UInt32 unk00;
@@ -29,6 +30,16 @@ namespace RE {
          TESFullName fullName; // 14
          TESTexture  texture;  // 1C
 
+         enum ParentFlags : UInt16 {
+            kParentFlag_UseLandData       = 0x0001,
+            kParentFlag_UseLODData        = 0x0002,
+            kParentFlag_DontUseMapData    = 0x0004,
+            kParentFlag_UseWaterData      = 0x0008,
+            kParentFlag_UseClimateData    = 0x0010,
+            kParentFlag_UseImagespaceData = 0x0020,
+            kParentFlag_UseSkyCell        = 0x0040,
+         };
+
          struct UnkRecurring { // sizeof == 0x10
             //
             // This is BSTHashMap; see below
@@ -47,13 +58,13 @@ namespace RE {
          UInt32 unk48;
          UInt32 unk4C = 0; // 4C // related to loaded cells and CRCs
          TESObjectCELL* persistentCell = nullptr; // 50 // related to map markers
-         UInt32 unk54 = 0;
+         UInt32 unk54 = 0; // 54 // related to LOD; getter at 4F0960 traverses parent worlds, checking kParentFlag_UseLODData, for this
          UInt32 unk58 = 0;
-         UInt8  unk5C = 0; // flags; flag 1 means form ID is in the "hardcoded" space (i.e. form ID <= 0x7FF)
+         UInt8  worldFlags = 0; // 5C // flags (DATA subrecord); flag 1 means form ID is in the "hardcoded" space (i.e. form ID <= 0x7FF)
          UInt8  unk5D;
-         UInt16 unk5E = 0;
-         UInt16 unk60 = 0;
-         UInt16 unk62 = 0;
+         UInt16 parentFlags = 0; // 5E
+         SInt16 worldCenterCellX = 0; // 60 // WCTR subrecord X
+         SInt16 worldCenterCellY = 0; // 62 // WCTR subrecord Y
          UInt32 unk64;
          UInt32 unk68;
          UnkRecurring unk6C;
@@ -74,38 +85,44 @@ namespace RE {
          UInt32 unkC8 = 0;
          TESWorldSpace* parentWorld = nullptr; // CC // related to map markers
          UInt32 unkD0 = 0;
-         UInt32 unkD4 = 0;
+         TESWaterForm* waterType = nullptr; // D4 // subrecord NAM2
          UInt32 unkD8 = 0;
          UInt32 unkDC = 0;
          UInt32 unkE0 = 0;
-         UInt32 unkE4 = 0;
-         UInt32 unkE8 = 0;
-         UInt32 unkEC = 0;
-         UInt32 unkF0 = 0;
-         float  unkF4 = 50000.0F;
-         float  unkF8 = 80000.0F;
-         float  unkFC = 50.0F;
-         float  unk100 = 1.0F;
-         UInt32 unk104 = 0;
-         UInt32 unk108 = 0;
-         UInt32 unk10C = 0;
-         UInt32 unk110 = 0;
-         float  unk114 = FLT_MAX;
-         float  unk118 = FLT_MAX;
-         float  unk11C = FLT_MIN;
-         float  unk120 = FLT_MIN;
+         struct { // sizeof == 0x1C
+            SInt32 sizeX;
+            SInt32 sizeY;
+            SInt16 northwestX;
+            SInt16 northwestY;
+            SInt16 southeastX;
+            SInt16 southeastY;
+            float  cameraMinHeight = 50000.0F;
+            float  cameraMaxHeight = 80000.0F;
+            float  cameraInitialPitch = 50.0F;
+         } mapData; // E4 // MNAM
+         struct { // sizeof == 0x10
+            float scale;
+            float cellX;
+            float cellY;
+            float cellZ;
+         } worldMapOffset; // 100 // ONAM
+         UInt32 unk110 = 0; // 110 // ZNAM: Music
+         float  unk114 = FLT_MAX; // NAM0 bounds
+         float  unk118 = FLT_MAX; // NAM0 bounds
+         float  unk11C = FLT_MIN; // NAM9 bounds
+         float  unk120 = FLT_MIN; // NAM9 bounds
          UInt32 unk124;
          UInt32 unk128;
          UnkRecurring unk12C; // 12C
          UInt32 unk13C;
          UInt32 unk140 = 0;
          BSString unk144;
-         float  unk14C = -2048.0F;
-         UInt32 unk150 = 0;
-         float  unk154 = 1.0F;
+         float  defaultLandHeight  = -2048.0F; // 14C // DNAM
+         float  defaultWaterHeight =     0.0F; // 150 // DNAM
+         float  distantLODMult = 1.0F; // 154 // NAMA subrecord
          BGSEncounterZone* unk158 = nullptr;
          UInt32 unk15C = 0;
-         TESTexture unk160; // 160
+         TESTexture treeCanopyShadow; // 160 // NNAM
          TESTexture unk168; // 160
          struct Struct004AD6A0 { // sizeof == 0x60
             //
@@ -156,7 +173,7 @@ namespace RE {
             UInt32 unk5C = 0;
          } unk170; // 170
          float northRotation = 0; // 1D0
-         UInt32 unk1D4 = 0;
+         void* unk1D4 = nullptr; // 1D4 // MHDT subrecord
          //
          MEMBER_FN_PREFIX(TESWorldSpace);
          DEFINE_MEMBER_FN(GetMapMarkerHandles,        void,               0x004F2450, MapMarkerOperation* out, bool shouldBeFalse); // if the bool is true, we pass the markers to DataHandler?
@@ -170,7 +187,10 @@ namespace RE {
          DEFINE_MEMBER_FN(GetOrCreatePersistentCell, TESObjectCELL*, 0x004F4420);
          DEFINE_MEMBER_FN(SetPersistentCell,         void,           0x004F3F10, TESObjectCELL*);
          //
-         DEFINE_MEMBER_FN(Subroutine004F5330, void*, 0x004F5330, UInt32, UInt32); // Arguments are cell coordinates.
+         DEFINE_MEMBER_FN(GetDefaultLandHeight, float, 0x004F0900); // traverses up the parent worldspaces based on parentFlags
+         DEFINE_MEMBER_FN(GetWaterHeight,       float, 0x004F0930); // returns defaultWaterHeight; traverses up the parent worldspaces based on parentFlags
+         DEFINE_MEMBER_FN(GetWaterType, TESWaterForm*, 0x004F08A0); // returns defaultWaterHeight; traverses up the parent worldspaces based on parentFlags
+         DEFINE_MEMBER_FN(Subroutine004F5330,   void*, 0x004F5330, UInt32, UInt32); // Arguments are cell coordinates.
 
          void ForEachMapMarker(MapMarkerIteratorCallback, void* state); // all map markers in all worlds found by GetAllRelatedWorldspaces
          void GetAllRelatedWorldspaces(std::vector<TESWorldSpace*>& out); // includes self

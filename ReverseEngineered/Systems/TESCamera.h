@@ -4,14 +4,16 @@
 #include "skse/Utilities.h"
 
 namespace RE {
+   class bhkRigidBody;
    class TESCameraState;
+
    class TESCamera {
       public:
          TESCamera();
          virtual ~TESCamera();
 
-         virtual void SetNode(NiNode* node);
-         virtual void Update();
+         virtual void SetNode(NiNode* node); // TODO: verify arg type
+         virtual void Update(); // 02
 
          float           rotZ;        // 04
          float           rotX;        // 08
@@ -23,11 +25,11 @@ namespace RE {
          UInt8           pad25[3];    // 25
 
          MEMBER_FN_PREFIX(TESCamera);
-         DEFINE_MEMBER_FN(ModifyPosition, void,   0x00653230, float x, float y, float z);
+         DEFINE_MEMBER_FN(ModifyPosition, void,   0x00653230, float x, float y, float z); // only used by the map menu cameras, it seems.
          DEFINE_MEMBER_FN(ModifyRotation, void,   0x00653200, float x, float z);
          DEFINE_MEMBER_FN(ModifyZoom,     void,   0x00653220, float);
          DEFINE_MEMBER_FN(SetCameraNode,  void,   0x00653260, NiNode*);
-         DEFINE_MEMBER_FN(SetCameraNode,  bool,   0x006532B0, NiNode**); // returns bool: does the current camera node (after setting) exist?
+         DEFINE_MEMBER_FN(SetCameraNode,  bool,   0x006532B0, NiPointer<NiNode>&); // returns bool: does the current camera node (after setting) exist?
          DEFINE_MEMBER_FN(SetCameraState, UInt32, 0x006533D0, TESCameraState* cameraState);
    };
    /*// Ignore these asserts. Visual Studio doesn't handle VTBLs consistently when running offsetof.
@@ -42,8 +44,8 @@ namespace RE {
 
          virtual void OnStateStart(); // pure
          virtual void OnStateEnd();	// pure
-         virtual void OnUpdate(TESCameraState* unk1); // called by TESCamera::Update // arg is out-variable; if set, TESCamera::Update will switch to the given state. increment refcount before returning (receiver will decrement refcount; presumably this prevents deletion before the state is in use)
-         virtual NiQuaternion* Unk_04(NiQuaternion* out);
+         virtual void OnUpdate(TESCameraState** unk1); // called by TESCamera::Update // arg is out-variable and smart pointer (so inc ref before returning); if set, TESCamera::Update will switch to the given state. increment refcount before returning
+         virtual NiQuaternion& Unk_04(NiQuaternion& out);
          virtual NiPoint3*     Unk_05(NiPoint3* out); // for ThirdPersonState, returns unk20
          virtual void Unk_06(void*); // pure // related to saving and loading
          virtual void Unk_07();	// pure
@@ -180,11 +182,7 @@ namespace RE {
          NiPoint3           unk20;              // 20 // root position -- that is, actor's loaded-3D world position or gameplay position, preferring the former
          NiQuaternion       unk2C;              // 2C // returned by this->Unk_04
          union {                                // 3C // current camera offset; these values are overwritten when UpdateMode is called
-            struct {
-               float x;
-               float y;
-               float z;
-            } overShoulderOffset; // actually a NiPoint3, but unions are bratty about member functions
+            NiPoint3 overShoulderOffset;
             struct {
                float fOverShoulderPosX;
                float fOverShoulderCombatAddY;
@@ -193,7 +191,7 @@ namespace RE {
          };
          NiPoint3           unk48;              // 48
          float              unk54;              // 54
-         UInt32             unk58;              // 58
+         float              unk58;              // 58
          float              unk5C;              // 5C // related to yaw; is added to unkAC during computations in Unk_0E().
          float              unk60;              // 60 // related to yaw; is modified the same as unk5C in Unk_0E().
          float              unk64;              // 64
@@ -223,6 +221,10 @@ namespace RE {
          // Much of the structure has been decoded from ThirdPersonState::Unk_08, which appears to be a "reset" 
          // method of some kind; in particular, the NiQuaternions and NiPoints above were positively identified 
          // from code in that function that resets them (via copy) to stock values kept in memory.
+
+         MEMBER_FN_PREFIX(ThirdPersonState);
+         DEFINE_MEMBER_FN(HandleZoomJoystickInput,   void, 0x008405D0, void* joystickInputData);
+         DEFINE_MEMBER_FN(HandleZoomMousewheelInput, void, 0x0083FE70);
    };
    static_assert(offsetof(ThirdPersonState, fOverShoulderPosX) == 0x3C, "Data layout incorrect for RE::ThirdPersonState: bad fOverShoulderPosX.");
    static_assert(offsetof(ThirdPersonState, unk48) == 0x48, "Data layout incorrect for RE::ThirdPersonState: bad unk48.");
@@ -313,9 +315,9 @@ namespace RE {
       UInt32 unk30; // bitmask?
       UInt32 unk34[(0x68 - 0x34) / sizeof(UInt32)]; // This is (or can be?) a list of something. See 0x006E2700.
       UInt32 unk68;
-      TESCameraState* cameraStates[kNumCameraStates];
+      TESCameraState* cameraStates[kNumCameraStates]; // 6C
       UnkA0* unkA0;
-      void*  unkA4; // sizeof >= 8
+      bhkRigidBody* unkA4; // A4 // used to check if the camera is underwater
       UInt32 unkA8; // a reference handle // gets cleared whenever we switch/force to first-person camera, via a call to 0x0083C8D0
       float	worldFOV;       // AC
       float	firstPersonFOV; // B0
@@ -333,6 +335,7 @@ namespace RE {
       UInt8  padD6[2]; // D6
 
       MEMBER_FN_PREFIX(PlayerCamera);
+      DEFINE_MEMBER_FN(DoVampireFeedCamera,  void, 0x0083D8F0);
       DEFINE_MEMBER_FN(ForceFirstPerson,     bool, 0x0083CE90);               // *(0x012E7288)->TESV_0083CE90();
       DEFINE_MEMBER_FN(ForceThirdPerson,     bool, 0x0083C6B0);               // *(0x012E7288)->TESV_0083C6B0();
       DEFINE_MEMBER_FN(EnterThirdPerson,     void, 0x0083CE50);

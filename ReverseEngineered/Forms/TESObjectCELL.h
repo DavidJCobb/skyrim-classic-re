@@ -11,7 +11,9 @@ class TESObjectCELL;
 namespace RE {
    struct MapMarkerOperation; // see TESWorldSpace.h
    class TESObjectREFR; // Forward-declare instead of #including, so the compiler doesn't choke on a circular dependency
+   class TESWaterForm;
    class TESWorldSpace;
+   //
    class TESObjectCELL : public TESForm {
       public:
          operator ::TESObjectCELL*() const { return (::TESObjectCELL*) this; }
@@ -199,6 +201,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetUnitCoordinates, void,  0x004C0510, float*,  float*);  // Gets the unit-coordinates of an exterior cell. (Interior cells don't use these values.)
          DEFINE_MEMBER_FN(GetNorthRotation,   float, 0x004C0FC0);
          DEFINE_MEMBER_FN(GetWaterLevel,      float, 0x004C0710); // Returns water level, checking the parent world if needed; returns FLOAT_MAX if no water level. (Interior cells don't have a water level.)
+         DEFINE_MEMBER_FN(GetWaterType,       TESWaterForm*, 0x004C0800);
          //
          DEFINE_MEMBER_FN(Subroutine004C05A0, UInt32, 0x004C05A0); // Interiors: returns (this->unk88 + 0x54). Exteriors: returns (this->parentWorld->unkBC).
          DEFINE_MEMBER_FN(Subroutine004C05C0, UInt32, 0x004C05C0); // Interiors: returns (this->unk88 + 0x64). Exteriors: returns (this->parentWorld->unkC0).

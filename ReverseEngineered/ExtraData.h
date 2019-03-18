@@ -598,9 +598,7 @@ namespace RE {
          struct Data {
             SInt32 unk00;
             UInt8  unk04;
-            UInt8  pad05;
-            UInt8  pad06;
-            UInt8  pad07;
+            UInt8  pad05[3];
             UInt32 unk08;
          };
          Data data; // 08

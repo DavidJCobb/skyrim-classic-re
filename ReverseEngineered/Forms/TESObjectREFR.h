@@ -419,7 +419,7 @@ namespace RE {
          virtual void	Unk_69();
          virtual void*  Unk_6A(UInt32); // handles a lot of 3D state stuff
          virtual void 	Unk_6B();
-         virtual void	Unk_6C(UInt32, UInt32); // Unk_6C(0, 0) will instantly unload 3D.
+         virtual void	Unk_6C(NiNode*, bool); // 6C // Unk_6C(nullptr, 0) will instantly unload 3D. // Unk_6C(newNode, 1); is used for newly-created BSFadeNodes?
          virtual bool	ParentCellIsLoaded(); // 6D
          virtual void	Unk_6E();
          virtual NiNode* GetNiRootNode(bool firstPerson); // 6F
@@ -470,7 +470,7 @@ namespace RE {
          //
          // Apparent new functions from here onward; these are also listed on Actor* and I may have more information there.
          //
-         virtual bool	Unk_9C(void* arg1, UInt32 arg2, UInt32 arg3);  // 9C // new function?
+         virtual bool	Unk_9C(void* arg1, float waterHeight_notSureIfHavokUnits, float);  // 9C // new function? // related to underwater ambience
          virtual bool	Unk_9D(UInt32 arg1, UInt32 arg2, UInt32 arg3); // 9D // new function? // no-op (returns false) for TESObjectREFR
          virtual TESAmmo* Unk_9E(); // 9E // new function? // no-op for TESObjectREFR // pulls from the actor's process manager
          virtual void*	Unk_9F(); // 9F // new function? // getter related to "DecalGroup" extra data
