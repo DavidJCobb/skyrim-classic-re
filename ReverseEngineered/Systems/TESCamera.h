@@ -25,12 +25,12 @@ namespace RE {
          UInt8           pad25[3];    // 25
 
          MEMBER_FN_PREFIX(TESCamera);
-         DEFINE_MEMBER_FN(ModifyPosition, void,   0x00653230, float x, float y, float z); // only used by the map menu cameras, it seems.
-         DEFINE_MEMBER_FN(ModifyRotation, void,   0x00653200, float x, float z);
-         DEFINE_MEMBER_FN(ModifyZoom,     void,   0x00653220, float);
-         DEFINE_MEMBER_FN(SetCameraNode,  void,   0x00653260, NiNode*);
-         DEFINE_MEMBER_FN(SetCameraNode,  bool,   0x006532B0, NiPointer<NiNode>&); // returns bool: does the current camera node (after setting) exist?
-         DEFINE_MEMBER_FN(SetCameraState, UInt32, 0x006533D0, TESCameraState* cameraState);
+         DEFINE_MEMBER_FN(ModifyPosition,  void,   0x00653230, float x, float y, float z); // only used by the map menu cameras, it seems.
+         DEFINE_MEMBER_FN(ModifyRotation,  void,   0x00653200, float x, float z);
+         DEFINE_MEMBER_FN(ModifyZoom,      void,   0x00653220, float);
+         DEFINE_MEMBER_FN(SetCameraNode,   void,   0x00653260, NiNode*);
+         DEFINE_MEMBER_FN(SetCameraNode_B, bool,   0x006532B0, NiPointer<NiNode>&); // returns bool: does the current camera node (after setting) exist?
+         DEFINE_MEMBER_FN(SetCameraState,  UInt32, 0x006533D0, TESCameraState* cameraState);
    };
    /*// Ignore these asserts. Visual Studio doesn't handle VTBLs consistently when running offsetof.
    static_assert(offsetof(TESCamera, cameraNode) >= 0x1C, "RE::TESCamera::cameraNode is too early.");
@@ -281,72 +281,73 @@ namespace RE {
          UInt16 pad26;
    };
 
-   class PlayerCamera : TESCamera {
-      PlayerCamera();
-      virtual ~PlayerCamera();
+   class PlayerCamera : public TESCamera {
+      public:
+         PlayerCamera();
+         virtual ~PlayerCamera();
 
-      static PlayerCamera* GetInstance() {
-         return *((PlayerCamera**)0x012E7288); // == 0x01B399A0; the PlayerCharacter constructor creates it there, directly
-      };
+         static PlayerCamera* GetInstance() {
+            return *((PlayerCamera**)0x012E7288); // == 0x01B399A0; the PlayerCharacter constructor creates it there, directly
+         };
 
-      enum {
-         kCameraState_FirstPerson = 0,
-         kCameraState_AutoVanity,
-         kCameraState_VATS,
-         kCameraState_Free,
-         kCameraState_IronSights,
-         kCameraState_Furniture,
-         kCameraState_Transition,
-         kCameraState_TweenMenu,
-         kCameraState_ThirdPersonFurniture, // third-person furniture (i.e. workbenches)
-         kCameraState_ThirdPersonGameplay,  // normal and animcam
-         kCameraState_Horse,
-         kCameraState_Bleedout,
-         kCameraState_Dragon,
-         kNumCameraStates
-      };
+         enum {
+            kCameraState_FirstPerson = 0,
+            kCameraState_AutoVanity,
+            kCameraState_VATS,
+            kCameraState_Free,
+            kCameraState_IronSights,
+            kCameraState_Furniture,
+            kCameraState_Transition,
+            kCameraState_TweenMenu,
+            kCameraState_ThirdPersonFurniture, // third-person furniture (i.e. workbenches)
+            kCameraState_ThirdPersonGameplay,  // normal and animcam
+            kCameraState_Horse,
+            kCameraState_Bleedout,
+            kCameraState_Dragon,
+            kNumCameraStates
+         };
 
-      struct UnkA0 { // sizeof == 8; constructor == 0x00C52C60
-         void*  unk00;
-         UInt32 unk04;
-      };
+         struct UnkA0 { // sizeof == 8; constructor == 0x00C52C60
+            void*  unk00;
+            UInt32 unk04;
+         };
 
-      UInt32 cameraTargetHandle; // 2C // reference handle
-      UInt32 unk30; // bitmask?
-      UInt32 unk34[(0x68 - 0x34) / sizeof(UInt32)]; // This is (or can be?) a list of something. See 0x006E2700.
-      UInt32 unk68;
-      TESCameraState* cameraStates[kNumCameraStates]; // 6C
-      UnkA0* unkA0;
-      bhkRigidBody* unkA4; // A4 // used to check if the camera is underwater
-      UInt32 unkA8; // a reference handle // gets cleared whenever we switch/force to first-person camera, via a call to 0x0083C8D0
-      float	worldFOV;       // AC
-      float	firstPersonFOV; // B0
-      NiPoint3 unkB4;       // referenced in 0x0083D4A0
-      UInt32 unkC0;
-      float  unkC4;
-      float  unkC8;
-      UInt32 unkCC;
-      UInt8  unkD0;
-      UInt8  unkD1; // referenced at 0x00782C40, 0x006E0B0F
-      UInt8  unkD2;
-      UInt8  unkD3; // referenced in member function 0x0083D4A0
-      UInt8  unkD4; // D4
-      UInt8  unkD5; // D5
-      UInt8  padD6[2]; // D6
+         UInt32 cameraTargetHandle; // 2C // reference handle
+         UInt32 unk30; // bitmask?
+         UInt32 unk34[(0x68 - 0x34) / sizeof(UInt32)]; // This is (or can be?) a list of something. See 0x006E2700.
+         UInt32 unk68;
+         TESCameraState* cameraStates[kNumCameraStates]; // 6C
+         UnkA0* unkA0;
+         bhkRigidBody* unkA4; // A4 // used to check if the camera is underwater
+         UInt32 unkA8; // a reference handle // gets cleared whenever we switch/force to first-person camera, via a call to 0x0083C8D0
+         float	worldFOV;       // AC
+         float	firstPersonFOV; // B0
+         NiPoint3 unkB4;       // referenced in 0x0083D4A0
+         UInt32 unkC0;
+         float  unkC4;
+         float  unkC8;
+         UInt32 unkCC;
+         UInt8  unkD0;
+         UInt8  unkD1; // referenced at 0x00782C40, 0x006E0B0F
+         UInt8  unkD2;
+         UInt8  unkD3; // referenced in member function 0x0083D4A0
+         UInt8  unkD4; // D4
+         UInt8  unkD5; // D5
+         UInt8  padD6[2]; // D6
 
-      MEMBER_FN_PREFIX(PlayerCamera);
-      DEFINE_MEMBER_FN(DoVampireFeedCamera,  void, 0x0083D8F0);
-      DEFINE_MEMBER_FN(ForceFirstPerson,     bool, 0x0083CE90);               // *(0x012E7288)->TESV_0083CE90();
-      DEFINE_MEMBER_FN(ForceThirdPerson,     bool, 0x0083C6B0);               // *(0x012E7288)->TESV_0083C6B0();
-      DEFINE_MEMBER_FN(EnterThirdPerson,     void, 0x0083CE50);
-      DEFINE_MEMBER_FN(ReferenceIsCameraTarget, bool, 0x006C4610, TESObjectREFR* reference);
-      DEFINE_MEMBER_FN(SetCameraTarget,      void, 0x0083D960, Actor*);       // *(0x012E7288)->TESV_0083D960(targetActor);
-      DEFINE_MEMBER_FN(SetSittingRotation,   void, 0x0083BE80, float yaw);    // *(0x012E7288)->TESV_0083BE80(float);
-      DEFINE_MEMBER_FN(ToggleAnimatorCam,    void, 0x0083BB90);               // *(0x012E7288)->TESV_0083BB90(); // This is the "ANIMCAM" console command.
-      DEFINE_MEMBER_FN(UpdateThirdPerson,    void, 0x0083C7E0, bool weaponDrawn);
-      //
-      DEFINE_MEMBER_FN(GetUnkB4OrEquivalent, void, 0x0083D4A0, NiPoint3* out);
-      DEFINE_MEMBER_FN(SetFirstPersonUnk34,  void, 0x0083BE60, UInt32);
-      DEFINE_MEMBER_FN(ClearHandleUnkA8,     void, 0x0083C8D0);
+         MEMBER_FN_PREFIX(PlayerCamera);
+         DEFINE_MEMBER_FN(DoVampireFeedCamera,  void, 0x0083D8F0);
+         DEFINE_MEMBER_FN(ForceFirstPerson,     bool, 0x0083CE90);               // *(0x012E7288)->TESV_0083CE90();
+         DEFINE_MEMBER_FN(ForceThirdPerson,     bool, 0x0083C6B0);               // *(0x012E7288)->TESV_0083C6B0();
+         DEFINE_MEMBER_FN(EnterThirdPerson,     void, 0x0083CE50);
+         DEFINE_MEMBER_FN(ReferenceIsCameraTarget, bool, 0x006C4610, TESObjectREFR* reference);
+         DEFINE_MEMBER_FN(SetCameraTarget,      void, 0x0083D960, Actor*);       // *(0x012E7288)->TESV_0083D960(targetActor);
+         DEFINE_MEMBER_FN(SetSittingRotation,   void, 0x0083BE80, float yaw);    // *(0x012E7288)->TESV_0083BE80(float);
+         DEFINE_MEMBER_FN(ToggleAnimatorCam,    void, 0x0083BB90);               // *(0x012E7288)->TESV_0083BB90(); // This is the "ANIMCAM" console command.
+         DEFINE_MEMBER_FN(UpdateThirdPerson,    void, 0x0083C7E0, bool weaponDrawn);
+         //
+         DEFINE_MEMBER_FN(GetUnkB4OrEquivalent, void, 0x0083D4A0, NiPoint3* out);
+         DEFINE_MEMBER_FN(SetFirstPersonUnk34,  void, 0x0083BE60, UInt32);
+         DEFINE_MEMBER_FN(ClearHandleUnkA8,     void, 0x0083C8D0);
    };
 }
