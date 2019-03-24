@@ -27,6 +27,7 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
+   class TESNPC;
    class TESObjectREFR;
    //
    class IExtraDataSingleFormID : public BSExtraData { // helper/accessor
@@ -229,6 +230,13 @@ namespace RE {
             public:
                UInt32 unk04; // 04
                UInt16 unk08;
+         };
+         class InitWornVisitor : public InventoryVisitor {
+            public:
+               TESNPC*        unk04; // 04
+               TESObjectREFR* unk08; // 08 // the actor whose ArmorAddon we want to change
+               UInt32 unk0C; // 0C // same as unk04?
+               UInt32 unk10; // 10 // race
          };
    };
    typedef ExtraContainerChanges::Data InventoryChanges; // Bethesda's name for the struct

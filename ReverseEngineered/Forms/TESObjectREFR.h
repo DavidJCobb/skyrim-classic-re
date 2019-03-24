@@ -74,11 +74,13 @@ namespace RE {
          this->bits &= ~kMask_IsInUse;
       };
       //
-      inline BSUntypedPointerHandle operator=(const BSUntypedPointerHandle& other) {
+      inline BSUntypedPointerHandle& operator=(const BSUntypedPointerHandle& other) {
          this->bits = other.bits;
+         return *this;
       };
-      inline BSUntypedPointerHandle operator=(const UInt32& other) {
+      inline BSUntypedPointerHandle& operator=(const UInt32& other) {
          this->bits = other;
+         return *this;
       };
       inline operator bool() const {
          return this->bits != 0;

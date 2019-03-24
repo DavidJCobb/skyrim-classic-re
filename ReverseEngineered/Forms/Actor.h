@@ -673,7 +673,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsArrested,           bool,    0x006FC260);
          DEFINE_MEMBER_FN(PushActorAway,        void,    0x00723FE0, Actor* awayFrom, float x, float y, float z, float magnitude);
          DEFINE_MEMBER_FN(SetEquipFlag,         void,    0x0071F520, UInt8 flags);
-         DEFINE_MEMBER_FN(UpdateEquipment,      void,    0x007031A0, Actor* actor);
+         DEFINE_MEMBER_FN(UpdateEquipment,      void,    0x007031A0, Actor* actor); // reapplies ArmorAddons and the like
          DEFINE_MEMBER_FN(SetUnk08Unk170,       void,    0x006FD1A0, UInt32 flag);  // sets this->unk08->unk170 // but the value may actually be a float passed as a UInt32?
          DEFINE_MEMBER_FN(GetUnk08Unk341,       bool,    0x006FBAC0);               // returns (bool)this->unk08->unk341
          DEFINE_MEMBER_FN(GetUnk7C,             UInt32*, 0x006F4C60, UInt32* out);
@@ -759,6 +759,8 @@ namespace RE {
             kState_Flying_Hovering     = 0x000C0000, // yes, this is two bits, but they both have to be set
             kState_Flying_Landing      = 0x00100000,
             kState_Flying_Any          = 0x00140000, // use this for checks
+            //
+            kState_MaybeAttacking_All = 0xF0000000, // checked by EquipManager; swapping weapon/spell/scroll/etc. when any of these are set interrupts your attack
          };
          enum Flags08 {
             kFlag_EnableHeadtracking = 0x8,
@@ -991,8 +993,8 @@ namespace RE {
          virtual bool Unk_11D(UInt32); // 11D
          virtual void Unk_11E();       // 11E // related to actor pitch
          virtual void Unk_11F();       // 11F // related to skeleton nodes
-         virtual void Unk_120(UInt32, UInt32, UInt32, UInt32, UInt32, UInt32); // 120 // related to inventory
-         virtual void Unk_121(UInt32); // 121
+         virtual void Unk_120(TESForm*, UInt32, UInt32, UInt32, UInt32, UInt32); // 120 // related to inventory
+         virtual void Unk_121(TESForm*); // 121
          virtual void Unk_122(UInt32); // 122 // related to dialogue, headtracking, and the skeleton // checks several INI settings; we should see which ones
          virtual void Unk_123(UInt32); // 123 // related to facial animations/expressions
          virtual ActorMover* ResetUnkCC(); // 124 // creates unkCC (first destroying it if it already exists) and returns the new instance

@@ -1,4 +1,5 @@
 #include "ReverseEngineered/Forms/Actor.h"
+#include "ReverseEngineered/Forms/BaseForms/TESNPC.h"
 #include "ReverseEngineered/Player/PlayerCharacter.h"
 #include "skse/GameData.h"
 #include "skse/GameExtraData.h"

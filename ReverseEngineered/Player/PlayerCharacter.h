@@ -132,8 +132,7 @@ namespace RE {
          UInt32	unk62C;							// 62C
          tArray<UInt32>	hostileHandles;			// 630
          UInt32	unk63C;							// 63C
-         UInt32	unk640;							// 640
-         TESForm* tempPoison;					// 644
+         TESForm* equippedPoisons[2]; // 640 // set by PlayerCharacter::TESV_007505E0(UInt32 which, TESForm*)
          UInt32	numTeammates;					// 648
          UInt32	pad64C[(0x6B0 - 0x64C) >> 2];
          BGSLocation* unk6B0; // 6B0
@@ -199,6 +198,7 @@ namespace RE {
          DEFINE_MEMBER_FN(HandleLowStatTutorials, void, 0x00737C90, UInt32 avIndex, float avValuePercentage);
          //
          DEFINE_MEMBER_FN(SetPlayerAIDriven, void, 0x0073E0C0, bool);
+         DEFINE_MEMBER_FN(SetPoison, void, 0x007505E0, UInt32 whichHand, TESForm*); // whichHand should be 0 or 1 // sets 640 or 644
    };
    static_assert(sizeof(PlayerCharacter) <= 0x72C, "RE::PlayerCharacter is too large.");
    static_assert(sizeof(PlayerCharacter) >= 0x72C, "RE::PlayerCharacter is too small.");
