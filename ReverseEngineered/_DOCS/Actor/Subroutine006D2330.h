@@ -51,7 +51,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
       if (Arg2->count <= 0 && ebp->formType == 0x2A)
          Arg2->count = edx;
       switch (ebp->formType) {
-         cases 5: // at 0x006D24D7 // 29
+         case kFormType_Weapon: // at 0x006D24D7 // 29
             if (edi->count > 0) {
                bool al = ebp->TESV_00474CA0();
                if (!al)
@@ -77,7 +77,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             eax = Arg2->extraData; // at 0x006D254C
             esi->TESV_006ED980(ebp, eax, ebx);
             break;
-         cases 8: // at 0x006D255D // 32
+         case kFormType_Projectile: // at 0x006D255D // 32
             ecx = edi->extraData;
             edx = edi->count;
             esi->Unk_120(ebp, edx, ecx, Arg2->preventUnequip, 0, 0);
@@ -85,9 +85,9 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             (*g_thePlayer)->TESV_007337C0(0xFF);
             esi->Unk_C9();
             break;
-         cases 1: // at 0x006D25A0 // 1A
+         case kFormType_Armor: // at 0x006D25A0 // 1A
             esi->Unk_C9();
-            bool bl = esi->TESV_006E9030(ebp, Arg2->extraData);
+            bool bl = esi->TESV_006E9030(ebp, Arg2->extraData); // can cast worn enchantment?
             if (bl) {
                if (Arg2->count < 1)
                   Arg2->count = 1;
@@ -109,7 +109,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
                break;
             ShowNotification("You cannot equip this item right now.", 0, 1);
             return;
-         cases 4: // at 0x006D264A // 1F
+         case kFormType_Light: // at 0x006D264A // 1F
             auto eax = 0;
             if (esi == *(Actor**)0x01310588) {
                auto ecx = MenuManager::GetInstance();
@@ -125,11 +125,11 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             esi->Unk_120(ebp, Arg2->count, Arg2->extraData, (uint32_t)Arg2->preventUnequip, 1, al);
             TESV_006C4880(ebp, esi);
             break;
-         cases 6: // at 0x006D26BA // 2A
+         case kFormType_Ammo: // at 0x006D26BA // 2A
             esi->Unk_120(ebp, Arg2->count, Arg2->extraData, (uint32_t)Arg2->preventUnequip, 0, false);
             TESV_006C4880(ebp, esi);
             break;
-         cases 0: // at 0x006D26E1 // 17
+         case kFormType_ScrollItem: // at 0x006D26E1 // 17
             auto ecx = Arg2->extraData
             if (ecx) {
                if (ecx->TESV_00418FE0()) {
@@ -144,7 +144,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             // jumped to 0x006D26A3 for part of the last call
             TESV_006C4880(ebp, esi);
             break;
-         cases 3: // at 0x006D2717 // 1E
+         case kFormType_Ingredient: // at 0x006D2717 // 1E
             ecx = esp10;
             edx = esp14;
             UInt32 esp2C;
@@ -167,7 +167,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             //
             // ... event 1B0 and some other stuff...
             //
-         cases 7: // at 0x006D2838 // 2E
+         case kFormType_Potion: // at 0x006D2838 // 2E
             auto ecx = Arg2->extraData;
             if (ecx) {
                bool al = ecx->TESV_00418FE0();
@@ -211,7 +211,7 @@ void Actor::Subroutine006D2330(TESForm* Arg1_Item, EquipManager::EquipRequest* A
             ShowNotification("You cannot equip this item.", 0, 1);
             if (esi != *(Actor**)0x01310588)
                break;
-         cases 2: // at 0x006D296E // 1B // BREAK
+         case kFormType_Book: // at 0x006D296E // 1B // BREAK
             break;
       }
       // at 0x006D296E

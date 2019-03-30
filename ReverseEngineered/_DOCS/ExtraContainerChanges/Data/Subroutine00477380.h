@@ -9,7 +9,7 @@ UInt32 ExtraContainerChanges::Data::Subroutine00477380(uint8_t bodyPartIndex, UI
       if (!edi)
          return 0;
       esi = edi->next;
-      bool bl = aflse;
+      bool bl = false;
       esp10 = esi;
       esp24 = 0;
       bool al = false;
