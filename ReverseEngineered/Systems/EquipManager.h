@@ -31,7 +31,8 @@ namespace RE {
          DEFINE_MEMBER_FN(EquipItem,   void, 0x006EF3E0, Actor* actor, TESForm* item, BaseExtraList* extraData, SInt32 count, BGSEquipSlot* equipSlot, bool withEquipSound, bool preventUnequip, bool showMsg, void* unk);
          DEFINE_MEMBER_FN(UnequipItem, bool, 0x006EE560, Actor* actor, TESForm* item, BaseExtraList* extraData, SInt32 count, BGSEquipSlot* equipSlot, bool unkFlag1, bool preventEquip, bool unkFlag2, bool unkFlag3, void* unk);
          //
-         DEFINE_MEMBER_FN(EquipItem_Internal, void, 0x006EEE20, Actor* actor, TESForm* item, EquipRequest*); // do not call; this doesn't use the lock and doesn't supply defaults; listed for documentation only
+         DEFINE_MEMBER_FN(EquipItem_Internal,   void, 0x006EEE20, Actor* actor, TESForm* item, EquipRequest* request); // do not call; this doesn't use the lock and doesn't supply defaults; listed for documentation only
+         DEFINE_MEMBER_FN(UnequipItem_Internal, void, 0x006EE1E0, Actor* actor, TESForm* item, void* request);
          //
          DEFINE_MEMBER_FN(GetDefaultEquipSlot, BGSEquipSlot*, 0x006EDD00, Actor* actor, TESForm* item);
    };

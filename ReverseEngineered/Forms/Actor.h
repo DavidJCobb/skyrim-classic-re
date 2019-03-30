@@ -16,6 +16,7 @@ namespace RE {
    class CombatTargetSelector; // extends NiRefObject
    class MagicCaster;
    class StandardDetectionListener;
+   class TESObjectARMO;
    class TESPackageData;
 
    enum ActorValueModifier {
@@ -993,8 +994,8 @@ namespace RE {
          virtual bool Unk_11D(UInt32); // 11D
          virtual void Unk_11E();       // 11E // related to actor pitch
          virtual void Unk_11F();       // 11F // related to skeleton nodes
-         virtual void Unk_120(TESForm*, UInt32, UInt32, UInt32, UInt32, UInt32); // 120 // related to inventory
-         virtual void Unk_121(TESForm*); // 121
+         virtual void Unk_120(TESForm* item, SInt32 count, BaseExtraList* extraData, bool preventUnequip, bool, bool); // 120 // responsible for equipping an item; also used to apply decapitate-armor; callers are Actor::Decapitate and Actor::006D2330 (the latter of which doesn't go through the vtbl, oddly enough)
+         virtual void Unk_121(TESObjectARMO*); // 121 // only caller is Actor::Unk_120
          virtual void Unk_122(UInt32); // 122 // related to dialogue, headtracking, and the skeleton // checks several INI settings; we should see which ones
          virtual void Unk_123(UInt32); // 123 // related to facial animations/expressions
          virtual ActorMover* ResetUnkCC(); // 124 // creates unkCC (first destroying it if it already exists) and returns the new instance
@@ -1261,7 +1262,8 @@ namespace RE {
          DEFINE_MEMBER_FN(GetComputedHeightMult, float,   0x004D5230); // ActorBase height mult * Race height mult
          DEFINE_MEMBER_FN(GetCrimeFaction,       TESFaction*, 0x006AED30);
          DEFINE_MEMBER_FN(GetDetected,           SInt32,  0x006AE830, Actor* canWeSeeThisActor, UInt32 oftenIs3_mustNotExceed5); // GetDetected condition uses 3 for the enum and checks if the result > 0
-         DEFINE_MEMBER_FN(GetEquippedWeapon,     TESObjectWEAP*,  0x006E0D20, bool whichHand);
+         DEFINE_MEMBER_FN(GetEquippedShield,     TESObjectARMO*, 0x006E1BE0);
+         DEFINE_MEMBER_FN(GetEquippedWeapon,     TESObjectWEAP*, 0x006E0D20, bool whichHand);
          DEFINE_MEMBER_FN(GetGoldAmount,         SInt32,  0x006A8190);
          DEFINE_MEMBER_FN(GetHealthPercentage,   float,   0x006A8320); // just a convenience wrapper for GetActorValuePercentage
          DEFINE_MEMBER_FN(GetLevel,              UInt16,  0x006A7320);

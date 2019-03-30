@@ -159,6 +159,7 @@ namespace RE {
          UInt8    pad13;    // 13
 
          MEMBER_FN_PREFIX(TESForm);
+         DEFINE_MEMBER_FN(GetBodyPartsMask, UInt32, 0x00475280);
          DEFINE_MEMBER_FN(ModifyFlag00000008,    void, 0x004507F0, bool clearOrSet);
          DEFINE_MEMBER_FN(SetFormFlags_Internal, void, 0x00450A60, UInt32 flagsMask, bool clearOrSet);
          //

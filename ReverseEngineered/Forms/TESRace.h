@@ -77,7 +77,7 @@ namespace RE {
             float  accelerationRate; // 38
             float  decelerationRate; // 3C
             RaceDetectionSize	size;  // 40 // used for sneak/detection math
-            UInt32 unk44; // 44 // Head Biped Object // init'd to FFFFFFFF
+            UInt32 unk44; // 44 // Head Biped Object // init'd to FFFFFFFF // flags
             UInt32 unk48; // 48 // Hair Biped Object // init'd to FFFFFFFF - Flags?
             float	 injuredHealthPct; // 4C - not init'd
             UInt32 unk50; // 50 // Shield Biped Object // init'd to FFFFFFFF

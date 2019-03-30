@@ -162,6 +162,31 @@ namespace RE {
          UInt8 GetSoulSize() const;
    };
    class ExtraContainerChanges : public BSExtraData {
+      //
+      // How the heck does inventory work?
+      //
+      //  - ExtraContainerChanges stores the difference between a reference's current 
+      //    inventory and the initial inventory defined by its TESContainer (i.e. the 
+      //    base form).
+      //
+      //  - InventoryEntryData holds all of the item data for a given item base form. 
+      //    Its countDelta is the total difference in the item's count.
+      //
+      //  - ExtendDataList is an array of BaseExtraLists, each of which describes the 
+      //    items.
+      //
+      // So if you have three greatswords of the same base form, one of which has an 
+      // enchantment, then you have...
+      //
+      //  - One InventoryExtraData, countDelta 3 (assuming you didn't spawn with any 
+      //    of this sword).
+      //
+      //  - Two BaseExtraLists...
+      //
+      //      - ...one with ExtraCount = 2.
+      //
+      //      - ...one with ExtraCount = 1 and an enchantment.
+      //
       public:
          typedef tList<InventoryEntryData> EntryDataList;
          /*struct Data {
@@ -194,7 +219,7 @@ namespace RE {
             //
             public:
                virtual void Dispose(bool) {}; // 00
-               virtual BOOL Visit(InventoryEntryData*) { return true; }; // 01 // return false to "break" from the loop
+               virtual BOOL Visit(RE::InventoryEntryData*) { return true; }; // 01 // return false to "break" from the loop
                virtual bool Unk_02(UInt32, UInt32) { return true;  }; // 02
                virtual void Unk_03(InventoryEntryData*, UInt32, bool* out) {}; // 03 // *out = true; this->Execute(Arg1);
          };
@@ -206,8 +231,10 @@ namespace RE {
                float armorWeight;
 
                MEMBER_FN_PREFIX(Data);
-               DEFINE_MEMBER_FN(ExecuteVisitor, void, 0x00475D20, void* visitor);
-               DEFINE_MEMBER_FN(SetUniqueID,    void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
+               DEFINE_MEMBER_FN(ExecuteVisitor,       void, 0x00475D20, void* visitor);
+               DEFINE_MEMBER_FN(ExecuteVisitorOnWorn, void, 0x00475D50, void* visitor);
+               DEFINE_MEMBER_FN(SetUniqueID,          void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
+               DEFINE_MEMBER_FN(UnequipArmorFromSlot, void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
          };
          Data* data; // 08
 
@@ -715,6 +742,8 @@ namespace RE {
          void RemoveExtra(UInt32 type) {
             CALL_MEMBER_FN(this, RemoveExtra_Sig2)(type);
          };
+         //
+         DEFINE_MEMBER_FN(HasExtraCannotWear, bool, 0x0040C460);
          //
          DEFINE_MEMBER_FN(GetActivateRefEntryFor, ExtraActivateRef::Entry*, 0x00417990, TESObjectREFR* ref); // if it returns NULL, then ref isn't an activate parent of the thing we're calling on
          //

@@ -107,12 +107,12 @@ void TESObjectWEAP::Fire(TESObjectREFR* Arg1, TESAmmo* Arg2, UInt32 Arg3, UInt32
                if (this->gameData.type == kType_CrossBow) { // crossbow
                   ActorWeightData* eax = Arg1->Unk_7F();
                   NiNode* eax = ebx->TESV_00723860(eax);
-                  esi->TESV_006A2F50(eax);
+                  ptrBSTaskPool->QueueTaskType3C(eax);
                   return;
                }
                ActorWeightData* eax = Arg1->Unk_7F();
                NiNode* eax = ebx->ActorWeaponNodeFromWeightModel(eax);
-               esi->TESV_006A2F50(eax);
+               ptrBSTaskPool->QueueTaskType3C(eax);
                return;
             }
             if (!espB0 || !(espB0->data.unk00 & 0x400)) { // at 0x004AAA5F
