@@ -267,7 +267,8 @@ namespace RE {
          };
    };
    typedef ExtraContainerChanges::Data InventoryChanges; // Bethesda's name for the struct
-   static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData, 0x00476800, TESObjectREFR*);
+   static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData,            0x00476800, TESObjectREFR*);
+   static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetOrCreateExtraContainerChangesDataFor, 0x00477780, TESObjectREFR*);
    //
    class ExtraDismemberedLimbs : public BSExtraData {
       public:
