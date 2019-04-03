@@ -862,8 +862,8 @@ namespace RE {
          struct IdentifyDominantArmorTypeVisitor {
             BodyPart* shield     = nullptr; // 00
             BodyPart* body       = nullptr; // 04
-            UInt32    foundHeavy = 0;       // 08
-            UInt32    foundLight = 0;       // 0C
+            UInt32    foundLight = 0;       // 08
+            UInt32    foundHeavy = 0;       // 0C
 
             MEMBER_FN_PREFIX(IdentifyDominantArmorTypeVisitor);
             DEFINE_MEMBER_FN(Visit,            bool,   0x006E12C0, BodyPart*); // return true to keep looping; false to break out of the loop early
