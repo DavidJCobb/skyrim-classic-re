@@ -104,7 +104,7 @@ namespace RE {
          BSTEventSource<TESFormDeleteEvent> formDelete; // 2A0 // TESObjectREFR only, though
          BSTEventSource<UInt32> unk2D0;
          BSTEventSource<UInt32> unk300;
-         BSTEventSource<UInt32> unk330;
+         BSTEventSource<UInt32> unk330; // 330 // hit event
          BSTEventSource<UInt32> unk360;
          BSTEventSource<UInt32> unk390;
          BSTEventSource<UInt32> unk3C0;
@@ -160,7 +160,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SendEvent2D0, void, 0x00725000, void**, UInt32, bool);
          DEFINE_MEMBER_FN(SendEvent300, void, 0x00742080, void**, UInt32);
          DEFINE_MEMBER_FN(SendEvent330, void, 0x006E3FF0, void**, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendEvent330_B, void, 0x006E4060, void**, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendEvent330_B, void, 0x006E4060, void**, refr_ptr*, UInt32 formID_maybeWeapon, UInt32, void*);
          DEFINE_MEMBER_FN(SendEvent3C0, void, 0x004E05A0, void**);
          DEFINE_MEMBER_FN(SendEvent450, void, 0x004E0600, void**, UInt32);
          DEFINE_MEMBER_FN(SendEvent4B0, void, 0x004CB220, void**, UInt32);

@@ -70,7 +70,18 @@ namespace RE {
                kFlags_NotPlayable = 0x80,
             };
             //
-            void*  unk00;	// 00
+            struct Unk00 { // sizeof == 0x1C
+               float  sightFOV;            // 00
+               float  unk04;               // 04 // WEAP/DNAM offset 0x30; engine default is 5.0F
+               float  rumbleStrengthLeft;  // 08
+               float  rumbleStrengthRight; // 0C
+               float  rumbleDuration;      // 10
+               float  unk14;               // 14 // WEAP/DNAM offset 0x44; engine default is 0.0F
+               UInt8  numProjectiles;      // 18
+               UInt8  pad19[3];
+            };
+            //
+            Unk00* unk00;	// 00 // the game won't always create this; if all relevant subrecord values match the engine defaults, it may not get created
             float  speed;	// 04
             float  reach;	// 08
             float  minRange;	// 0C
@@ -79,8 +90,8 @@ namespace RE {
             float  unk18;	// 18
             float  stagger;// 1C
             UInt32 unk20;	// 20
-            UInt32 skill;	// 24
-            UInt32 resist;	// 28
+            SInt32 skill;	// 24 // actor value index (must be skill; validated on load: bad AVs replaced with -1)
+            SInt32 resist;	// 28 // actor value index (must be between 0x39 DamageResist and 0x45 NormalWeaponsResist, inclusive; validated on load: bad AVs replaced with -1)
             UInt16 flags1;	// 2C
             UInt8  vatsChance;	// 2E
             UInt8  unk2F;	// 2F
@@ -88,6 +99,10 @@ namespace RE {
             UInt8  type;	// 31
             UInt8  flags2;	// 32
             UInt8  unk33;	// 33
+
+            MEMBER_FN_PREFIX(GameData);
+            DEFINE_MEMBER_FN(InitializeFromSubrecord,   void, 0x004A8600, void* subrecordDataSize0x64);
+            DEFINE_MEMBER_FN(InitializeFromSubrecord_B, void, 0x004A8480, void* subrecordDataSize0x88); // Used under unknown circumstances; assumes a subrecord size of 0x88. xEdit has no matching definition.
          };
          struct CritData { // sizeof == 0xC
             float      critMult;			// 00

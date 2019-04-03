@@ -7,8 +7,9 @@ namespace RE {
    class TESObjectARMO : public ::TESObjectARMO {
       public:
          MEMBER_FN_PREFIX(TESObjectARMO);
-         DEFINE_MEMBER_FN(ApplyArmorAddon,     bool, 0x004A21C0, TESRace* race, void** actorWeightModelData, bool isFemale);
-         DEFINE_MEMBER_FN(TestBodyPartByIndex, bool, 0x004A1DB0, UInt32 index);
+         DEFINE_MEMBER_FN(ApplyArmorAddon,      bool,   0x004A21C0, TESRace* race, void** actorWeightModelData, bool isFemale);
+         DEFINE_MEMBER_FN(GetArmorSkillAVIndex, SInt32, 0x004A1D50);
+         DEFINE_MEMBER_FN(TestBodyPartByIndex,  bool,   0x004A1DB0, UInt32 index);
          //
          inline bool IsShield() {
             return (this->flags & 0x40); // "is shield" flag, according to xEdit source for ARMO record

@@ -17,7 +17,7 @@ namespace RE {
          virtual void ApplyPerkEffects(UInt32 arg1, MagicTarget* arg2); // 00 // modifies duration and magnitude based on the following perk entry points: mod spell duration; mod spell magnitude; mod incoming spell duration; mod incoming spell magnitude
          virtual void Unk_01(UInt32 arg1); // 01 // conditionally modifies flags at this->item->unk54
          virtual void Unk_02();   // 02 // no-op on base class
-         virtual Actor* Unk_03(); // 03 // returns this->actorTarget->Unk_02();
+         virtual Actor* Unk_03(); // 03 // returns this->actorTarget->Unk_02(); -- most likely the target
          virtual void Unk_04(UInt32 arg1); // 04 // no-op on base class
          virtual void Unk_05(float arg1, UInt32 arg2); // 05 // related to GMST:fActiveEffectConditionUpdateInterval and StopHitEffectsVisitor; arg1 type assumed
          virtual bool Unk_06(); // 06 // no-op on base class; returns false

@@ -541,6 +541,7 @@ namespace RE {
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
          DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30);
          DEFINE_MEMBER_FN(GetBaseContainerData,    TESContainer*,    0x004D4A30); // returns &(this->baseForm.container) for NPCs and container references
+         DEFINE_MEMBER_FN(GetBodyBodyPartIndex,    SInt32,           0x004D6660); // returns a body part index (for Body) pulled from the race data, or -1 if the reference isn't a valid actor
          DEFINE_MEMBER_FN(GetCurrentEncounterZone, BGSEncounterZone*, 0x004EA990); // checks extra-data, parent cell, and parent world, preferring the first found non-null
          DEFINE_MEMBER_FN(GetCurrentLocation,      BGSLocation*,     0x004D83C0);
          DEFINE_MEMBER_FN(GetDistance,             float,            0x004D7ED0, TESObjectREFR* other, bool evenIfDisabled, bool oftenFalse);
@@ -549,6 +550,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
          DEFINE_MEMBER_FN(GetScale,                float,            0x004D5230);
+         DEFINE_MEMBER_FN(GetShieldBodyPartIndex,  SInt32,           0x004D6630); // returns a body part index (for Shield) pulled from the race data, or -1 if the reference isn't a valid actor
          DEFINE_MEMBER_FN(GetWeight,               float,            0x004EA180);
          DEFINE_MEMBER_FN(GetReferenceName,        const char*,      0x004DE820);
          DEFINE_MEMBER_FN(GetRotationAsMatrix,     NiMatrix33*,      0x004D5300, NiMatrix33* out);

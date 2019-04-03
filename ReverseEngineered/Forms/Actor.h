@@ -846,6 +846,48 @@ namespace RE {
          // void** _vtbl; // 00
    };
 
+   class ActorWeightData { // sizeof >= 0xA8C
+      public:
+         struct BodyPart { // sizeof == 0x20
+            TESForm* item;
+            UInt32   unk04;
+            UInt32   unk08;
+            UInt32   unk0C;
+            UInt32   unk10;
+            UInt32   unk14;
+            UInt32   unk18;
+            UInt32   unk1C;
+         };
+
+         struct IdentifyDominantArmorTypeVisitor {
+            BodyPart* shield     = nullptr; // 00
+            BodyPart* body       = nullptr; // 04
+            UInt32    foundHeavy = 0;       // 08
+            UInt32    foundLight = 0;       // 0C
+
+            MEMBER_FN_PREFIX(IdentifyDominantArmorTypeVisitor);
+            DEFINE_MEMBER_FN(Visit,            bool,   0x006E12C0, BodyPart*); // return true to keep looping; false to break out of the loop early
+            DEFINE_MEMBER_FN(GetResultAVIndex, SInt32, 0x006E1B00); // call after the visitor has run
+         };
+
+         volatile SInt32 refCount; // 00 // Refcount?
+         void* unk04; // 04
+         BodyPart bodyParts[0x2A]; // 08 // index is a body part index, presumably - 30 (i.e. the first body part in the list, body part 30, is index 0) // count may be higher but some functions only loop over 0x2A
+         //
+         // TODO: add filler fields to move A88 into position, or else don't access A88
+         //
+         UInt32 unkA88; // A88 // refHandle
+
+         MEMBER_FN_PREFIX(ActorWeightData);
+         DEFINE_MEMBER_FN(UpdateWeightData, void, 0x0046D690);
+         DEFINE_MEMBER_FN(DeleteThis,       void, 0x0046DAA0);
+         // DEFINE_MEMBER_FN(Unk_02, void, 0x004145F0);
+
+         DEFINE_MEMBER_FN(GetBodyByWhichIMeanTorso,  BodyPart*, 0x0046C1D0);
+         DEFINE_MEMBER_FN(GetShield,                 BodyPart*, 0x0046C130);
+         DEFINE_MEMBER_FN(IdentifyDominantArmorType, void,      0x006E1930, IdentifyDominantArmorTypeVisitor*);
+   };
+
    class MovementControllerNPC;
    class Actor : public TESObjectREFR {
       //
@@ -1262,6 +1304,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetComputedHeightMult, float,   0x004D5230); // ActorBase height mult * Race height mult
          DEFINE_MEMBER_FN(GetCrimeFaction,       TESFaction*, 0x006AED30);
          DEFINE_MEMBER_FN(GetDetected,           SInt32,  0x006AE830, Actor* canWeSeeThisActor, UInt32 oftenIs3_mustNotExceed5); // GetDetected condition uses 3 for the enum and checks if the result > 0
+         DEFINE_MEMBER_FN(GetDominantArmorSkill, SInt32,  0x006E1B70); // if you take a giant's club to the face, this is the armor skill that should level. can be -1 if no skill
          DEFINE_MEMBER_FN(GetEquippedShield,     TESObjectARMO*, 0x006E1BE0);
          DEFINE_MEMBER_FN(GetEquippedWeapon,     TESObjectWEAP*, 0x006E0D20, bool whichHand);
          DEFINE_MEMBER_FN(GetGoldAmount,         SInt32,  0x006A8190);

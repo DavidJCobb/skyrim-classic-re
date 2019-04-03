@@ -80,13 +80,13 @@ namespace RE {
             UInt32 unk44; // 44 // Head Biped Object // init'd to FFFFFFFF // flags
             UInt32 unk48; // 48 // Hair Biped Object // init'd to FFFFFFFF - Flags?
             float	 injuredHealthPct; // 4C - not init'd
-            UInt32 unk50; // 50 // Shield Biped Object // init'd to FFFFFFFF
+            UInt32 shieldBodyPartIndex; // 50 // Shield Biped Object (body part index) // init'd to FFFFFFFF
             float  healthRegen;   // 54
             float  manaRegen;     // 58
             float  staminaRegen;  // 5C
             float  unarmedDamage; // 60
             float  unarmedReach;  // 64
-            UInt32 unk68;         // 68 // Body Biped Object // init'd to FFFFFFFF - Flags?
+            UInt32 bodyBodyPartIndex; // 68 // Body Biped Object // init'd to FFFFFFFF - Flags?
             float  aimAngleTolerance; // 6C
             float  flightRadius = 0;  // 70
             float  angleAcceleration; // 74

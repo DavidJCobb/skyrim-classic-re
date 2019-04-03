@@ -91,6 +91,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\MessageBoxCallbacks.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\Miscellaneous.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Shared.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\_DOCS\Actor\Unk_120.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\ExtraData.cpp" />
