@@ -181,19 +181,19 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   if (0.0F <= Arg1) { // at 0x00470543
                      esp28 = Arg1;
                   }
-                  ecx = ebx->unk08;
+                  TESForm* ecx = this->bodyParts[esp4C].item;
                   double f6 = esp28 * 100.0F
                   // FPU: [100]
-                  f5 = ecx->formID; // eax
-                  edx = ebx->formID;
-                  f2 = edx->formID; // ebp
-                  esi = edx;
+                  UInt32 f5 = ecx->formID; // eax
+                  TESObjectARMA* edx = this->bodyParts[esp4C].addon;
+                  UInt32 f2 = edx->formID; // ebp
+                  TESObjectARMA* esi = edx;
                   auto f4 = ecx->Unk_32(); // at 0x00470571
                   auto f3 = edi->GetSex();
                   auto f1 = esi->Unk_32(); // at 0x00470587
-                  UnkOutput004202A0(&esp210, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
+                  UnkOutput004202A0(&esp1F0, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
                   ecx = esp2C;
-                  if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &ebx->unk24)) { // at 0x004705AE
+                  if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
                      esi->unk00->unk1C->TESV_00AAFC00(&esp98); // call is completed at 0x00470817
                   } else {
                      bool al = TESV_00B06360(esp20); // at 0x004705DA
@@ -204,10 +204,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         esi = esp54;
                      } else {
                         // at 0x00470618
-                        if (INI:General:bUseBodyMorphs && ebx->unk0C) {
-                           if (ebx->unk0C->unk2A[edi->GetSex()] > 1) { // at 0x0047063E
-                              esi = ebx->unk10->Unk_04();
-                              eax = strlen(esi); // inlined
+                        if (INI:General:bUseBodyMorphs && this->bodyParts[unk4C].addon) {
+                           if (this->bodyParts[unk4C].addon->unk2A[edi->GetSex()] > 1) { // at 0x0047063E
+                              esi = this->bodyParts[unk4C].unk08->Unk_04();
+                              ebp = eax = strlen(esi); // inlined
                               TESV_00F52394(&espEC, 0x104, esi); // maybe memcpy?
                               esp1C = edi;
                               bool dl = esp27;
@@ -221,26 +221,63 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                                  bool   unk0B = true;
                               } esp68;
                               esp40 = edi;
-                              if (esi[ebp - 5] == 0x31) {
+                              if (esi[ebp - 5] == '1') {
                                  // at 0x004706A7
                                  esp1C.TESV_00633580(&esp20);
-                                 espEC[ebp - 5] = 0x30;
+                                 espEC[ebp - 5] = '0';
                                  eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
-                                 if (eax)
-                                    jump to 0x00470761;
-                                 //
-                                 // ...
-                                 //
+                                 if (eax) {
+                                    // jumped to 0x00470761
+                                    esi = esp1C;
+                                    if (esi == edi)
+                                       jump to 0x00470784;
+                                    esi->DecRef(); // inlined, incl. destructor if refcount hits zero
+                                    esp1C = edi; // NiPointer esp1C
+                                    jump to 0x00470784; // fall through
+                                 }
+                                 ecx = &esp40->unk1C;
+                                 esp20.TESV_00633580(ecx); // at 0x004706F1
+                                 // at 0x004706F6
+                                 if (0.0F ?? esp24.unk04) {
+                                    esi = esp20->TESV_00AAFC00(&esp98);
+                                    esp50 = 0x3F; // or char '?'
+                                    jump to 0x004707F7;
+                                 }
+                                 // FPU: [esp24.unk04]
+                                 // at 0x00470798
+                                 // FPU: [1, 1, esp24.unk04, esp24.unk04]
+                                 if (1.0F ?? esp24.unk04) {
+                                    esi = esp1C->TESV_00AAFC00(&esp98);
+                                    esp50 = 0x3F; // or char '?'
+                                    jump to 0x004707F7
+                                 }
+                                 // at 0x004707CA
+                                 // FPU: [1, esp24.unk04, esp24.unk04]
+                                 edx = esp1C;
+                                 // FPU: [1 - esp24.unk04, esp24.unk04]
+                                 eax = esp20;
+                                 uint8_t al = TESV_00B0EEF0(esp20, esp1C, (1.0F - esp24.unk04), &esp58);
+                                 // FPU: [esp24.unk04]
+                                 esi = esp58;
+                                 esp26 = al;
                               } else {
                                  // at 0x0047072D
-                                 //
-                                 // ...
-                                 //
+                                 espEC[7 + ebp] = '1';
+                                 eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
+                                 if (!eax) {
+                                    edx = &esp40->unk1C;
+                                    esp20.TESV_00633580(edx);
+                                    jump to 0x004706F6;
+                                 }
+                                 // at 0x00470784
+                                 esp20.TESV_00633580(&esp1C);
+                                 esi = esp10;
+                                 jump to 0x004707F7;
                               }
                               // at 0x004707F7
-                              //
-                              // ...
-                              //
+                              esp40.TESV_00407EC0();
+                              esp1C.TESV_007B1320();
+                              jump to 0x00470822;
                            }
                         }
                         // at 0x0047080B
