@@ -124,9 +124,15 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                if (edx == -1)
                   continue;
                if (Arg2) { // at 0x00470417
-                  //
-                  // ...
-                  //
+                  if (this->TESV_0046AE90(esp4C)) {
+                     eax = esp18;
+                     if (eax != *g_thePlayer) {
+                        if (INI:BackgroundLoad:bLoadHelmetsInBackground && INI:BackgroundLoad:bUseMultiThreadedFaceGen) {
+                           ecx->TESV_0046F4E0(0, 0, esp4C); // ecx is never assigned?
+                           continue;
+                        }
+                     }
+                  }
                }
                eax = &edx->name.TESV_00A50AC0(); // StringCache::Ref::TESV_00A50AC0
                if (!eax)
@@ -172,7 +178,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   // FPU: [100.0F]
                   // FPU: [Arg1, 100.0F]
                   // FPU: [0, Arg1, 100]
-                  if (0.0F ?? Arg1) { // at 0x00470543
+                  if (0.0F <= Arg1) { // at 0x00470543
                      esp28 = Arg1;
                   }
                   ecx = ebx->unk08;
@@ -200,44 +206,69 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         // at 0x00470618
                         if (INI:General:bUseBodyMorphs && ebx->unk0C) {
                            if (ebx->unk0C->unk2A[edi->GetSex()] > 1) { // at 0x0047063E
+                              esi = ebx->unk10->Unk_04();
+                              eax = strlen(esi); // inlined
+                              TESV_00F52394(&espEC, 0x104, esi); // maybe memcpy?
+                              esp1C = edi;
+                              bool dl = esp27;
+                              eax = 3; // at 0x0047067B
+                              struct {
+                                 UInt32 unk00 = 3;
+                                 UInt32 unk04 = 3;
+                                 bool   unk08 = false;
+                                 bool   unk09 = dl;
+                                 bool   unk0A = false;
+                                 bool   unk0B = true;
+                              } esp68;
+                              esp40 = edi;
+                              if (esi[ebp - 5] == 0x31) {
+                                 // at 0x004706A7
+                                 esp1C.TESV_00633580(&esp20);
+                                 espEC[ebp - 5] = 0x30;
+                                 eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
+                                 if (eax)
+                                    jump to 0x00470761;
+                                 //
+                                 // ...
+                                 //
+                              } else {
+                                 // at 0x0047072D
+                                 //
+                                 // ...
+                                 //
+                              }
+                              // at 0x004707F7
                               //
                               // ...
                               //
                            }
                         }
                         // at 0x0047080B
-                        ecx = esp20;
-                        // at 0x00470817
-                        esi = esp10 = ecx->TESV_00AAFC00(&esp98);
+                        esi = esp10 = esp20->TESV_00AAFC00(&esp98); // call is completed at 0x00470817
                      }
-                     // at 0x00470822
-                     if (esi) {
-                        eax = esi->Unk_03();
-                     } else
-                        eax = 0;
-                     esp48.TESV_00489910(eax);
-                     esp10 = 0;
-                     eax = esp18->Unk_6F(esp30);
-                     ebp = esp48;
-                     TESV_00C6F3B0(esp48, eax); // at 0x0047085E
-                     if (ebp) {
-                        //
-                        // ...
-                        //
-                     }
-                     // at 0x00470BED
-                     esp10.TESV_007B1320();
-                     esp48.TESV_007B1320();
-                     esp58.TESV_007B1320();
-                     esp54.TESV_007B1320();
-                     esp98.TESV_00677F00();
-                     ebp = esp4C;
-                     // fall through to 0x00470C21
                   }
-                  // at 0x00470817
-                  //
-                  // ...
-                  //
+                  // at 0x00470822
+                  if (esi) {
+                     eax = esi->Unk_03();
+                  } else
+                     eax = 0;
+                  esp48.TESV_00489910(eax);
+                  esp10 = 0;
+                  eax = esp18->Unk_6F(esp30);
+                  ebp = esp48;
+                  TESV_00C6F3B0(esp48, eax); // at 0x0047085E
+                  if (ebp) {
+                     //
+                     // ...
+                     //
+                  }
+                  // at 0x00470BED
+                  esp10.TESV_007B1320();
+                  esp48.TESV_007B1320();
+                  esp58.TESV_007B1320();
+                  esp54.TESV_007B1320();
+                  esp98.TESV_00677F00();
+                  ebp = esp4C;
                }
                esp20.TESV_007B1320(); // at 0x00470C21
             }
