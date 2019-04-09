@@ -39,6 +39,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESGlobal.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESImageSpace.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESNPC.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectARMA.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectCELL.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectLAND.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.h" />
