@@ -9,8 +9,8 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
    if (!esi)
       return;
    if (this->unk04) { // at 0x00470088
-      esp34 = esi->GetShieldBodyPartIndex();
-      auto edx = GMST:fBodyMorphWeaponAdjustMult;
+      auto  esp34 = esi->GetShieldBodyPartIndex();
+      auto  edx   = GMST:fBodyMorphWeaponAdjustMult;
       float esp30 = esi->GetFormWeight() / 100.0F * Arg1;
       InterlockedIncrement(&this->refcount);
       ecx = 0;
@@ -22,7 +22,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             bool esp2C = true;
             if ((*g_thePlayer)->unk727 & 2) {
                this->UpdateWeightData();
-               esp38.TESV_004145C0();
+               esp38.TESV_004145C0(); // smart pointer destructor
                // esp14 destructor
                return;
             }
@@ -45,7 +45,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esi->unk0C = edi->unk0C; // BGSTextureSet* assign
                      *edi = *esi;
                      NiNode* edx = this->bodyParts[esp4C].unk10;
-                     this->TESV_0046D570(edx, esp4C, esp30);
+                     this->TESV_0046D570(edx, esp4C, esp30); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
                      esi->Reset();
                      if (*(byte*)(0x012E5CA4)) {
                         NiNode* eax = this->bodyParts[esp4C].unk10;
@@ -152,13 +152,13 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                const char* eax = this->bodyParts[esp4C].unk08->GetModelName();
                auto eax = TESV_00AF5820(eax, &esp20, &esp74);
                if (!eax) { // at 0x004704B7
-                  esp98.TESV_0046DF40(1.0F);
+                  NiCloningProcess esp98(1.0F); // constructor at 0x0046DF40
                   edi = esp60;
                   eax = esp60->unk124;
-                  esp10 = esi;
-                  esp54 = esi;
-                  esp58 = esi;
-                  esp50 = esi;
+                  NiPointer esp10(nullptr);
+                  NiPointer esp54(nullptr);
+                  NiPointer esp58(nullptr);
+                  esp50 = 0;
                   bool esp26 = false;
                   float a;
                   if (eax != esi) { // at 0x004704F2
@@ -182,8 +182,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esp28 = Arg1;
                   }
                   TESForm* ecx = this->bodyParts[esp4C].item;
+                  //
+                  // Now, we want to generate the name of the NiNode we'll be using for the armor-addon.
+                  //
                   double f6 = esp28 * 100.0F
-                  // FPU: [100]
                   UInt32 f5 = ecx->formID; // eax
                   TESObjectARMA* edx = this->bodyParts[esp4C].addon;
                   UInt32 f2 = edx->formID; // ebp
@@ -192,9 +194,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   auto f3 = edi->GetSex();
                   auto f1 = esi->Unk_32(); // at 0x00470587
                   UnkOutput004202A0(&esp1F0, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
+                  //
                   ecx = esp2C;
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
-                     esi->unk00->unk1C->TESV_00AAFC00(&esp98); // call is completed at 0x00470817
+                     this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
                   } else {
                      bool al = TESV_00B06360(esp20); // at 0x004705DA
                      if (al) {
@@ -204,96 +207,93 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         esi = esp54;
                      } else {
                         // at 0x00470618
-                        if (INI:General:bUseBodyMorphs && this->bodyParts[unk4C].addon) {
-                           if (this->bodyParts[unk4C].addon->unk2A[edi->GetSex()] > 1) { // at 0x0047063E
-                              esi = this->bodyParts[unk4C].unk08->Unk_04();
-                              ebp = eax = strlen(esi); // inlined
-                              edi = 0;
-                              strcpy_s(&espEC, 0x104, esi);
-                              esp1C = 0;
-                              bool dl = esp27;
-                              eax = 3; // at 0x0047067B
-                              struct {
-                                 UInt32 unk00 = 3;
-                                 UInt32 unk04 = 3;
-                                 bool   unk08 = false;
-                                 bool   unk09 = dl;
-                                 bool   unk0A = false;
-                                 bool   unk0B = true;
-                              } esp68;
-                              esp40 = edi;
-                              if (esi[ebp - 5] == '1') {
-                                 // at 0x004706A7
-                                 esp1C.TESV_00633580(&esp20); // NiPointer& NiPointer::assign(NiPointer& other);
-                                 espEC[ebp - 5] = '0';
-                                 eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
-                                 if (eax) {
-                                    // jumped to 0x00470761
-                                    esi = esp1C;
-                                    if (esi != edi) {
-                                       esi->DecRef(); // inlined, incl. destructor if refcount hits zero
-                                       esp1C = edi; // NiPointer esp1C
-                                    }
-                                    // jumped to 0x00470784
-                                    esp20.TESV_00633580(&esp1C); // NiPointer& NiPointer::assign(NiPointer& other);
-                                    esi = esp10;
-                                    // fall through to 0x004707F7
-                                 } else {
-                                    ecx = &esp40->unk1C;
-                                    esp20.TESV_00633580(ecx); // NiPointer& NiPointer::assign(NiPointer& other); // at 0x004706F1
-                                    // at 0x004706F6
-                                    if (0.0F ?? esp24.unk04) {
-                                       esi = esp20->TESV_00AAFC00(&esp98);
-                                       esp50 = 0x3F; // or char '?'
-                                       // fall through to 0x004707F7
-                                    } else if (1.0F ?? esp24.unk04) { // at 0x004707A7
-                                       esi = esp1C->TESV_00AAFC00(&esp98);
-                                       esp50 = 0x3F; // or char '?'
-                                       // fall through to 0x004707F7
-                                    } else {
-                                       // at 0x004707CA
-                                       // FPU: [1, esp24.unk04, esp24.unk04]
-                                       edx = esp1C;
-                                       // FPU: [1 - esp24.unk04, esp24.unk04]
-                                       eax = esp20;
-                                       uint8_t al = TESV_00B0EEF0(esp20, esp1C, (1.0F - esp24.unk04), &esp58);
-                                       // FPU: [esp24.unk04]
-                                       esi = esp58;
-                                       esp26 = al;
-                                       // fall through to 0x004707F7
-                                    }
+                        bool x = INI:General:bUseBodyMorphs;
+                        bool y = this->bodyParts[unk4C].addon;
+                        bool z = this->bodyParts[unk4C].addon->unk2A[edi->GetSex()] > 1; // at 0x0047063E
+                        if (!(x && y && z)) {
+                           // at 0x0047080B
+                           esi = esp10 = esp20->Clone(&esp98); // call is completed at 0x00470817
+                        } else {
+                           esi = this->bodyParts[unk4C].unk08->Unk_04();
+                           ebp = eax = strlen(esi); // inlined
+                           edi = 0;
+                           strcpy_s(&espEC, 0x104, esi);
+                           esp1C = 0;
+                           bool dl = esp27;
+                           eax = 3; // at 0x0047067B
+                           struct {
+                              UInt32 unk00 = 3;
+                              UInt32 unk04 = 3;
+                              bool   unk08 = false;
+                              bool   unk09 = dl;
+                              bool   unk0A = false;
+                              bool   unk0B = true;
+                           } esp68;
+                           esp40 = edi;
+                           if (esi[ebp - 5] == '1') {
+                              // at 0x004706A7
+                              esp1C = esp20; // NiPointer& NiPointer::assign(NiPointer& other);
+                              espEC[ebp - 5] = '0';
+                              eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
+                              if (eax) {
+                                 // jumped to 0x00470761
+                                 esi = esp1C;
+                                 if (esi != edi) {
+                                    esi->DecRef(); // inlined, incl. destructor if refcount hits zero
+                                    esp1C = edi; // NiPointer esp1C
                                  }
-                              } else {
-                                 // at 0x0047072D
-                                 espEC[7 + ebp] = '1';
-                                 eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
-                                 if (!eax) {
-                                    edx = &esp40->unk1C;
-                                    esp20.TESV_00633580(edx); // NiPointer& NiPointer::assign(NiPointer& other);
-                                    jump to 0x004706F6;
-                                 }
-                                 // at 0x00470784
-                                 esp20.TESV_00633580(&esp1C); // NiPointer& NiPointer::assign(NiPointer& other);
+                                 // jumped to 0x00470784
+                                 esp20 = esp1C; // NiPointer& NiPointer::assign(NiPointer& other);
                                  esi = esp10;
                                  // fall through to 0x004707F7
+                              } else {
+                                 esp20 = esp40->unk1C; // NiPointer& NiPointer::assign(NiPointer& other); // at 0x004706F1
+                                 // at 0x004706F6
+                                 if (0.0F ?? esp24.unk04) {
+                                    esi = esp20->Clone(&esp98);
+                                    esp50 = 0x3F; // or char '?'
+                                    // fall through to 0x004707F7
+                                 } else if (1.0F ?? esp24.unk04) { // at 0x004707A7
+                                    esi = esp1C->Clone(&esp98);
+                                    esp50 = 0x3F; // or char '?'
+                                    // fall through to 0x004707F7
+                                 } else {
+                                    // at 0x004707CA
+                                    edx = esp1C;
+                                    eax = esp20;
+                                    uint8_t al = TESV_00B0EEF0(esp20, esp1C, (1.0F - esp24.unk04), &esp58);
+                                    esi = esp58;
+                                    esp26 = al;
+                                    // fall through to 0x004707F7
+                                 }
                               }
-                              // at 0x004707F7
-                              esp40.TESV_00407EC0();
-                              esp1C.TESV_007B1320();
-                              jump to 0x00470822;
+                           } else {
+                              // at 0x0047072D
+                              espEC[7 + ebp] = '1';
+                              eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
+                              if (!eax) {
+                                 esp20 = esp40->unk1C; // NiPointer& NiPointer::assign(NiPointer& other);
+                                 jump to 0x004706F6;
+                              }
+                              // at 0x00470784
+                              esp20 = esp1C; // NiPointer& NiPointer::assign(NiPointer& other);
+                              esi = esp10;
+                              // fall through to 0x004707F7
                            }
+                           // at 0x004707F7
+                           esp40.TESV_00407EC0();
+                           esp1C.~NiPointer(); // func is 007B1320
+                           // fall through to 0x00470822
                         }
-                        // at 0x0047080B
-                        esi = esp10 = esp20->TESV_00AAFC00(&esp98); // call is completed at 0x00470817
                      }
                   }
                   // at 0x00470822
                   if (esi) {
-                     eax = esi->Unk_03();
+                     eax = esi->GetAsNiNode();
                   } else
-                     eax = 0;
-                  esp48.TESV_00489910(eax);
-                  esp10 = 0;
+                     eax = nullptr;
+                  NiPointer<NiRefObject*> esp48(eax); // constructor at 0x00489910
+                  NiPointer esp10(nullptr);
                   eax = esp18->Unk_6F(esp30);
                   ebp = esp48;
                   TESV_00C6F3B0(esp48, eax); // at 0x0047085E
@@ -303,10 +303,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      //
                   }
                   // at 0x00470BED
-                  esp10.TESV_007B1320();
-                  esp48.TESV_007B1320();
-                  esp58.TESV_007B1320();
-                  esp54.TESV_007B1320();
+                  esp10.~NiPointer(); // destructor for these four calls is 007B1320
+                  esp48.~NiPointer();
+                  esp58.~NiPointer();
+                  esp54.~NiPointer();
                   esp98.TESV_00677F00();
                   ebp = esp4C;
                }

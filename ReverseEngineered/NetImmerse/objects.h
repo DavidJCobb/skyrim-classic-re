@@ -59,7 +59,8 @@ namespace RE {
          //
          virtual UInt32			Unk_20(void);
          //
-         DEFINE_MEMBER_FN_LONG(NiObject, VerifyType, void*, 0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
+         DEFINE_MEMBER_FN_LONG(NiObject, Clone,      NiObject*, 0x00AAFC00, NiCloningProcess*);
+         DEFINE_MEMBER_FN_LONG(NiObject, VerifyType, void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
    };
    static_assert(sizeof(NiObject) == 0x08, "RE::NiObject is not the right size!");
 
