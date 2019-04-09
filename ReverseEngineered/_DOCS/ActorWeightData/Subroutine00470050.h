@@ -138,7 +138,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                if (!eax)
                   continue;
                esi = 0;
-               esp20 = 0;
+               NiPointer<NiNode> esp20(nullptr);
                bool al = this->TESV_0046AE90(esp4C);
                struct {
                   UInt32 unk00 = 3;
@@ -190,18 +190,22 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   TESObjectARMA* edx = this->bodyParts[esp4C].addon;
                   UInt32 f2 = edx->formID; // ebp
                   TESObjectARMA* esi = edx;
-                  auto f4 = ecx->Unk_32(); // at 0x00470571
+                  auto f4 = ecx->GetEditorID(); // at 0x00470571
                   auto f3 = edi->GetSex();
-                  auto f1 = esi->Unk_32(); // at 0x00470587
-                  UnkOutput004202A0(&esp1F0, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
+                  auto f1 = esi->GetEditorID(); // at 0x00470587
+                  snprintf(&esp1F0, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
                   //
                   ecx = esp2C;
+                  //
+                  // I think the TESV_00AF5030 call might load a mesh file and create a node? 
+                  // It's... difficult to be sure.
+                  //
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
-                     this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
+                     esi = esp10 = this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
                   } else {
-                     bool al = TESV_00B06360(esp20); // at 0x004705DA
+                     bool al = TESV_00B06360(esp20); // NiNode* esp20 // at 0x004705DA
                      if (al) {
-                        eax = (*g_TES)->TESV_00432070(esp20, &esp98);
+                        eax = (*g_TES)->TESV_00432070(esp20, &esp98); // clones the node and does... something... to it
                         NiPointer esp54 = eax;
                         eax = esp54;
                         esi = esp54;
@@ -310,7 +314,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   esp98.TESV_00677F00();
                   ebp = esp4C;
                }
-               esp20.TESV_007B1320(); // at 0x00470C21
+               esp20.~NiPointer(); // at 0x00470C21
             }
          }
       } while (++esp4C < 0x2A);

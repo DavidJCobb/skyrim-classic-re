@@ -857,7 +857,7 @@ namespace RE {
             void*    unk14; // refcounted pointer
             UInt8    unk18;
             UInt8    pad19[3];
-            UInt32   unk1C;
+            void*    unk1C; // refcounted pointer, most likely to a NiSomething
 
             MEMBER_FN_PREFIX(BodyPart);
             DEFINE_MEMBER_FN(CopyAssign, BodyPart&, 0x0046DF90, BodyPart& other); // BodyPart& operator=(BodyPart& other);
