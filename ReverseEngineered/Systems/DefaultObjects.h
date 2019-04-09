@@ -3,6 +3,11 @@
 #include "ReverseEngineered/Shared.h"
 
 namespace RE {
+   enum DefaultObjectIndex : UInt32 {
+      kDOBJIndex_DLC1WerewolfRace    = 0x142, // used for non-DLC vampires; the DOBJ itself was added with Dawnguard
+      kDOBJIndex_DLC1VampireLordRace = 0x143,
+   };
+
    class DefaultObjectList {
       public:
          enum {
@@ -19,7 +24,8 @@ namespace RE {
          //
          DefaultObject objects[kNumDefaultObjects];
          //
-         SInt32 GetIndexOfSignature(UInt32 signature);
+         TESForm* GetBySignature(UInt32 signature) const;
+         SInt32 GetIndexOfSignature(UInt32 signature) const;
    };
    class BGSDefaultObjectManager : public TESForm {
       //

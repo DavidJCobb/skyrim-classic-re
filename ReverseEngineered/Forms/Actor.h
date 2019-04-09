@@ -849,14 +849,24 @@ namespace RE {
    class ActorWeightData { // sizeof >= 0xA8C
       public:
          struct BodyPart { // sizeof == 0x20
-            TESForm* item;
-            UInt32   unk04;
-            UInt32   unk08;
-            UInt32   unk0C;
-            UInt32   unk10;
-            UInt32   unk14;
-            UInt32   unk18;
+            TESForm*       item;  // 00
+            TESObjectARMA* addon; // 04
+            TESModelTextureSwap* unk08; // 08
+            BGSTextureSet* unk0C; // 0C
+            NiNode*        unk10; // 10 // apparently created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
+            void*    unk14; // refcounted pointer
+            UInt8    unk18;
+            UInt8    pad19[3];
             UInt32   unk1C;
+
+            MEMBER_FN_PREFIX(BodyPart);
+            DEFINE_MEMBER_FN(CopyAssign, BodyPart&, 0x0046DF90, BodyPart& other); // BodyPart& operator=(BodyPart& other);
+            DEFINE_MEMBER_FN(Reset,      void,      0x0046D930);
+
+            inline BodyPart& operator=(BodyPart& other) {
+               CALL_MEMBER_FN(this, CopyAssign)(other);
+               return *this;
+            };
          };
 
          struct IdentifyDominantArmorTypeVisitor {
@@ -870,13 +880,11 @@ namespace RE {
             DEFINE_MEMBER_FN(GetResultAVIndex, SInt32, 0x006E1B00); // call after the visitor has run
          };
 
-         volatile SInt32 refCount; // 00 // Refcount?
-         void* unk04; // 04
+         volatile SInt32 refCount; // 00
+         void*    unk04; // 04
          BodyPart bodyParts[0x2A]; // 08 // index is a body part index, presumably - 30 (i.e. the first body part in the list, body part 30, is index 0) // count may be higher but some functions only loop over 0x2A
-         //
-         // TODO: add filler fields to move A88 into position, or else don't access A88
-         //
-         UInt32 unkA88; // A88 // refHandle
+         BodyPart unk548[0x2A]; // 548 // could perhaps be "pending" equip data
+         UInt32   unkA88; // A88 // refHandle
 
          MEMBER_FN_PREFIX(ActorWeightData);
          DEFINE_MEMBER_FN(UpdateWeightData, void, 0x0046D690);
@@ -886,6 +894,12 @@ namespace RE {
          DEFINE_MEMBER_FN(GetBodyByWhichIMeanTorso,  BodyPart*, 0x0046C1D0);
          DEFINE_MEMBER_FN(GetShield,                 BodyPart*, 0x0046C130);
          DEFINE_MEMBER_FN(IdentifyDominantArmorType, void,      0x006E1930, IdentifyDominantArmorTypeVisitor*);
+
+         DEFINE_MEMBER_FN(Subroutine0046AE90, bool, 0x0046AE90, UInt32 bodyPartIndex);
+         DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
+         DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
+         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, UInt32 arg4);
+         DEFINE_MEMBER_FN(Subroutine00470050, void, 0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
    };
 
    class MovementControllerNPC;
