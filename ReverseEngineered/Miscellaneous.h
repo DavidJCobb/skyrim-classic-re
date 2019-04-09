@@ -6,6 +6,10 @@ class SimpleLock;
 class TESObjectCELL;
 class TESWorldSpace;
 namespace RE {
+   namespace native {
+      DEFINE_SUBROUTINE_EXTERN(errno_t, strcpy_s, 0x00F52394, char *dest, rsize_t dest_size, const char *src);
+   };
+
    struct RTTI {
       UInt32 unk04;
       UInt32 unk08;

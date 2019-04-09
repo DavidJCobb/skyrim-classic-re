@@ -208,8 +208,9 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            if (this->bodyParts[unk4C].addon->unk2A[edi->GetSex()] > 1) { // at 0x0047063E
                               esi = this->bodyParts[unk4C].unk08->Unk_04();
                               ebp = eax = strlen(esi); // inlined
-                              TESV_00F52394(&espEC, 0x104, esi); // maybe memcpy?
-                              esp1C = edi;
+                              edi = 0;
+                              strcpy_s(&espEC, 0x104, esi);
+                              esp1C = 0;
                               bool dl = esp27;
                               eax = 3; // at 0x0047067B
                               struct {
@@ -223,56 +224,58 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                               esp40 = edi;
                               if (esi[ebp - 5] == '1') {
                                  // at 0x004706A7
-                                 esp1C.TESV_00633580(&esp20);
+                                 esp1C.TESV_00633580(&esp20); // NiPointer& NiPointer::assign(NiPointer& other);
                                  espEC[ebp - 5] = '0';
                                  eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
                                  if (eax) {
                                     // jumped to 0x00470761
                                     esi = esp1C;
-                                    if (esi == edi)
-                                       jump to 0x00470784;
-                                    esi->DecRef(); // inlined, incl. destructor if refcount hits zero
-                                    esp1C = edi; // NiPointer esp1C
-                                    jump to 0x00470784; // fall through
+                                    if (esi != edi) {
+                                       esi->DecRef(); // inlined, incl. destructor if refcount hits zero
+                                       esp1C = edi; // NiPointer esp1C
+                                    }
+                                    // jumped to 0x00470784
+                                    esp20.TESV_00633580(&esp1C); // NiPointer& NiPointer::assign(NiPointer& other);
+                                    esi = esp10;
+                                    // fall through to 0x004707F7
+                                 } else {
+                                    ecx = &esp40->unk1C;
+                                    esp20.TESV_00633580(ecx); // NiPointer& NiPointer::assign(NiPointer& other); // at 0x004706F1
+                                    // at 0x004706F6
+                                    if (0.0F ?? esp24.unk04) {
+                                       esi = esp20->TESV_00AAFC00(&esp98);
+                                       esp50 = 0x3F; // or char '?'
+                                       // fall through to 0x004707F7
+                                    } else if (1.0F ?? esp24.unk04) { // at 0x004707A7
+                                       esi = esp1C->TESV_00AAFC00(&esp98);
+                                       esp50 = 0x3F; // or char '?'
+                                       // fall through to 0x004707F7
+                                    } else {
+                                       // at 0x004707CA
+                                       // FPU: [1, esp24.unk04, esp24.unk04]
+                                       edx = esp1C;
+                                       // FPU: [1 - esp24.unk04, esp24.unk04]
+                                       eax = esp20;
+                                       uint8_t al = TESV_00B0EEF0(esp20, esp1C, (1.0F - esp24.unk04), &esp58);
+                                       // FPU: [esp24.unk04]
+                                       esi = esp58;
+                                       esp26 = al;
+                                       // fall through to 0x004707F7
+                                    }
                                  }
-                                 ecx = &esp40->unk1C;
-                                 esp20.TESV_00633580(ecx); // at 0x004706F1
-                                 // at 0x004706F6
-                                 if (0.0F ?? esp24.unk04) {
-                                    esi = esp20->TESV_00AAFC00(&esp98);
-                                    esp50 = 0x3F; // or char '?'
-                                    jump to 0x004707F7;
-                                 }
-                                 // FPU: [esp24.unk04]
-                                 // at 0x00470798
-                                 // FPU: [1, 1, esp24.unk04, esp24.unk04]
-                                 if (1.0F ?? esp24.unk04) {
-                                    esi = esp1C->TESV_00AAFC00(&esp98);
-                                    esp50 = 0x3F; // or char '?'
-                                    jump to 0x004707F7
-                                 }
-                                 // at 0x004707CA
-                                 // FPU: [1, esp24.unk04, esp24.unk04]
-                                 edx = esp1C;
-                                 // FPU: [1 - esp24.unk04, esp24.unk04]
-                                 eax = esp20;
-                                 uint8_t al = TESV_00B0EEF0(esp20, esp1C, (1.0F - esp24.unk04), &esp58);
-                                 // FPU: [esp24.unk04]
-                                 esi = esp58;
-                                 esp26 = al;
                               } else {
                                  // at 0x0047072D
                                  espEC[7 + ebp] = '1';
                                  eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
                                  if (!eax) {
                                     edx = &esp40->unk1C;
-                                    esp20.TESV_00633580(edx);
+                                    esp20.TESV_00633580(edx); // NiPointer& NiPointer::assign(NiPointer& other);
                                     jump to 0x004706F6;
                                  }
                                  // at 0x00470784
-                                 esp20.TESV_00633580(&esp1C);
+                                 esp20.TESV_00633580(&esp1C); // NiPointer& NiPointer::assign(NiPointer& other);
                                  esi = esp10;
-                                 jump to 0x004707F7;
+                                 // fall through to 0x004707F7
                               }
                               // at 0x004707F7
                               esp40.TESV_00407EC0();
