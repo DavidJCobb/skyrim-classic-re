@@ -236,7 +236,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            // at 0x0047080B
                            esi = esp10 = esp20->Clone(&esp98); // call is completed at 0x00470817
                         } else {
-                           esi = this->bodyParts[unk4C].unk08->Unk_04();
+                           esi = this->bodyParts[unk4C].unk08->GetModelName();
                            ebp = eax = strlen(esi); // inlined
                            edi = 0;
                            char espEC[MAX_PATH];
@@ -253,18 +253,20 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                               bool   unk0B = true;
                            } esp68;
                            esp40 = edi;
-                           if (esi[ebp - 5] == '1') {
+                           //
+                           // It looks like an armor filename must end in "1" or "0", and it looks 
+                           // like the game swaps it (i.e. if the model path is "a_1.nif", then 
+                           // the espEC string is changed to "a_0.nif"). Unless that's actually 
+                           // just code to fall back to one file if the other doesn't exist?
+                           //
+                           if (esi[ebp - 5] == '1') { // testing the last character in the filename, not including the extension (i.e. "a_1.nif" versus "a_0.nif")
                               // at 0x004706A7
                               esp1C = esp20; // NiPointer& NiPointer::assign(NiPointer& other);
                               espEC[ebp - 5] = '0';
                               eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
                               if (eax) {
                                  // jumped to 0x00470761
-                                 esi = esp1C;
-                                 if (esi != edi) {
-                                    esi->DecRef(); // inlined, incl. destructor if refcount hits zero
-                                    esp1C = edi; // NiPointer esp1C
-                                 }
+                                 esp1C = edi; // smart pointer assign; inlined
                                  // jumped to 0x00470784
                                  esp20 = esp1C; // NiPointer& NiPointer::assign(NiPointer& other);
                                  esi = esp10;
@@ -292,7 +294,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                               }
                            } else {
                               // at 0x0047072D
-                              espEC[7 + ebp] = '1';
+                              espEC[7 + ebp] = '1'; // pretty sure the char index here is wrong; should probably be ebp - 5
                               eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
                               if (!eax) {
                                  esp20 = esp40->unk1C; // NiPointer& NiPointer::assign(NiPointer& other);
