@@ -33,6 +33,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
       //push ebx;
       do { // at 0x00470134
          TESModelTextureSwap* eax = this->bodyParts[esp4C].unk08;
+         //
+         // TIP: "TESModelTextureSwap" is not a texture swap for a model, but 
+         // rather a model that supports texture swapping.
+         //
          ebx = &this->bodyParts[esp4C] - 8 bytes;
          if (eax) {
             NiNode* ecx = this->unk548[esp4C].unk10;
@@ -316,22 +320,22 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      ebp->SetScale(1.0F);
                      ebp->m_flags &= ~(0x00000001); // clear "app culled" flag
                      SetMotionType(ebp, 4, true, true, true); // set "keyframed" type // at 4708B6
-                     ecx = ebx->unk10; // this->bodyParts[unk4C].unk08 ?
+                     ecx = this->bodyParts[unk4C].unk08;
                      if (ecx) {
                         TESModelTextureSwap* eax = ecx->Unk_06();
                         if (eax) {
-                           eax->TESV_004557B0(ebp);
+                           eax->TESV_004557B0(ebp); // most likely applies the texture swap to node (ebp)
                         }
                      }
                      // at 0x004708D8
-                     eax = ebp->Unk_05();
+                     BSFadeNode* eax = ebp->GetAsBSFadeNode(); // NiObject cast; not sure what to
                      if (eax)
                         eax->TESV_00C6B370(7);
                      // at 0x004708EF
                      eax = esp2C;
                      if (eax != *(PlayerCharacter**)0x01310588 && esp26) {
                         NiPointer esp64(ebp->Clone(&esp98));
-                        TESV_00AF54C0(&esp1F0, &esp64, &ebx->unk24, 1);
+                        TESV_00AF54C0(&esp1F0, &esp64, &this->bodyParts[unk4C]->unk1C, 1);
                         esp64.~NiPointer();
                      }
                      // at 0x0047093F
@@ -341,9 +345,70 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esp14 = eax; // smart pointer assign
                      NiObjectNET* esi = esp10; // or subclass
                      if (!esi) { // at 0x00470967
-                        //
-                        // ...
-                        //
+                        esp10 = ebp; // smart pointer assign
+                        if (esp27) {
+                           esp44 = esi;
+                           esp14->TESV_0046B660(edi, &esp44);
+                           if (esp44 != esi) {
+                              ecx = 0;
+                              edi = 0;
+                              if (0 < ebp->m_children.m_size) {
+                                 do { // at 0x004709B0
+                                    NiAVObject*     ecx = ebp->m_children[edi];
+                                    NiTriBasedGeom* esi = ecx->GetAsNiTriBasedGeom();
+                                    if (!esi)
+                                       continue;
+                                    NiGeometryData* ecx = esi->m_spModelData;
+                                    if (!ecx)
+                                       continue;
+                                    NiPointer esp1C(nullptr);
+                                    NiPointer esp28(nullptr);
+                                    esp1C.TESV_00AAFD60(0);
+                                    esp28 = esp1C; // smart pointer assign
+                                    esi->SetGeometryData(esp28); // virtual 0x37
+                                    esp28.~NiPointer();
+                                    esp1C.~NiPointer();
+                                 } while (++edi < ebp->m_children.m_size);
+                              }
+                           }
+                           // at 0x00470A21
+                        }
+                        // at 0x00470A2E
+                        esp44.~NiPointer();
+                        edi = esp4C;
+                        edx = esp14;
+                        eax = edx->unk04;
+                        esi = esp2C;
+                        TESV_0046B8C0(eax, ebp, 0, esp3C, edi);
+                        ecx = esp2C; // at 0x00470A48
+                        if (ecx == *(PlayerCharacter**)0x01310588) {
+                           bool al = (*g_thePlayer)->Unk_71();
+                           al = al xor esp30;
+                           if (al) {
+                              // at 0x00470A6D
+                              TESV_004DA320(ebp);
+                           }
+                        } else {
+                           // at 0x00470A6D
+                           TESV_004DA320(ebp);
+                        }
+                        // at 0x00470A76
+                        bool al = TESV_0046AAE0(edi);
+                        if (al) {
+                           ecx = esi->unk88;
+                           if (ecx) {
+                              bool al;
+                              if (((esi->unk6C << 5) & 7) >= 3 && edi == 0x20)
+                                 al = true;
+                              else
+                                 al = false;
+                              ecx->TESV_007238C0(eax, &esp3C, esi, edi);
+                           }
+                        }
+                        // at 0x00470AB3
+                        esi = esp10;
+                        if (!esi)
+                           jump to 0x00470BED; // "continue" statement, with smart pointer destructors in mind
                      }
                      // at 0x00470ABF
                      StringCache::Ref esp88(&esp1F0);
@@ -369,7 +434,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      // at 0x00470B71
                      TESV_00C746A0(esi, 0, eax);
                      //
-                     // THIS IS THE CODE THAT STORES A NiNode ON THE BODY PART STRUCT. 
+                     // NEXT IS THE LINE THAT STORES A NiNode ON THE BODY PART STRUCT. 
                      // THAT NODE, THEN, IS THE ONE THAT GETS CREATED AS PART OF THIS 
                      // ENTIRE PROCESS.
                      //
@@ -378,6 +443,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esp14->TESV_0046DC10(edi, esp18);
                      eax = this->bodyParts[esp4C].item;
                      if (eax == *(0x012E5CDC)) { // at 0x00470BA3
+                        //
+                        // This item is the DLC1 "Verlet Cape." Apparently "verlet" is 
+                        // a term for genuine cloth physics; I guess the vampire lord 
+                        // cape is handled differently for the sake of being pretty?
                         //
                         // ...
                         //

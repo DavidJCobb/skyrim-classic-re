@@ -2,6 +2,7 @@
 #include "skse/NiNodes.h"
 #include "skse/NiObjects.h"
 #include "skse/Utilities.h"
+#include "ReverseEngineered/Shared.h"
 
 class bhkAabbPhantom;
 namespace RE {
@@ -18,24 +19,24 @@ namespace RE {
          //
          virtual NiRTTI*		GetRTTI(void); // 02
          // 
-         // Casts follow. These can return NULL, so check the result.
-         // 
-         virtual NiNode*			GetAsNiNode(void); // 03
-         virtual NiSwitchNode*	    GetAsNiSwitchNode(void);
-         virtual void*			    Unk_05(); // this is also a cast; returned object is at least 0xC4 big and its unkC0 is a float
-         virtual UInt32			    Unk_06();
-         virtual NiGeometry*		GetAsNiGeometry(void);
-         virtual NiTriBasedGeom*	GetAsNiTriBasedGeom(void);
-         virtual NiTriStrips*		GetAsNiTriStrips(void);
-         virtual NiTriShape*		GetAsNiTriShape(void);
-         virtual BSSegmentedTriShape* GetAsBSSegmentedTriShape(void);
+         // Casts:
+         //
+         virtual NiNode*			GetAsNiNode(); // 03
+         virtual NiSwitchNode*	GetAsNiSwitchNode();
+         virtual BSFadeNode*		GetAsBSFadeNode(); // 05
+         virtual UInt32			   Unk_06();
+         virtual NiGeometry*		GetAsNiGeometry(); // 07
+         virtual NiTriBasedGeom*	GetAsNiTriBasedGeom(); // 08
+         virtual NiTriStrips*		GetAsNiTriStrips();
+         virtual NiTriShape*		GetAsNiTriShape();
+         virtual BSSegmentedTriShape* GetAsBSSegmentedTriShape();
          virtual UInt32			Unk_0C(void);
          virtual UInt32			Unk_0D(void);
          virtual UInt32			Unk_0E(void);
-         virtual bhkCollisionObject* GetAsBhkCollisionObject(void); // or a superclass? // virtual method 0x0F
+         virtual bhkCollisionObject* GetAsBhkCollisionObject(); // or a superclass? // virtual method 0x0F
          virtual UInt32			Unk_10(void);
-         virtual bhkRigidBody*		GetAsBhkRigidBody(void); // or a superclass?
-         virtual UInt32			Unk_12(void);
+         virtual bhkRigidBody* GetAsBhkRigidBody(); // or a superclass?
+         virtual UInt32        Unk_12(void);
          //
          // Back to NetImmerse:
          //
@@ -167,4 +168,6 @@ namespace RE {
    };
    static_assert(sizeof(LoadedAreaBound) == 0x6C, "LoadedAreaBound is the wrong size.");
    static_assert(offsetof(LoadedAreaBound, boundsMax) == 0x44, "LoadedAreaBound::boundsMax is at the wrong offset.");
+
+   DEFINE_SUBROUTINE_EXTERN(bool, NiObjectIs, 0x0042A960, const NiRTTI*, const NiObject*);
 };
