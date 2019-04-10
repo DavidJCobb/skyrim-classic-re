@@ -3,9 +3,9 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
    auto ebp = 0;
    auto esp10 = this;
    auto esp14 = 0;
-   NiPointer<TESObjectREFR> esp14 = nullptr;
-   TESObjectREFRHandleInterface::ExchangeHandleForRef(&this->unkA88, &esp14);
-   TESObjectREFR* esi = esp14;
+   NiPointer<TESObjectREFR> currentRef = nullptr; // esp14
+   TESObjectREFRHandleInterface::ExchangeHandleForRef(&this->unkA88, &currentRef);
+   TESObjectREFR* esi = currentRef;
    if (!esi)
       return;
    if (this->unk04) { // at 0x00470088
@@ -23,7 +23,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             if ((*g_thePlayer)->unk727 & 2) {
                this->UpdateWeightData();
                esp38.TESV_004145C0(); // smart pointer destructor
-               // esp14 destructor
+               // currentRef destructor
                return;
             }
          }
@@ -50,7 +50,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      if (*(byte*)(0x012E5CA4)) {
                         NiNode* eax = this->bodyParts[esp4C].unk10;
                         if (eax)
-                           this->TESV_0046D0B0(eax, esp4C);
+                           this->TESV_0046D0B0(eax, esp4C); // performs some process on a 3D node tree
                      }
                      TESObjectARMA* ebx = this->bodyParts[esp4C].addon;
                      if (!ebx)
@@ -65,7 +65,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             }
          }
          if (this->unk548[esp4C].unk10) { // if it has a NiNode // at 0x00470206
-            this->TESV_0046C8A0(&this->unk548[esp4C], 1, 0);
+            this->TESV_0046C8A0(&this->unk548[esp4C], 1, 0); // call includes garbage collection
          } else {
             if (eax) { // at 0x0047021E
                edx = this->unk548[esp4C].unk14;
@@ -78,7 +78,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                esi = &this->unk548[esp4C];
                if (eax != this->unk548[esp4C].item) // at 0x0047024F
                   jump to 0x0047025E;
-               this->bodyParts[esp4C].unk14.TESV_0060DEE0(ecx);
+               this->bodyParts[esp4C].unk14.TESV_0060DEE0(ecx); // NiPointer assign
                esi->Reset();
             } else {
                this->unk548[esp4C].Reset(); // at 0x0047025E
@@ -125,7 +125,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   continue;
                if (Arg2) { // at 0x00470417
                   if (this->TESV_0046AE90(esp4C)) {
-                     eax = esp18;
+                     eax = currentRef;
                      if (eax != *g_thePlayer) {
                         if (INI:BackgroundLoad:bLoadHelmetsInBackground && INI:BackgroundLoad:bUseMultiThreadedFaceGen) {
                            ecx->TESV_0046F4E0(0, 0, esp4C); // ecx is never assigned?
@@ -169,7 +169,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      } while (eax != esi);
                      a = eax->unk12C;
                   } else {
-                     a = esp18->GetFormWeight();
+                     a = currentRef->GetFormWeight();
                   }
                   // FPU: [100.0F, a]
                   // FPU: [100.0F, 100.0F, a]
@@ -193,17 +193,20 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   auto f4 = ecx->GetEditorID(); // at 0x00470571
                   auto f3 = edi->GetSex();
                   auto f1 = esi->GetEditorID(); // at 0x00470587
-                  snprintf(&esp1F0, 0x104, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C
+                  char esp1F0[MAX_PATH];
+                  snprintf(&esp1F0, MAX_PATH, "%s (%08X)[%d]/%s (%08X) [%2.0f%%]", f1, f2, f3, f4, f5, f6); // at 0x0047059C // this gets treated like a file path, but it blatantly isn't
                   //
                   ecx = esp2C;
                   //
                   // I think the TESV_00AF5030 call might load a mesh file and create a node? 
-                  // It's... difficult to be sure.
+                  // It's... difficult to be sure. I wonder if it's inlined -- that might 
+                  // explain why they check whether esp1F0 is a file path when it pretty 
+                  // fucking definitely is not a file path.
                   //
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
                      esi = esp10 = this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
                   } else {
-                     bool al = TESV_00B06360(esp20); // NiNode* esp20 // at 0x004705DA
+                     bool al = TESV_00B06360(esp20); // NiPointer<NiNode> esp20 // at 0x004705DA
                      if (al) {
                         eax = (*g_TES)->TESV_00432070(esp20, &esp98); // clones the node and does... something... to it
                         NiPointer esp54 = eax;
@@ -221,7 +224,8 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            esi = this->bodyParts[unk4C].unk08->Unk_04();
                            ebp = eax = strlen(esi); // inlined
                            edi = 0;
-                           strcpy_s(&espEC, 0x104, esi);
+                           char espEC[MAX_PATH];
+                           strcpy_s(&espEC, MAX_PATH, esi);
                            esp1C = 0;
                            bool dl = esp27;
                            eax = 3; // at 0x0047067B
@@ -296,12 +300,84 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      eax = esi->GetAsNiNode();
                   } else
                      eax = nullptr;
-                  NiPointer<NiRefObject*> esp48(eax); // constructor at 0x00489910
+                  NiPointer<NiAVObject*> esp48(eax); // constructor at 0x00489910
                   NiPointer esp10(nullptr);
-                  eax = esp18->Unk_6F(esp30);
+                  eax = currentRef->GetNiRootNode(esp2C);
                   ebp = esp48;
+                  //
+                  // Find all NiGeometry in the node tree (esp48), and perform some 
+                  // process on their NiProperties involving (eax); I think this may 
+                  // be updating EffectShaders:
+                  //
                   TESV_00C6F3B0(esp48, eax); // at 0x0047085E
                   if (ebp) {
+                     ebp->m_localTransform.pos = NiPoint3(0, 0, 0);
+                     ebp->m_localTransform.rot = ...; // resets position to zero; matrix to identity
+                     ebp->SetScale(1.0F);
+                     ebp->m_flags &= ~(0x00000001); // clear "app culled" flag
+                     SetMotionType(ebp, 4, true, true, true); // set "keyframed" type // at 4708B6
+                     ecx = ebx->unk10; // this->bodyParts[unk4C].unk08 ?
+                     if (ecx) {
+                        TESModelTextureSwap* eax = ecx->Unk_06();
+                        if (eax) {
+                           eax->TESV_004557B0(ebp);
+                        }
+                     }
+                     // at 0x004708D8
+                     eax = ebp->Unk_05();
+                     if (eax)
+                        eax->TESV_00C6B370(7);
+                     // at 0x004708EF
+                     eax = esp2C;
+                     if (eax != *(PlayerCharacter**)0x01310588 && esp26) {
+                        NiPointer esp64(ebp->Clone(&esp98));
+                        TESV_00AF54C0(&esp1F0, &esp64, &ebx->unk24, 1);
+                        esp64.~NiPointer();
+                     }
+                     // at 0x0047093F
+                     edx = esp30;
+                     edi = esp4C;
+                     auto eax = esp14->Unknown_Call_Hooked_By_NiOverride(ebp, edi, edx, 0, 0);
+                     esp14 = eax; // smart pointer assign
+                     esi = esp10;
+                     if (!esi) { // at 0x00470967
+                        //
+                        // ...
+                        //
+                     }
+                     // at 0x00470ABF
+                     StringCache::Ref esp88(&esp1F0);
+                     esi->TESV_00AB4020(&esp88); // esp88 is a temporary; this may have been esi->sub(StringCache::Ref(&esp1F0));
+                     esp88.Release();
+                     esp5C.TESV_00C3DF80(esp14); // at 0x00470AF0
+                     TESV_0046F010(esp20, ebp, edi, esp18, &esp5C); // at 0x00470B06
+                     if (!ebx->unk20) { // byte
+                        eax = esi->Unk_03();
+                        if (eax && !esi->unk18) {
+                           esp14->unk04->Unk_33(esi, 1);
+                        }
+                     }
+                     // at 0x00470B3B
+                     if (!(*(0x012E5CE0) & 1)) {
+                        *(0x012E5CE0) |= 1;
+                        *(TESForm**)(0x012E5CDC) = GetDOBJByIndex(0x14A);
+                     }
+                     TESForm* ecx = *(0x012E5CDC);
+                     eax = 0x3F;
+                     if (this->bodyParts[esp4C].item != ecx)
+                        eax = esp50;
+                     // at 0x00470B71
+                     TESV_00C746A0(esi, 0, eax);
+                     this->bodyParts[esp4C].unk10 = &esp10; // NiPointer& NiPointer::operator=(NiPointer& other);
+                     esi = esp18;
+                     esp14->TESV_0046DC10(edi, esp18);
+                     eax = this->bodyParts[esp4C].item;
+                     if (eax == *(0x012E5CDC)) { // at 0x00470BA3
+                        //
+                        // ...
+                        //
+                     }
+                     // at 0x00470BE4
                      //
                      // ...
                      //
@@ -324,6 +400,6 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
       //
    }
    //
-   // clean up smart pointer esp14, and then return
+   // clean up smart pointer currentRef, and then return
    //
 }
