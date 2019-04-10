@@ -201,7 +201,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   // I think the TESV_00AF5030 call might load a mesh file and create a node? 
                   // It's... difficult to be sure. I wonder if it's inlined -- that might 
                   // explain why they check whether esp1F0 is a file path when it pretty 
-                  // fucking definitely is not a file path.
+                  // definitely is not a file path.
                   //
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
                      esi = esp10 = this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
@@ -339,7 +339,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      edi = esp4C;
                      auto eax = esp14->Unknown_Call_Hooked_By_NiOverride(ebp, edi, edx, 0, 0);
                      esp14 = eax; // smart pointer assign
-                     esi = esp10;
+                     NiObjectNET* esi = esp10; // or subclass
                      if (!esi) { // at 0x00470967
                         //
                         // ...
@@ -347,20 +347,20 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      }
                      // at 0x00470ABF
                      StringCache::Ref esp88(&esp1F0);
-                     esi->TESV_00AB4020(&esp88); // esp88 is a temporary; this may have been esi->sub(StringCache::Ref(&esp1F0));
+                     esi->SetName(&esp88); // esp88 is a temporary; this may have been esi->sub(StringCache::Ref(&esp1F0));
                      esp88.Release();
-                     esp5C.TESV_00C3DF80(esp14); // at 0x00470AF0
+                     NiPointer<ActorWeightData> esp5C(esp14); // at 0x00470AF0; constructor is 0x00C3DF80
                      TESV_0046F010(esp20, ebp, edi, esp18, &esp5C); // at 0x00470B06
                      if (!ebx->unk20) { // byte
-                        eax = esi->Unk_03();
-                        if (eax && !esi->unk18) {
+                        eax = esi->GetAsNiNode();
+                        if (eax && !esi->m_parent) {
                            esp14->unk04->Unk_33(esi, 1);
                         }
                      }
                      // at 0x00470B3B
-                     if (!(*(0x012E5CE0) & 1)) {
+                     if (!(*(0x012E5CE0) & 1)) { // no direct references to this bitmask from elsewhere, though it could be part of a struct
                         *(0x012E5CE0) |= 1;
-                        *(TESForm**)(0x012E5CDC) = GetDOBJByIndex(0x14A);
+                        *(TESForm**)(0x012E5CDC) = GetDOBJByIndex(0x14A); // AIVC: Verlet Cape (ARMO:DLC1VampireLordCape)
                      }
                      TESForm* ecx = *(0x012E5CDC);
                      eax = 0x3F;
@@ -368,6 +368,11 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         eax = esp50;
                      // at 0x00470B71
                      TESV_00C746A0(esi, 0, eax);
+                     //
+                     // THIS IS THE CODE THAT STORES A NiNode ON THE BODY PART STRUCT. 
+                     // THAT NODE, THEN, IS THE ONE THAT GETS CREATED AS PART OF THIS 
+                     // ENTIRE PROCESS.
+                     //
                      this->bodyParts[esp4C].unk10 = &esp10; // NiPointer& NiPointer::operator=(NiPointer& other);
                      esi = esp18;
                      esp14->TESV_0046DC10(edi, esp18);
@@ -378,9 +383,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         //
                      }
                      // at 0x00470BE4
-                     //
-                     // ...
-                     //
+                     esp5C.~NiPointer<ActorWeightData>();
                   }
                   // at 0x00470BED
                   esp10.~NiPointer(); // destructor for these four calls is 007B1320

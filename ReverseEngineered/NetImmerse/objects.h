@@ -77,6 +77,9 @@ namespace RE {
          bool RemoveExtraData(NiExtraData * extraData);
          SInt32 GetIndexOf(NiExtraData * extraData);
          NiExtraData* GetExtraData(BSFixedString name);
+
+         MEMBER_FN_PREFIX(NiObjectNET);
+         DEFINE_MEMBER_FN(SetName, void, 0x00AB4020, StringCache::Ref*);
    };
    static_assert(sizeof(NiObjectNET) == 0x18, "RE::NiObjectNET is not the right size!");
 
