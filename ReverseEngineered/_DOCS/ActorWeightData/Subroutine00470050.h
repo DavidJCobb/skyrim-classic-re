@@ -208,10 +208,21 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   // definitely is not a file path.
                   //
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
+                     //
+                     // No-oping this call doesn't seem to have any effect on NPCs either, 
+                     // even though it's only ever made for them. But then, there could be 
+                     // some edge-case involved that a simple test wouldn't catch.
+                     //
                      esi = esp10 = this->bodyParts[esp4C].unk1C->unk1C->Clone(&esp98); // call is completed at 0x00470817
                   } else {
                      bool al = TESV_00B06360(esp20); // NiPointer<NiNode> esp20 // at 0x004705DA
                      if (al) {
+                        //
+                        // No-oping this next call doesn't prevent the player's visuals 
+                        // from updating when their equipment changes -- at least during 
+                        // our tests. We'd need to tamper with the (al) register to be 
+                        // sure that this branch is even running when we do our testing.
+                        //
                         eax = (*g_TES)->TESV_00432070(esp20, &esp98); // clones the node and does... something... to it
                         NiPointer esp54 = eax;
                         eax = esp54;
@@ -300,6 +311,11 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      }
                   }
                   // at 0x00470822
+                  //
+                  // I think by this point, (esi) is a newly-created node or a 
+                  // repurposed node, and the code below preps it for use as the 
+                  // armor-addon 3D. Hard to be sure, though.
+                  //
                   if (esi) {
                      eax = esi->GetAsNiNode();
                   } else
@@ -366,8 +382,8 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                                     esp1C.TESV_00AAFD60(0);
                                     esp28 = esp1C; // smart pointer assign
                                     esi->SetGeometryData(esp28); // virtual 0x37
-                                    esp28.~NiPointer();
-                                    esp1C.~NiPointer();
+                                    //esp28.~NiPointer(); // implicit
+                                    //esp1C.~NiPointer(); // implicit
                                  } while (++edi < ebp->m_children.m_size);
                               }
                            }
@@ -411,9 +427,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            jump to 0x00470BED; // "continue" statement, with smart pointer destructors in mind
                      }
                      // at 0x00470ABF
-                     StringCache::Ref esp88(&esp1F0);
-                     esi->SetName(&esp88); // esp88 is a temporary; this may have been esi->sub(StringCache::Ref(&esp1F0));
-                     esp88.Release();
+                     esi->SetName(StringCache::Ref(&esp1F0)); // esp88 is used for the argument
                      NiPointer<ActorWeightData> esp5C(esp14); // at 0x00470AF0; constructor is 0x00C3DF80
                      TESV_0046F010(esp20, ebp, edi, esp18, &esp5C); // at 0x00470B06
                      if (!ebx->unk20) { // byte
@@ -460,7 +474,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   esp58.~NiPointer();
                   esp54.~NiPointer();
                   esp98.TESV_00677F00();
-                  ebp = esp4C;
+                  ebp = esp4C; // early parts of the loop are programmed so that ebp == esp4C
                }
                esp20.~NiPointer(); // at 0x00470C21
             }
