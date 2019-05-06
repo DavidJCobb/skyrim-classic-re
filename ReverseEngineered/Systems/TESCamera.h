@@ -322,7 +322,7 @@ namespace RE {
          UInt32 unkA8; // a reference handle // gets cleared whenever we switch/force to first-person camera, via a call to 0x0083C8D0
          float	worldFOV;       // AC
          float	firstPersonFOV; // B0
-         NiPoint3 unkB4;       // referenced in 0x0083D4A0
+         NiPoint3 unkB4;       // referenced in 0x0083D4A0 // appears to exactly match the camera node's local transform position
          UInt32 unkC0;
          float  unkC4;
          float  unkC8;
@@ -346,7 +346,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ToggleAnimatorCam,    void, 0x0083BB90);               // *(0x012E7288)->TESV_0083BB90(); // This is the "ANIMCAM" console command.
          DEFINE_MEMBER_FN(UpdateThirdPerson,    void, 0x0083C7E0, bool weaponDrawn);
          //
-         DEFINE_MEMBER_FN(GetUnkB4OrEquivalent, void, 0x0083D4A0, NiPoint3* out);
+         DEFINE_MEMBER_FN(GetUnkB4OrEquivalent, bool, 0x0083D4A0, NiPoint3& out);
          DEFINE_MEMBER_FN(SetFirstPersonUnk34,  void, 0x0083BE60, UInt32);
          DEFINE_MEMBER_FN(ClearHandleUnkA8,     void, 0x0083C8D0);
    };

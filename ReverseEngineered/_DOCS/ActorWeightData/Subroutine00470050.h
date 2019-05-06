@@ -205,7 +205,8 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   // I think the TESV_00AF5030 call might load a mesh file and create a node? 
                   // It's... difficult to be sure. I wonder if it's inlined -- that might 
                   // explain why they check whether esp1F0 is a file path when it pretty 
-                  // definitely is not a file path.
+                  // definitely is not a file path. Alternatively, maybe there's special-case 
+                  // functionality for if a NIF's name is its model path.
                   //
                   if ((ecx != *(PlayerCharacter**)0x01310588) && /*bool*/ TESV_00AF5030(&esp1F0, &this->bodyParts[esp4C].unk1C)) { // at 0x004705AE
                      //
@@ -318,6 +319,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   // repurposed node, and the code below preps it for use as the 
                   // armor-addon 3D. Hard to be sure, though.
                   //
+                  // What I don't know is whether it's attached by this point. 
+                  // The armor-addon node will eventually be (or already has 
+                  // been) attached as a direct child of the player's root node.
+                  //
                   if (esi) {
                      eax = esi->GetAsNiNode();
                   } else
@@ -359,7 +364,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      // at 0x0047093F
                      edx = esp30;
                      edi = esp4C;
-                     auto eax = esp14->Unknown_Call_Hooked_By_NiOverride(ebp, edi, edx, 0, 0);
+                     auto eax = this->CreateArmorNode(ebp, edi, edx, 0, 0);
                      esp14 = eax; // smart pointer assign
                      NiObjectNET* esi = esp10; // or subclass
                      if (!esi) { // at 0x00470967

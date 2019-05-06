@@ -76,7 +76,7 @@ namespace RE {
          UInt8  unk0B;
          UInt32 unk0C;
          UInt32 unk10;
-         UInt32 unk14; // 14 // thread ID that the constructor ran in
+         UInt32 mainThreadID; // 14 // thread ID that the constructor ran in
          UInt32 unk18 = 0; // 18
          UInt32 unk1C = 0; // 1C
          Struct00A49940 unk20; // 20

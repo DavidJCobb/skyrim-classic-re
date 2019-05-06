@@ -63,9 +63,10 @@ namespace RE {
          // Highest observed field: unk424
 
          MEMBER_FN_PREFIX(BGSLoadFormBuffer);
-         DEFINE_MEMBER_FN(OpenNextSubrecord,        UInt32, 0x00445B70); // returns record signature, or zero
+         DEFINE_MEMBER_FN(GetSubrecordSignature,    UInt32, 0x00445B70); // returns subrecord signature, or zero
+         DEFINE_MEMBER_FN(OpenNextSubrecord,        bool,   0x00444780); // returns false if there are no more subrecords; you don't call this at the start of TESForm::LoadForm; that starts off inside the first subrecord if there is one
          DEFINE_MEMBER_FN(ReadCString,              bool,   0x00445340, char* out, UInt32 lengthIncludingNull);
          DEFINE_MEMBER_FN(ReadCStringWhole,         bool,   0x00445680, char* out); // just wraps ReadCString and passes 0 for the length
-         DEFINE_MEMBER_FN(VerifyTopLevelRecordType, UInt32, 0x00445E30); // returns top-level record type index, e.g. 0xE for RACE or 0x0 for NONE; also synchronizes some static vars / global state
+         DEFINE_MEMBER_FN(VerifyTopLevelRecordType, UInt32, 0x00445E30); // returns top-level record type index, e.g. 0xE for RACE or 0x0 for NONE; also synchronizes some static vars / global state, so probably not safe to skip
    };
 };

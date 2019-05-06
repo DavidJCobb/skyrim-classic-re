@@ -51,6 +51,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\INI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Miscellaneous.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\controllers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\geometry.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\havok.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\NiExtraData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\objects.h" />
@@ -92,7 +93,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\MessageBoxCallbacks.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\UI\Miscellaneous.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Shared.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\_DOCS\Actor\Unk_120.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\ExtraData.cpp" />
@@ -107,6 +107,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWorldSpace.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\INI.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Miscellaneous.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\objects.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\BGSPrimitive.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Shared.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTaskPool.cpp" />

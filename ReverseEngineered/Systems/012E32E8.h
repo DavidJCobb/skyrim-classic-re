@@ -33,10 +33,18 @@ namespace RE {
          UInt32 unk014;                   // 014
          UInt32 unk018;                   // 018
          UInt32 unk01C[(0x028 - 0x01C) / sizeof(UInt32)]; // 01C
-         tArray<UInt32>  unk028; // 028 // ref handles for Actors. the TDETECT command loops over this to delete AI/detection state in actors. general AI processing loops over this as well.
+         //
+         // The next four arrays track actors in various process states. The first 
+         // state is "high process;" the next three are lower process levels. I'm 
+         // not sure exactly which levels, because I've heard of "middle-high," 
+         // "middle," "middle-low," and "low" before. Hm... I could see the game 
+         // tracking low-process actors (i.e. fully unloaded ones) elsewhere...
+         //
+         tArray<UInt32>  unk028; // 028 // ref handles for Actors in high process. the TDETECT command loops over this to delete AI/detection state in actors. general AI processing loops over this as well.
          tArray<UInt32>  unk034; // 034 // ref handles for Actors. seems to be persistent actors from all over skyrim
-         tArray<UInt32>  unk040;
-         tArray<UInt32>  unk04C;
+         tArray<UInt32>  unk040; // 040
+         tArray<UInt32>  unk04C; // 04C
+         //
          tArray<UInt32>* unk058; // 058 // initialized to &this->unk28 // referenced by opcode at 00529EF2 // examine subroutine 00529EC0 for further information
          tArray<UInt32>* unk05C; // 05C // initialized to &this->unk40
          tArray<UInt32>* unk060; // 060 // initialized to &this->unk4C

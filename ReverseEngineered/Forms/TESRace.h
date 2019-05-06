@@ -1,6 +1,7 @@
 #pragma once
 #include "skse/GameForms.h"
 #include "skse/GameObjects.h"
+#include "ReverseEngineered/Forms/TESForm.h"
 
 class TESObjectARMO;
 namespace RE {

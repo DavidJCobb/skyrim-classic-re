@@ -144,9 +144,11 @@ namespace RE {
          // This also means that calls to anything after Unk_21 on a non-RE pointer are probably going to be bad, 
          // unless they're on a subclass (in which case MAYBE they'll be fine?).
 
-         bool IsWeapon(){ return formType == kFormType_Weapon; }
-         bool IsAmmo()  { return formType == kFormType_Ammo; }
-         bool IsArmor() { return formType == kFormType_Armor; }
+         inline bool IsWeapon() const { return formType == kFormType_Weapon; }
+         inline bool IsAmmo()   const { return formType == kFormType_Ammo; }
+         inline bool IsArmor()  const { return formType == kFormType_Armor; }
+
+         inline bool IsTemporary() const { return (this->formID & 0xFF000000) == 0xFF000000; }
 
          // Bethesda removed most of the functionality from their code; this reimplements it for simple classes.
          void CopyFromEx(TESForm * rhs);

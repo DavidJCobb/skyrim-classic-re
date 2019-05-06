@@ -626,28 +626,41 @@ namespace RE {
             kFlag9A_02 = 0x02, // one of the necessary conditions for a player-vampire feed package to terminate properly
          };
 
-         void*  unk00;                 // 00 // struct, sizeof == 0x8; created in ActorProcessManager::Subroutine0071BFA0
-         MiddleProcess* middleProcess; // 04
+         void* unk00; // 00 // struct, sizeof == 0x8; created in ActorProcessManager::Subroutine0071BFA0
+         MiddleProcess*  middleProcess; // 04
          Struct0071A8F0* unk08; // 08
          Struct006F0580  unk0C; // 0C
          float  unk28; // 28
          UInt32 unk2C;
-         Struct00730290* unk30;                     // 30
-         UInt32 unk34[(0x38 - 0x34) >> 2]; // 34
-         tList<void*>       unk38;         // 38
-         tList<void*>       unk40;         // 40
-         UInt32 unk48[(0x50 - 0x48) >> 2]; // 48
-         float  bleedoutTimer;             // 50 // when this timer expires, the (essential) actor exits bleedout (they stop being downed)
-         float  timeOfDeath;               // 54 - GetTimeDead = (GameDaysPassed*24) - timeOfDeath
-         UInt32 unk58[(0x68 - 0x58) >> 2]; // 58
+         Struct00730290* unk30; // 30
+         UInt32 unk34; // 34
+         UInt32 unk38; // 38
+         UInt32 unk3C; // 3C
+         UInt32 unk40; // 40
+         UInt32 unk44; // 44
+         UInt32 unk48; // 48
+         UInt32 unk4C; // 4C
+         float  bleedoutTimer; // 50 // when this timer expires, the (essential) actor exits bleedout (they stop being downed)
+         float  timeOfDeath;   // 54 - GetTimeDead = (GameDaysPassed*24) - timeOfDeath
+         UInt32 unk58; // 58
+         UInt32 unk5C;
+         UInt32 unk60;
+         UInt32 unk64;
          TESForm* equippedObject[2];       // 68
-         UInt32 unk70[(0x7C - 0x70) >> 2]; // 70
-         UInt32 unk7C;                     // 7C // reference handle
-         UInt32 unk80;                     // 80 // reference handle // kept synched to MiddleProcess::unk08 and TESPackage::unk08?
-         UInt32 unk84[(0x98 - 0x84) >> 2];
-         UInt8  unk98;                     // 98
-         UInt8  unk9A;                     // 9A // bitmask
-         SInt8  unk9B = 3;                 // 9B // Indicates which of Unknown012E32E8's AI-related ref handle arrays the actor is tracked in. Actor's getter defaults this to -1 if it doesn't have an ActorProcessManager.
+         UInt32 unk70; // 70
+         UInt32 unk74;
+         UInt32 unk78;
+         UInt32 unk7C; // 7C // reference handle
+         UInt32 unk80; // 80 // reference handle // kept synched to MiddleProcess::unk08 and TESPackage::unk08?
+         UInt32 unk84;
+         UInt32 unk88;
+         UInt32 unk8C;
+         UInt32 unk90;
+         UInt32 unk94;
+         UInt8  unk98; // 98
+         UInt8  unk99;
+         UInt8  unk9A;     // 9A // bitmask
+         SInt8  unk9B = 3; // 9B // Indicates which of Unknown012E32E8's AI-related ref handle arrays the actor is tracked in. Actor's getter defaults this to -1 if it doesn't have an ActorProcessManager.
          UInt8  unk9C; // 9C
          bool   isIgnoringCombat; // 9D
          UInt8  unk9E[(0xA0 - 0x9E)];      // 9C
@@ -672,7 +685,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetAlert,  void, 0x006F4780, bool makeAlert);
          //
          DEFINE_MEMBER_FN(IsArrested,           bool,    0x006FC260);
-         DEFINE_MEMBER_FN(PushActorAway,        void,    0x00723FE0, Actor* awayFrom, float x, float y, float z, float magnitude);
+         DEFINE_MEMBER_FN(PushActorAway,        void,    0x00723FE0, Actor* myActor, float x, float y, float z, float magnitude); // push the actor away from the specified point
          DEFINE_MEMBER_FN(SetEquipFlag,         void,    0x0071F520, UInt8 flags);
          DEFINE_MEMBER_FN(UpdateEquipment,      void,    0x007031A0, Actor* actor); // reapplies ArmorAddons and the like
          DEFINE_MEMBER_FN(SetUnk08Unk170,       void,    0x006FD1A0, UInt32 flag);  // sets this->unk08->unk170 // but the value may actually be a float passed as a UInt32?
@@ -711,6 +724,8 @@ namespace RE {
 
          DEFINE_MEMBER_FN(WriteSavedata, void, 0x00718F70, BGSSaveFormBuffer*);
    };
+   static_assert(offsetof(ActorProcessManager, unk9B) >= 0x9B, "RE::ActorProcessManager::unk9B is too early!");
+   static_assert(offsetof(ActorProcessManager, unk9B) <= 0x9B, "RE::ActorProcessManager::unk9B is too late!");
 
    class ActorState : public IMovementState {
       public:
@@ -851,8 +866,8 @@ namespace RE {
          struct BodyPart { // sizeof == 0x20
             TESForm*       item;  // 00
             TESObjectARMA* addon; // 04
-            TESModelTextureSwap* unk08; // 08
-            BGSTextureSet* unk0C; // 0C
+            TESModelTextureSwap* model; // 08
+            BGSTextureSet* textureSet; // 0C
             NiNode*        unk10; // 10 // apparently created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
             void*    unk14; // refcounted pointer
             UInt8    unk18;
@@ -881,7 +896,7 @@ namespace RE {
          };
 
          volatile SInt32 refCount; // 00
-         void*    unk04; // 04
+         NiNode*  unk04; // 04
          BodyPart bodyParts[0x2A]; // 08 // index is a body part index, presumably - 30 (i.e. the first body part in the list, body part 30, is index 0) // count may be higher but some functions only loop over 0x2A
          BodyPart unk548[0x2A]; // 548 // could perhaps be "pending" equip data
          UInt32   unkA88; // A88 // refHandle
@@ -895,13 +910,17 @@ namespace RE {
          DEFINE_MEMBER_FN(GetShield,                 BodyPart*, 0x0046C130);
          DEFINE_MEMBER_FN(IdentifyDominantArmorType, void,      0x006E1930, IdentifyDominantArmorTypeVisitor*);
 
+         DEFINE_MEMBER_FN(CreateArmorNode, NiAVObject*, 0x0046F0B0, NiNode* maybeParent, UInt32 bodyPartIndex, UInt8 arg3, UInt32 arg4_zero, UInt32 arg5_zero);
+         DEFINE_MEMBER_FN(InstallArmor,    void,        0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
+         DEFINE_MEMBER_FN(InstallWeapon,   void,        0x0046F870, TESForm*, UInt32);
+
          DEFINE_MEMBER_FN(Subroutine0046AE90, bool, 0x0046AE90, UInt32 bodyPartIndex);
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
          DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
          DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, UInt32 arg4);
-         DEFINE_MEMBER_FN(Subroutine00470050, void, 0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
    };
+   DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
 
    class MovementControllerNPC;
    class Actor : public TESObjectREFR {

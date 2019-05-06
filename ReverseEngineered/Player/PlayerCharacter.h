@@ -110,9 +110,10 @@ namespace RE {
          Unk494 unk494[0xE];                    // 494; sizeof each is 0xC
          UInt32	pad53C[(0x54C - 0x53C) >> 2]; // 53C
          UInt32	unk54C; // 54C - Handle; PlayerCharacter::Subroutine0073D4B0 returns the actor and clears the handle
-         UInt32	pad550[(0x568 - 0x550) >> 2];
+         UInt32	unk550[(0x568 - 0x550) >> 2]; // 550 // some sort of struct related to Z-Keying and telekinesis; see PlayerCharacter::TESV_0074C590
          UInt32	unk568; // 568 - Handle
-         UInt32	pad56C[(0x58C - 0x56C) >> 2];	// 56C
+         float    unk56C; // 56C // mass of object being Z-Keyed/telekinesis'd? see PlayerCharacter::TESV_0074C590
+         UInt32	unk570[(0x58C - 0x570) >> 2];	// 570
          NiNode*  firstPersonSkeleton; // 58C
          UInt32	pad590[(0x5AC - 0x590) >> 2];
          UInt32	lastRiddenHorseHandle;			// 5AC - Handle
