@@ -562,7 +562,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ModifyPersistentFlag,    void,             0x004D50A0, bool setTo);
          DEFINE_MEMBER_FN(MoveToMyEditorLocation,  bool,             0x004E6270, TESObjectCELL*, UInt32); // both arguments are zeroes?
          DEFINE_MEMBER_FN(SetDestroyed,            void,             0x00450E30, bool);
-         DEFINE_MEMBER_FN(SetDisabled,             void,             0x00450FB0, bool); // sets enable state and marks changed
+         DEFINE_MEMBER_FN(SetDisabledFlag,         void,             0x00450FB0, bool); // sets disabled flag and marks changed; DOES NOT ACTUALLY DISABLE THE REFERENCE
          DEFINE_MEMBER_FN(SetEncounterZone,        void,             0x004EA9E0, BGSEncounterZone*); // also sets the reference's EXTRA_ENCOUNTER_ZONE changeflag
          DEFINE_MEMBER_FN(SetOwner,                void,             0x004EC310, void*); // Argument is any form that is a valid owner, e.g. TESFaction. This function sets ownership on the ref; if the ref is a load door, its matching door is also altered.
          DEFINE_MEMBER_FN(SetPitch,                void,             0x004DC9D0, float); // X // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).

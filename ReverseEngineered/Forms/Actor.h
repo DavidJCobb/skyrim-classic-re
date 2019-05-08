@@ -1420,20 +1420,27 @@ namespace RE {
          // Can contain duplicate entries with different rankings
          bool VisitFactions(FactionVisitor & visitor);
 
-         SInt32 GetProcessManagerUnk9B() {
+         SInt32 GetProcessManagerUnk9B() const {
             auto eax = this->processManager;
             if (!eax)
                return -1;
             return eax->unk9B;
          };
-         inline bool IsEssential() {
+         inline bool IsEssential() const {
             return !!(this->flags2 & kFlags_IsEssential);
          };
-         inline bool IsGuard() {
+         inline bool IsGuard() const {
             return !!(this->flags1 & kFlags_IsGuard);
          };
-         inline bool IsSwimming() {
+         inline bool IsSprinting() const {
+            return (this->actorState.flags04 & 0x100 & 0x3FFF) == 0x100;
+         };
+         inline bool IsSwimming() const {
             return (this->actorState.flags04 & 0x400 & 0x3FFF) == 0x400;
+         };
+         inline bool IsWeaponDrawn() const {
+            uint8_t flags = (this->actorState.flags04 >> 5) & 7;
+            return flags >= 3;
          };
    };
 
