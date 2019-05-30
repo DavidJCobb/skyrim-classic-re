@@ -4,9 +4,10 @@
 #include "skse/Utilities.h"
 #include "ReverseEngineered/Shared.h"
 
-class TESObjectREFR;
 namespace RE {
    class refr_ptr;
+   class TESObjectCELL;
+   class TESObjectREFR;
 
    template <typename EventStruct> class BSTEventSource; // forward-declare for BSTEventSink
 
@@ -60,38 +61,96 @@ namespace RE {
       UInt32 cellFormID;     // 04
       Type   eventType;      // 08
    };
+   struct BGSEventProcessedEvent {
+      UInt32 unk00;
+      UInt8  unk04;
+   };
    struct PositionPlayerEvent {}; // TODO
+   struct TESActivateEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+   };
    struct TESActiveEffectApplyRemoveEvent {}; // TODO
-   struct TESActorLocationChangeEvent {}; // TODO
-   struct TESBookReadEvent {}; // TODO
-   struct TESCellAttachDetachEvent {}; // TODO
-   struct TESCellFullyLoadedEvent {}; // TODO
-   struct TESCellReadyToApplyDecalsEvent {}; // TODO
-   struct TESCombatEvent {}; // TODO
+   struct TESActorLocationChangeEvent {
+      TESObjectREFR* unk00; // refcount incremented just before event is sent and decremented after event is sent
+      UInt32 unk04;
+      UInt32 unk08;
+   };
+   struct TESBookReadEvent { // powers Papyrus ObjectReference.OnRead
+      TESObjectREFR* unk00;
+      UInt32         unk04;
+      UInt16         unk08;
+   };
+   struct TESCellAttachDetachEvent {
+      TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
+      UInt8          unk08; // 04 // whether we're attaching or detaching
+   };
+   struct TESCellFullyLoadedEvent {
+      TESObjectCELL* unk00;
+   };
+   struct TESCellReadyToApplyDecalsEvent {
+      TESObjectCELL* unk00;
+   };
+   struct TESCombatEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32 unk08;
+   };
    struct TESContainerChangedEvent {}; // TODO
-   struct TESDeathEvent {}; // TODO
+   struct TESDeathEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      bool           unk08;
+   };
    struct TESDestructionStageChangedEvent {}; // TODO
    struct TESEnterBleedoutEvent {}; // TODO
    struct TESEquipEvent {}; // TODO
    struct TESFormDeleteEvent {
-      UInt32 refrFormID;
+      UInt32 refrFormID; // 00
    };
-   struct TESFurnitureEvent {}; // TODO
+   struct TESFurnitureEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32         unk08;
+      //
+      MEMBER_FN_PREFIX(TESFurnitureEvent);
+      DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts
+   };
    struct TESGrabReleaseEvent {}; // TODO
-   struct TESHitEvent {}; // TODO
-   struct TESInitScriptEvent {}; // TODO
+   struct TESHitEvent {
+      // Constructor at 006E11A0 with 5 args, and another inlined in 006E3FF0
+      UInt32 unk00;
+      UInt32 unk04;
+      UInt32 unk08;
+      UInt32 unk0C;
+      UInt8  unk10;
+   };
+   struct TESInitScriptEvent {
+      TESObjectREFR* ref; // 00
+   };
    struct TESLoadGameEvent {}; // TODO
-   struct TESLockChangedEvent {}; // TODO
+   struct TESLockChangedEvent {
+      TESObjectREFR* ref; // 00
+   };
    struct TESMagicEffectApplyEvent {}; // TODO
    struct TESMagicWardHitEvent {}; // TODO
-   struct TESMoveAttachDetachEvent {}; // TODO
-   struct TESObjectLoadedEvent {}; // TODO
-   struct TESObjectREFRTranslationEvent {}; // TODO
+   struct TESMoveAttachDetachEvent {
+      TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
+      UInt8          unk08; // 04
+   };
+   struct TESObjectLoadedEvent {
+      UInt32 refrFormID; // 00
+      bool   unk04; // 04
+   };
+   struct TESObjectREFRTranslationEvent {
+      TESObjectREFR* ref;   // 00
+      UInt32         unk04; // 04
+   };
    struct TESOpenCloseEvent {}; // TODO
    struct TESPackageEvent {
       enum Type : UInt32 {
-         kType_PackageStart = 0, // package form ID is for the new package
-         kType_PackageEnd = 1, // package form ID is for the old package
+         kType_PackageStart  = 0, // package form ID is for the new package
+         kType_PackageEnd    = 1, // package form ID is for the old package
          kType_PackageChange = 2, // package form ID is for the old package
       };
       //
@@ -107,15 +166,17 @@ namespace RE {
       UInt32 questFormID; // 00
       UInt16 stage; // 04
       UInt8  unk06; // 06
-      UInt8  pad07; // 07
+      UInt8  pad07;
    };
    struct TESQuestStartStopEvent {
       UInt32 questFormID; // quest formID
       bool   unk04; // 04 // start/stop; not sure what value has what meaning
-      UInt8  unk05;
+      UInt8  unk05; // 05
       UInt16 pad06;
    };
-   struct TESResetEvent {}; // TODO
+   struct TESResetEvent {
+      TESObjectREFR* unk00;
+   };
    struct TESResolveNPCTemplatesEvent {}; // TODO
    struct TESSceneEvent {}; // TODO
    struct TESSceneActionEvent {}; // TODO
@@ -124,13 +185,24 @@ namespace RE {
    struct TESSleepStartEvent {}; // TODO
    struct TESSleepStopEvent {}; // TODO
    struct TESSpellCastEvent {}; // TODO
-   struct TESSwitchRaceCompleteEvent {}; // TODO
+   struct TESSwitchRaceCompleteEvent {
+      TESObjectREFR* unk00;
+   };
    struct TESTopicInfoEvent {}; // TODO
    struct TESTrackedStatsEvent {}; // TODO
    struct TESTrapHitEvent {}; // TODO
-   struct TESTriggerEvent {}; // TODO
-   struct TESTriggerEnterEvent {}; // TODO
-   struct TESTriggerLeaveEvent {}; // TODO
+   struct TESTriggerEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+   };
+   struct TESTriggerEnterEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+   };
+   struct TESTriggerLeaveEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+   };
    struct TESUniqueIDChangeEvent {
       UInt32 unk00;
       UInt32 unk04;
@@ -158,91 +230,108 @@ namespace RE {
             return (BSTEventSourceHolder*)0x012E4C30;
          };
          //
-         BSTEventSource<UInt32> eventProcessed; // 000 // BGSEventProcessedEvent
-         BSTEventSource<UInt32> activate; // 030 // 
-         BSTEventSource<UInt32> activeEffectApplyRemove; // 060 // TESActiveEffectApplyRemoveEvent
-         BSTEventSource<UInt32> actorLocationChange; // 090 // TESActorLocationChangeEvent
-         BSTEventSource<UInt32> bookRead; // 0C0 // TESBookReadEvent
-         BSTEventSource<UInt32> cellAttachDetach; // 0F0 // TESCellAttachDetachEvent
-         BSTEventSource<UInt32> cellFullyLoaded; // 120 // TESCellFullyLoadedEvent
-         BSTEventSource<UInt32> cellReadyToApplyDecals; // 150 // TESCellReadyToApplyDecalsEvent
-         BSTEventSource<UInt32> combat; // 180 // TESCombatEvent
-         BSTEventSource<UInt32> containerChanged; // 1B0 // TESContainerChangedEvent
-         BSTEventSource<UInt32> death; // 1E0 // 
-         BSTEventSource<UInt32> destructionStageChanged; // 210 // 
-         BSTEventSource<UInt32> enterBleedout; // 240 // 
-         BSTEventSource<UInt32> equip; // 270 // equip or unequip
-         BSTEventSource<TESFormDeleteEvent> formDelete; // 2A0 // TESObjectREFR only, though
-         BSTEventSource<UInt32> furniture; // 2D0 // 
-         BSTEventSource<UInt32> grabRelease; // 300 //  
-         BSTEventSource<UInt32> hit; // 330 // hit event
-         BSTEventSource<UInt32> initScript; // 360 // 
-         BSTEventSource<UInt32> loadGame; // 390 // 
-         BSTEventSource<UInt32> lockChanged; // 3C0 // 
-         BSTEventSource<UInt32> magicEffectApply; // 3F0 // 
-         BSTEventSource<UInt32> magicWardHit; // 420 // 
-         BSTEventSource<UInt32> moveAttachDetach; // 450
-         BSTEventSource<UInt32> objectLoaded; // 480 // 
-         BSTEventSource<UInt32> objectReferenceTranslationEvent; // 4B0 // fired by Papyrus:ObjectReference:TranslateTo and related Papyrus functions; maybe by other stuff?
-         BSTEventSource<UInt32> openClose; // 4E0 //
-         BSTEventSource<TESPackageEvent> package; // 510 // 
-         BSTEventSource<UInt32> perkEntryRun; // 540 // 
-         BSTEventSource<UInt32> questInit; // 570 // 
-         BSTEventSource<UInt32> questStage; // 5A0 // 
-         BSTEventSource<UInt32> questStageItemDone; // 5D0 // TESQuestStageItemDoneEvent
-         BSTEventSource<UInt32> questStartStop; // 600 // TESQuestStartStopEvent
-         BSTEventSource<UInt32> reset; // 630
-         BSTEventSource<UInt32> resolveNPCTemplates; // 660
-         BSTEventSource<UInt32> scene; // sent by Scene::Stop, and by one other Scene method (possibly for scene completion)
-         BSTEventSource<UInt32> sceneAction; // 6C0
-         BSTEventSource<UInt32> scenePhase; // 6F0 // related to scene phases; possibly scene phase completion
-         BSTEventSource<UInt32> sell; // 720
-         BSTEventSource<UInt32> sleepStart; // 750
-         BSTEventSource<UInt32> sleepStop; // 780
-         BSTEventSource<UInt32> spellCast; // 7B0
-         BSTEventSource<UInt32> playerBowShotEvent; // 7E0
-         BSTEventSource<UInt32> topicInfo; // 810
-         BSTEventSource<UInt32> trackedStats; // 840
-         BSTEventSource<UInt32> trapHit; // 870
-         BSTEventSource<UInt32> trigger; // 8A0
-         BSTEventSource<UInt32> triggerEnter; // 8D0
-         BSTEventSource<UInt32> triggerLeave; // 900
-         BSTEventSource<UInt32> uniqueIDChange; // 930
-         BSTEventSource<UInt32> waitStart; // 960
-         BSTEventSource<UInt32> waitStop; // 990
-         BSTEventSource<UInt32> switchRaceComplete; // 9C0
+         BSTEventSource<BGSEventProcessedEvent>          eventProcessed;          // 000 (0x012E4C30) // BGSEventProcessedEvent
+         BSTEventSource<TESActivateEvent>                activate;                // 030 (0x012E4C60) // 
+         BSTEventSource<TESActiveEffectApplyRemoveEvent> activeEffectApplyRemove; // 060 (0x012E4C90) // TESActiveEffectApplyRemoveEvent
+         BSTEventSource<TESActorLocationChangeEvent>     actorLocationChange;     // 090 (0x012E4CC0) // TESActorLocationChangeEvent
+         BSTEventSource<TESBookReadEvent>                bookRead;                // 0C0 (0x012E4CF0) // TESBookReadEvent
+         BSTEventSource<TESCellAttachDetachEvent>        cellAttachDetach;        // 0F0 (0x012E4D20) // TESCellAttachDetachEvent
+         BSTEventSource<TESCellFullyLoadedEvent>         cellFullyLoaded;         // 120 (0x012E4D50) // TESCellFullyLoadedEvent
+         BSTEventSource<TESCellReadyToApplyDecalsEvent>  cellReadyToApplyDecals;  // 150 (0x012E4D80) // TESCellReadyToApplyDecalsEvent
+         BSTEventSource<TESCombatEvent>                  combat;                  // 180 (0x012E4DB0) // TESCombatEvent
+         BSTEventSource<TESContainerChangedEvent>        containerChanged;        // 1B0 (0x012E4DE0) // TESContainerChangedEvent
+         BSTEventSource<TESDeathEvent>                   death;                   // 1E0 (0x012E4E10) // 
+         BSTEventSource<TESDestructionStageChangedEvent> destructionStageChanged; // 210 (0x012E4E40) // 
+         BSTEventSource<TESEnterBleedoutEvent>           enterBleedout;           // 240 (0x012E4E70) // 
+         BSTEventSource<TESEquipEvent>                   equip;                   // 270 (0x012E4EA0) // equip or unequip
+         BSTEventSource<TESFormDeleteEvent>              formDelete;              // 2A0 (0x012E4ED0) // TESObjectREFR only, though
+         BSTEventSource<TESFurnitureEvent>               furniture;               // 2D0 (0x012E4F00) // 
+         BSTEventSource<TESGrabReleaseEvent>             grabRelease;             // 300 (0x012E4F30) //  
+         BSTEventSource<TESHitEvent>                     hit;                     // 330 (0x012E4F60) // hit event
+         BSTEventSource<TESInitScriptEvent>              initScript;              // 360 (0x012E4F90) // 
+         BSTEventSource<TESLoadGameEvent>                loadGame;                // 390 (0x012E4FC0) // 
+         BSTEventSource<TESLockChangedEvent>             lockChanged;             // 3C0 (0x012E4FF0) // 
+         BSTEventSource<TESMagicEffectApplyEvent>        magicEffectApply;        // 3F0 (0x012E5020) // 
+         BSTEventSource<TESMagicWardHitEvent>            magicWardHit;            // 420 (0x012E5050) // 
+         BSTEventSource<TESMoveAttachDetachEvent>        moveAttachDetach;        // 450 (0x012E5080)
+         BSTEventSource<TESObjectLoadedEvent>            objectLoaded;            // 480 (0x012E50B0) // 
+         BSTEventSource<TESObjectREFRTranslationEvent>   objectReferenceTranslationEvent; // 4B0 (0x012E50E0) // fired by Papyrus:ObjectReference:TranslateTo and related Papyrus functions; maybe by other stuff?
+         BSTEventSource<TESOpenCloseEvent>               openClose;               // 4E0 (0x012E5110) //
+         BSTEventSource<TESPackageEvent>                 package;                 // 510 (0x012E5140) // 
+         BSTEventSource<TESPerkEntryRunEvent>            perkEntryRun;            // 540 (0x012E5170) // 
+         BSTEventSource<TESQuestInitEvent>               questInit;               // 570 (0x012E51A0) // 
+         BSTEventSource<TESQuestStageEvent>              questStage;              // 5A0 (0x012E51D0) // 
+         BSTEventSource<TESQuestStageItemDoneEvent>      questStageItemDone;      // 5D0 (0x012E5200) // TESQuestStageItemDoneEvent
+         BSTEventSource<TESQuestStartStopEvent>          questStartStop;          // 600 (0x012E5230) // TESQuestStartStopEvent
+         BSTEventSource<TESResetEvent>                   reset;                   // 630 (0x012E5260)
+         BSTEventSource<TESResolveNPCTemplatesEvent>     resolveNPCTemplates;     // 660 (0x012E5290)
+         BSTEventSource<TESSceneEvent>                   scene;                   // 690 (0x012E52C0) // sent by Scene::Stop, and by one other Scene method (possibly for scene completion)
+         BSTEventSource<TESSceneActionEvent>             sceneAction;             // 6C0 (0x012E52F0)
+         BSTEventSource<TESScenePhaseEvent>              scenePhase;              // 6F0 (0x012E5320) // related to scene phases; possibly scene phase completion
+         BSTEventSource<TESSellEvent>                    sell;                    // 720 (0x012E5350)
+         BSTEventSource<TESSleepStartEvent>              sleepStart;              // 750 (0x012E5380)
+         BSTEventSource<TESSleepStopEvent>               sleepStop;               // 780 (0x012E53B0)
+         BSTEventSource<TESSpellCastEvent>               spellCast;               // 7B0 (0x012E53E0)
+         BSTEventSource<TESPlayerBowShotEvent>           playerBowShotEvent;      // 7E0 (0x012E5410)
+         BSTEventSource<TESTopicInfoEvent>               topicInfo;               // 810 (0x012E5440)
+         BSTEventSource<TESTrackedStatsEvent>            trackedStats;            // 840 (0x012E5470)
+         BSTEventSource<TESTrapHitEvent>                 trapHit;                 // 870 (0x012E54A0)
+         BSTEventSource<TESTriggerEvent>                 trigger;                 // 8A0 (0x012E54D0)
+         BSTEventSource<TESTriggerEnterEvent>            triggerEnter;            // 8D0 (0x012E5500)
+         BSTEventSource<TESTriggerLeaveEvent>            triggerLeave;            // 900 (0x012E5530)
+         BSTEventSource<TESUniqueIDChangeEvent>          uniqueIDChange;          // 930 (0x012E5560)
+         BSTEventSource<TESWaitStartEvent>               waitStart;               // 960 (0x012E5590)
+         BSTEventSource<TESWaitStopEvent>                waitStop;                // 990 (0x012E55C0)
+         BSTEventSource<TESSwitchRaceCompleteEvent>      switchRaceComplete;      // 9C0 (0x012E55F0)
 
          // all members are BSTEventSource instances, sizeof == 0x30
 
          MEMBER_FN_PREFIX(BSTEventSourceHolder);
          DEFINE_MEMBER_FN(Destructor,   void, 0x00436DE0);
          //
-         DEFINE_MEMBER_FN(SendActivateEvent,   void, 0x004E0450, refr_ptr*, void*); // actually a smart refr_ptr
-         DEFINE_MEMBER_FN(SendFormDeleteEvent, void, 0x00690AFD, UInt32 formID);
-         DEFINE_MEMBER_FN(SendPackageEvent,    void, 0x0070C280, UInt32 packageFormID, refr_ptr*, TESPackageEvent::Type eventType); // actually a smart refr_ptr
-         DEFINE_MEMBER_FN(SendActorLocationChangeEvent,     void, 0x004E04B0, void**, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendCellFullyLoadedEvent,         void, 0x00437650, UInt32);
-         DEFINE_MEMBER_FN(SendCellReadyToApplyDecalsEvent,  void, 0x004CB1A0, UInt32);
-         DEFINE_MEMBER_FN(SendCombatEvent,                  void, 0x006E3F90, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendActivateEvent,                void, 0x004E0450, refr_ptr&, refr_ptr&);
+         DEFINE_MEMBER_FN(SendActiveEffectApplyRemoveEvent, void, 0x00656860, refr_ptr&, refr_ptr&, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendFormDeleteEvent,              void, 0x00690AFD, UInt32 formID);
+         DEFINE_MEMBER_FN(SendPackageEvent,                 void, 0x0070C280, UInt32 packageFormID, refr_ptr& actor, TESPackageEvent::Type eventType); // actually a smart refr_ptr
+         DEFINE_MEMBER_FN(SendActorLocationChangeEvent,     void, 0x004E04B0, refr_ptr& actor, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendBookReadEvent,                void, 0x00845CC0, refr_ptr&, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendCellAttachDetachEvent,        void, 0x004CB130, refr_ptr& ref, UInt8); // also fired at 004CEB5F
+         DEFINE_MEMBER_FN(SendCellFullyLoadedEvent,         void, 0x00437650, TESObjectCELL*);
+         DEFINE_MEMBER_FN(SendCellReadyToApplyDecalsEvent,  void, 0x004CB1A0, TESObjectCELL*);
+         DEFINE_MEMBER_FN(SendCombatEvent,                  void, 0x006E3F90, refr_ptr&, refr_ptr&, UInt32 actorCombatState);
          DEFINE_MEMBER_FN(SendContainerChangedEvent,        void, 0x0047E570, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendDeathEvent,                   void, 0x006C46C0, UInt32, UInt32); //
+         DEFINE_MEMBER_FN(SendDeathEvent_B,                 void, 0x006C4660, UInt32, UInt32); // the difference between these two is a bool they store on the event struct -- a "murder" or "detected" bool?
          DEFINE_MEMBER_FN(SendDestructionStageChangedEvent, void, 0x00449A60, void**, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendEnterBleedoutEvent,           void, 0x006C4720, void**);
          DEFINE_MEMBER_FN(SendEquipEvent,                   void, 0x006C4780, void**, UInt32, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendFurnitureEvent,               void, 0x00725000, void**, UInt32, bool);
+         DEFINE_MEMBER_FN(SendFurnitureEvent,               void, 0x00725000, refr_ptr&, refr_ptr&, bool);
          DEFINE_MEMBER_FN(SendGrabReleaseEvent,             void, 0x00742080, void**, UInt32);
-         DEFINE_MEMBER_FN(SendEvent330, void, 0x006E3FF0, void**, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendEvent330_B, void, 0x006E4060, void**, refr_ptr*, UInt32 formID_maybeWeapon, UInt32, void*);
-         DEFINE_MEMBER_FN(SendLockChangedEvent,             void, 0x004E05A0, void**);
-         DEFINE_MEMBER_FN(SendMoveAttachDetachEvent,        void, 0x004E0600, void**, UInt32);
-         DEFINE_MEMBER_FN(SendTranslationEvent, void, 0x004CB220, void**, UInt32); // TESObjectREFRTranslationEvent
-         DEFINE_MEMBER_FN(SendOpenCloseEvent, void, 0x0044BC10, void**, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendPerkEntryRunEvent, void, 0x0054C560, void**, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendResetEvent, void, 0x004CB1C0, void**);
-         DEFINE_MEMBER_FN(SendSceneEvent, void, 0x00557350, void**, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendScenePhaseEvent, void, 0x0055A570, void**, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendSellEvent, void, 0x0047E5C0, void**, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendPlayerBowShotEvent, void, 0x004AA660, UInt32, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendEvent960, void, 0x0047E630, UInt32, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendInitScriptEvent,              void, 0x004E0540, refr_ptr&);
+         DEFINE_MEMBER_FN(SendHitEvent,                     void, 0x006E3FF0, refr_ptr&, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr&, refr_ptr&, UInt32 formID_maybeWeapon, UInt32, void*);
+         DEFINE_MEMBER_FN(SendLockChangedEvent,             void, 0x004E05A0, refr_ptr&);
+         DEFINE_MEMBER_FN(SendMagicEffectApplyEvent,        void, 0x006646E0, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendMagicWardHitEvent,            void, 0x006EBE70, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendMoveAttachDetachEvent,        void, 0x004E0600, refr_ptr& ref, UInt8);
+         DEFINE_MEMBER_FN(SendObjectReferenceTranslationEvent, void, 0x004CB220, refr_ptr& ref, UInt32); // TESObjectREFRTranslationEvent
+         DEFINE_MEMBER_FN(SendOpenCloseEvent,               void, 0x0044BC10, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendPerkEntryRunEvent,            void, 0x0054C460, refr_ptr&, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendQuestStageEvent,              void, 0x00576290, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendResetEvent,                   void, 0x004CB1C0, refr_ptr&);
+         DEFINE_MEMBER_FN(SendSceneEvent,                   void, 0x00557350, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendSceneActionEvent,             void, 0x0055A0A0, UInt32, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendScenePhaseEvent,              void, 0x0055A570, void**, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendSellEvent,                    void, 0x0047E5C0, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendSpellCastEvent,               void, 0x006591E0, refr_ptr&, UInt32);
+         DEFINE_MEMBER_FN(SendSwitchRaceCompleteEvent,      void, 0x00665180, refr_ptr& actor);
+         DEFINE_MEMBER_FN(SendTopicInfoEvent,               void, 0x0057DDD0, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendTrapHitEvent,                 void, 0x00589A80, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendTriggerEvent,                 void, 0x00589AE0, refr_ptr&, refr_ptr&);
+         DEFINE_MEMBER_FN(SendTriggerEnterEvent,            void, 0x00589B40, refr_ptr&, refr_ptr&);
+         DEFINE_MEMBER_FN(SendTriggerLeaveEvent,            void, 0x0058B9A0, refr_ptr&, refr_ptr&);
+         DEFINE_MEMBER_FN(SendPlayerBowShotEvent,           void, 0x004AA660, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendWaitStartEvent,               void, 0x0047E630, UInt32, UInt32, UInt32, UInt32, UInt32);
    };
    static_assert(offsetof(BSTEventSourceHolder, combat) >= 0x180, "BSTEventSourceHolder::combat is too early!");
    static_assert(offsetof(BSTEventSourceHolder, combat) <= 0x180, "BSTEventSourceHolder::combat is too late!");

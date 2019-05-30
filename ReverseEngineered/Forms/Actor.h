@@ -125,7 +125,7 @@ namespace RE {
             EffectListNode* next;   // 4
          };
 
-         UInt32   unk00; // 00
+         UInt32   unk00; // 00 // BSTEventSource*?
          UInt32	unk04;	// 04
          UInt32	unk08;	// 08 // reference handle // kept synched to ActorProcessManager::unk80 and TESPackage::unk08?
          UInt32	unk0C;	// 0C
