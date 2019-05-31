@@ -44,7 +44,7 @@ namespace RE {
                UInt8 green; // 01
                UInt8 red;   // 00
             };
-            UInt32	unk00;	// 00
+            UInt32	unk00;	// 00 // time?
             UInt32	radius;	// 04
             Color   color;  // 08
             UInt32 flags;	// 0C // This is a bitmask. AND with 0x1C00 and then compare to the enum above to see the light type.

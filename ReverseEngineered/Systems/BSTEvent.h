@@ -70,7 +70,12 @@ namespace RE {
       TESObjectREFR* unk00;
       TESObjectREFR* unk04;
    };
-   struct TESActiveEffectApplyRemoveEvent {}; // TODO
+   struct TESActiveEffectApplyRemoveEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt16         unk08;
+      UInt8          unk0C; // probably indicates whether we're applying or removing
+   };
    struct TESActorLocationChangeEvent {
       TESObjectREFR* unk00; // refcount incremented just before event is sent and decremented after event is sent
       UInt32 unk04;
@@ -96,15 +101,36 @@ namespace RE {
       TESObjectREFR* unk04;
       UInt32 unk08;
    };
-   struct TESContainerChangedEvent {}; // TODO
+   struct TESContainerChangedEvent {
+      UInt32 unk00;
+      UInt32 unk04;
+      UInt32 unk08;
+      UInt32 unk0C;
+      UInt32 unk10;
+      UInt16 unk14;
+      UInt16 pad16;
+   };
    struct TESDeathEvent {
       TESObjectREFR* unk00;
       TESObjectREFR* unk04;
       bool           unk08;
    };
-   struct TESDestructionStageChangedEvent {}; // TODO
-   struct TESEnterBleedoutEvent {}; // TODO
-   struct TESEquipEvent {}; // TODO
+   struct TESDestructionStageChangedEvent {
+      TESObjectREFR* ref;
+      SInt32 unk04; // possibly old destruction stage
+      SInt32 unk08; // possibly new destruction stage
+   };
+   struct TESEnterBleedoutEvent {
+      TESObjectREFR* actor;
+   };
+   struct TESEquipEvent {
+      TESObjectREFR* actor;
+      UInt32 unk04;
+      UInt32 unk08;
+      UInt16 unk0C;
+      UInt8  unk0E;
+      UInt8  pad0F;
+   };
    struct TESFormDeleteEvent {
       UInt32 refrFormID; // 00
    };
@@ -116,7 +142,10 @@ namespace RE {
       MEMBER_FN_PREFIX(TESFurnitureEvent);
       DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts
    };
-   struct TESGrabReleaseEvent {}; // TODO
+   struct TESGrabReleaseEvent {
+      TESObjectREFR* ref; // 00 // grabbed/released ref
+      UInt8 unk04; // whether grabbing or releasing
+   };
    struct TESHitEvent {
       // Constructor at 006E11A0 with 5 args, and another inlined in 006E3FF0
       UInt32 unk00;
@@ -128,12 +157,23 @@ namespace RE {
    struct TESInitScriptEvent {
       TESObjectREFR* ref; // 00
    };
-   struct TESLoadGameEvent {}; // TODO
+   struct TESLoadGameEvent {
+      // This is a zero-size struct. Skyrim compiles to allocate a single byte for it.
+   };
    struct TESLockChangedEvent {
       TESObjectREFR* ref; // 00
    };
-   struct TESMagicEffectApplyEvent {}; // TODO
-   struct TESMagicWardHitEvent {}; // TODO
+   struct TESMagicEffectApplyEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32         unk08;
+   };
+   struct TESMagicWardHitEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32         unk08;
+      UInt32         unk0C;
+   };
    struct TESMoveAttachDetachEvent {
       TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
       UInt8          unk08; // 04
@@ -146,7 +186,11 @@ namespace RE {
       TESObjectREFR* ref;   // 00
       UInt32         unk04; // 04
    };
-   struct TESOpenCloseEvent {}; // TODO
+   struct TESOpenCloseEvent {
+      TESObjectREFR* unk00; // one of these refs is the door; the other is what opened/closed it
+      TESObjectREFR* unk04;
+      UInt8          unk08; // whether opening or closing
+   };
    struct TESPackageEvent {
       enum Type : UInt32 {
          kType_PackageStart  = 0, // package form ID is for the new package
@@ -158,10 +202,30 @@ namespace RE {
       UInt32 packageFormID; // 04
       Type   eventType; // 08
    };
-   struct TESPerkEntryRunEvent {}; // TODO
-   struct TESPlayerBowShotEvent {}; // TODO
-   struct TESQuestInitEvent {}; // TODO
-   struct TESQuestStageEvent {}; // TODO
+   struct TESPerkEntryRunEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32         unk08; // perk form ID?
+      UInt16         unk0C;
+      //
+      MEMBER_FN_PREFIX(TESPerkEntryRunEvent);
+      DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts // same destructor as TESFurnitureEvent
+   };
+   struct TESPlayerBowShotEvent {
+      UInt32 unk00; // 00
+      UInt32 unk04; // 04
+      UInt32 unk08; // 08
+      bool   isSungazing; // 0C
+   };
+   struct TESQuestInitEvent {
+      UInt32 questFormID; // 00
+   };
+   struct TESQuestStageEvent {
+      UInt32 unk00; // 00
+      UInt32 unk04; // 04 // form ID, probably for the quest -- but if so, then what is unk00?
+      UInt16 stage; // 08
+      UInt8  unk0A; // 0A
+   };
    struct TESQuestStageItemDoneEvent {
       UInt32 questFormID; // 00
       UInt16 stage; // 04
@@ -177,8 +241,14 @@ namespace RE {
    struct TESResetEvent {
       TESObjectREFR* unk00;
    };
-   struct TESResolveNPCTemplatesEvent {}; // TODO
-   struct TESSceneEvent {}; // TODO
+   struct TESResolveNPCTemplatesEvent {
+      UInt32 unk00;
+   };
+   struct TESSceneEvent {
+      UInt32 unk00;
+      UInt32 unk04;
+      void*  unk08;
+   };
    struct TESSceneActionEvent {}; // TODO
    struct TESScenePhaseEvent {}; // TODO
    struct TESSellEvent {}; // TODO
@@ -290,7 +360,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Destructor,   void, 0x00436DE0);
          //
          DEFINE_MEMBER_FN(SendActivateEvent,                void, 0x004E0450, refr_ptr&, refr_ptr&);
-         DEFINE_MEMBER_FN(SendActiveEffectApplyRemoveEvent, void, 0x00656860, refr_ptr&, refr_ptr&, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendActiveEffectApplyRemoveEvent, void, 0x00656860, refr_ptr&, refr_ptr&, UInt16, UInt8);
          DEFINE_MEMBER_FN(SendFormDeleteEvent,              void, 0x00690AFD, UInt32 formID);
          DEFINE_MEMBER_FN(SendPackageEvent,                 void, 0x0070C280, UInt32 packageFormID, refr_ptr& actor, TESPackageEvent::Type eventType); // actually a smart refr_ptr
          DEFINE_MEMBER_FN(SendActorLocationChangeEvent,     void, 0x004E04B0, refr_ptr& actor, UInt32, UInt32);
@@ -303,23 +373,24 @@ namespace RE {
          DEFINE_MEMBER_FN(SendDeathEvent,                   void, 0x006C46C0, UInt32, UInt32); //
          DEFINE_MEMBER_FN(SendDeathEvent_B,                 void, 0x006C4660, UInt32, UInt32); // the difference between these two is a bool they store on the event struct -- a "murder" or "detected" bool?
          DEFINE_MEMBER_FN(SendDestructionStageChangedEvent, void, 0x00449A60, void**, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendEnterBleedoutEvent,           void, 0x006C4720, void**);
-         DEFINE_MEMBER_FN(SendEquipEvent,                   void, 0x006C4780, void**, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendEnterBleedoutEvent,           void, 0x006C4720, refr_ptr& actor);
+         DEFINE_MEMBER_FN(SendEquipEvent,                   void, 0x006C4780, refr_ptr& actor, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendFurnitureEvent,               void, 0x00725000, refr_ptr&, refr_ptr&, bool);
-         DEFINE_MEMBER_FN(SendGrabReleaseEvent,             void, 0x00742080, void**, UInt32);
+         DEFINE_MEMBER_FN(SendGrabReleaseEvent,             void, 0x00742080, refr_ptr& target, UInt8);
          DEFINE_MEMBER_FN(SendInitScriptEvent,              void, 0x004E0540, refr_ptr&);
          DEFINE_MEMBER_FN(SendHitEvent,                     void, 0x006E3FF0, refr_ptr&, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr&, refr_ptr&, UInt32 formID_maybeWeapon, UInt32, void*);
          DEFINE_MEMBER_FN(SendLockChangedEvent,             void, 0x004E05A0, refr_ptr&);
-         DEFINE_MEMBER_FN(SendMagicEffectApplyEvent,        void, 0x006646E0, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendMagicWardHitEvent,            void, 0x006EBE70, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendMagicEffectApplyEvent,        void, 0x006646E0, refr_ptr&, refr_ptr&, UInt32);
+         DEFINE_MEMBER_FN(SendMagicWardHitEvent,            void, 0x006EBE70, refr_ptr&, refr_ptr&, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendMoveAttachDetachEvent,        void, 0x004E0600, refr_ptr& ref, UInt8);
          DEFINE_MEMBER_FN(SendObjectReferenceTranslationEvent, void, 0x004CB220, refr_ptr& ref, UInt32); // TESObjectREFRTranslationEvent
-         DEFINE_MEMBER_FN(SendOpenCloseEvent,               void, 0x0044BC10, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendOpenCloseEvent,               void, 0x0044BC10, refr_ptr&, refr_ptr&, UInt8);
          DEFINE_MEMBER_FN(SendPerkEntryRunEvent,            void, 0x0054C460, refr_ptr&, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendPlayerBowShotEvent,           void, 0x004AA660, UInt32, UInt32, UInt32, bool isSungazing);
          DEFINE_MEMBER_FN(SendQuestStageEvent,              void, 0x00576290, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendResetEvent,                   void, 0x004CB1C0, refr_ptr&);
-         DEFINE_MEMBER_FN(SendSceneEvent,                   void, 0x00557350, void**, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendSceneEvent,                   void, 0x00557350, void*& smartPtr_not_a_refr, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendSceneActionEvent,             void, 0x0055A0A0, UInt32, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendScenePhaseEvent,              void, 0x0055A570, void**, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendSellEvent,                    void, 0x0047E5C0, void**, UInt32, UInt32);
@@ -330,7 +401,6 @@ namespace RE {
          DEFINE_MEMBER_FN(SendTriggerEvent,                 void, 0x00589AE0, refr_ptr&, refr_ptr&);
          DEFINE_MEMBER_FN(SendTriggerEnterEvent,            void, 0x00589B40, refr_ptr&, refr_ptr&);
          DEFINE_MEMBER_FN(SendTriggerLeaveEvent,            void, 0x0058B9A0, refr_ptr&, refr_ptr&);
-         DEFINE_MEMBER_FN(SendPlayerBowShotEvent,           void, 0x004AA660, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendWaitStartEvent,               void, 0x0047E630, UInt32, UInt32, UInt32, UInt32, UInt32);
    };
    static_assert(offsetof(BSTEventSourceHolder, combat) >= 0x180, "BSTEventSourceHolder::combat is too early!");
