@@ -137,6 +137,10 @@ namespace RE {
       // Expect these to fire when entering an area for the first time, as actors 
       // are apparently considered to equip their armor at that moment.
       //
+      // Looting an equipped item off of a corpse sends an unequip event for that 
+      // corpse. Killing an actor who has spells equipped and drawn will send un-
+      // equip events for their spells.
+      //
       enum Type : UInt8 {
          kType_Unequip = 0,
          kType_Equip   = 1,
@@ -163,13 +167,21 @@ namespace RE {
       MEMBER_FN_PREFIX(TESFurnitureEvent);
       DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // decrements refcounts on actor and furniture
    };
-   struct TESGrabReleaseEvent {
+   struct TESGrabReleaseEvent { // Fires when the player starts or stops Z-keying an object; doesn't fire for telekinesis
       TESObjectREFR* ref;        // 00 // grabbed/released ref
       bool           isGrabbing; // 04 // whether grabbing or releasing
    };
    struct TESHitEvent {
       //
-      // Fires when any reference is attacked, including static objects like walls and floors.
+      // Fires when any reference is attacked, including static objects like walls and floors. This 
+      // doesn't fire if you grab an object using telekinesis, but if you launch an object at some-
+      // one using telekinesis, it counts as you hitting them with [WEAP:000001F4]Unarmed. Launching 
+      // objects at Statics with telekinesis does not send a hit event, even though punching Statics 
+      // while unarmed does.
+      //
+      // For concentration spells, seems to fire on a per-projectile basis, so you can receive a lot 
+      // of these! Papyrus docs say this fires per-enchantment for enchanted weapons as well, but 
+      // they also say that sourceFormID is always the weapon in that case; I should test that.
       //
       enum Flags : UInt8 {
          kFlag_PowerAttack = 0x01,
@@ -180,10 +192,6 @@ namespace RE {
       };
       //
       // Constructor at 006E11A0 with 5 args, and another inlined in 006E3FF0
-      //
-      // For concentration spells, seems to fire on a per-projectile basis, so you can receive a lot 
-      // of these! Papyrus docs say this fires per-enchantment for enchanted weapons as well, but they 
-      // also say that sourceFormID is always the weapon in that case; I should test that.
       //
       TESObjectREFR* target;   // 00
       TESObjectREFR* attacker; // 04
@@ -206,9 +214,14 @@ namespace RE {
       TESObjectREFR* ref; // 00
    };
    struct TESMagicEffectApplyEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32         unk08;
+      //
+      // I haven't investigated thoroughly enough, but I know that Cobb Rim Lighting causes this 
+      // event to spam HARD. Cloak spells are dirt-cheap, but it's worth knowing about: don't do 
+      // anything expensive in a sink for this event.
+      //
+      TESObjectREFR* target; // 00
+      TESObjectREFR* caster; // 04
+      UInt32         effectFormID; // 08
    };
    struct TESMagicWardHitEvent {
       TESObjectREFR* unk00;
@@ -329,10 +342,19 @@ namespace RE {
       TESObjectREFR* unk00;
    };
    struct TESTopicInfoEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32 unk08;
-      UInt32 unk0C;
+      //
+      // These can fire out of order: if you initiate dialogue with an NPC and then select a topic 
+      // before their currently-playing info finishes, then you get the new info's start event before 
+      // the old info's end event.
+      //
+      enum Type : UInt32 {
+         kType_Start = 0,
+         kType_End   = 1,
+      };
+      TESObjectREFR* speaker;    // 00
+      void*          unk04;      // 04 // something refcounted; maybe sound data?
+      UInt32         infoFormID; // 08
+      Type           type;       // 0C
    };
    struct TESTrackedStatsEvent {
       UInt32 unk00; // StringCache::Ref?
