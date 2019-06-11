@@ -14,20 +14,20 @@ namespace RE {
    class BSTEventSinkBase {};
    template <typename EventStruct> class BSTEventSink : public BSTEventSinkBase {
       public:
-      inline static EventStruct* convertEvent(void* a) { return (EventStruct*)a; };
-      inline static BSTEventSource<EventStruct>* convertSource(void* a) { return (BSTEventSource<EventStruct>*)a; };
-      //
-      virtual ~BSTEventSink() { /* TODO */ }
-      virtual EventResult Handle(void* aEv, void* aSource) {
+         inline static EventStruct* convertEvent(void* a) { return (EventStruct*)a; };
+         inline static BSTEventSource<EventStruct>* convertSource(void* a) { return (BSTEventSource<EventStruct>*)a; };
          //
-         // Using templated arguments seems to prevent us from being able to override this 
-         // function, so your overrides must instead convert non-templated args like so:
-         //
-         auto ev = convertEvent(aEv);
-         auto source = convertSource(aSource);
-         //
-         return EventResult::kEvent_Continue;
-      };
+         virtual ~BSTEventSink() {}
+         virtual EventResult Handle(void* aEv, void* aSource) {
+            //
+            // Using templated arguments seems to prevent us from being able to override this 
+            // function, so your overrides must instead convert non-templated args like so:
+            //
+            auto ev = convertEvent(aEv);
+            auto source = convertSource(aSource);
+            //
+            return EventResult::kEvent_Continue;
+         };
    };
    static_assert(sizeof(BSTEventSink<UInt32>) == 4, "BSTEventSink is the wrong size!");
 
@@ -43,11 +43,11 @@ namespace RE {
 
       MEMBER_FN_PREFIX(BSTEventSource);
       DEFINE_MEMBER_FN(Constructor, void, 0x0073E790);
-      DEFINE_MEMBER_FN(Destructor, void, 0x00695990);
+      DEFINE_MEMBER_FN(Destructor,  void, 0x00695990);
       //
-      DEFINE_MEMBER_FN(AddEventSink, void, 0x006E3E30, pSink sink);
+      DEFINE_MEMBER_FN(AddEventSink,    void, 0x006E3E30, pSink sink);
       DEFINE_MEMBER_FN(RemoveEventSink, void, 0x008CE0C0, pSink eventSink);
-      DEFINE_MEMBER_FN(SendEvent, void, 0x006EBC10, void* eventObj);
+      DEFINE_MEMBER_FN(SendEvent,       void, 0x006EBC10, void* eventObj);
    };
    static_assert(sizeof(BSTEventSource<UInt32>) >= 0x30, "BSTEventSource is too small!");
    static_assert(sizeof(BSTEventSource<UInt32>) <= 0x30, "BSTEventSource is too large!");
@@ -67,14 +67,14 @@ namespace RE {
    };
    struct PositionPlayerEvent {}; // TODO
    struct TESActivateEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
+      TESObjectREFR* target;        // 00
+      TESObjectREFR* whoInteracted; // 04
    };
    struct TESActiveEffectApplyRemoveEvent {
       TESObjectREFR* unk00;
       TESObjectREFR* unk04;
       UInt16         unk08;
-      UInt8          unk0C; // probably indicates whether we're applying or removing
+      UInt8          unk0A; // probably indicates whether we're applying or removing
    };
    struct TESActorLocationChangeEvent {
       TESObjectREFR* unk00; // refcount incremented just before event is sent and decremented after event is sent
@@ -99,7 +99,7 @@ namespace RE {
    struct TESCombatEvent {
       TESObjectREFR* unk00;
       TESObjectREFR* unk04;
-      UInt32 unk08;
+      UInt32         unk08;
    };
    struct TESContainerChangedEvent {
       UInt32 unk00;
@@ -110,55 +110,97 @@ namespace RE {
       UInt16 unk14;
       UInt16 pad16;
    };
-   struct TESDeathEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      bool           unk08;
+   struct TESDeathEvent { // OnDying, OnDeath
+      //
+      // This fires TWICE for an actor's death: once when they are fated to die, and 
+      // again when they're actually dead; this is the distinction between Papyrus 
+      // OnDying and OnDeath. The (isDead) bool indicates whether the actor is dying 
+      // (false) or dead (true). Calls to victim->IsDead(0) should return the same 
+      // result.
+      //
+      TESObjectREFR* victim;
+      TESObjectREFR* killer;
+      bool           isDead;
    };
    struct TESDestructionStageChangedEvent {
-      TESObjectREFR* ref;
-      SInt32 unk04; // possibly old destruction stage
-      SInt32 unk08; // possibly new destruction stage
+      TESObjectREFR* ref;      // 00
+      SInt32         oldStage; // 04
+      SInt32         newStage; // 08
    };
    struct TESEnterBleedoutEvent {
       TESObjectREFR* actor;
    };
    struct TESEquipEvent {
+      //
+      // Fired for unequipping or equipping items. When switching from one item to 
+      // another, BSTEvents are fired in order (unequip the old; equip the new). 
+      // Expect these to fire when entering an area for the first time, as actors 
+      // are apparently considered to equip their armor at that moment.
+      //
+      enum Type : UInt8 {
+         kType_Unequip = 0,
+         kType_Equip   = 1,
+      };
       TESObjectREFR* actor;
-      UInt32 unk04;
+      UInt32 formID; // 04 // the weapon, armor, or spell that has been (un)equipped
       UInt32 unk08;
       UInt16 unk0C;
-      UInt8  unk0E;
+      Type   type; // 0E
       UInt8  pad0F;
    };
    struct TESFormDeleteEvent {
       UInt32 refrFormID; // 00
    };
    struct TESFurnitureEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32         unk08;
+      enum Type : UInt32 {
+         kType_Enter = 0,
+         kType_Exit  = 1,
+      };
+      TESObjectREFR* actor;     // 00
+      TESObjectREFR* furniture; // 04
+      Type           type;      // 08
       //
       MEMBER_FN_PREFIX(TESFurnitureEvent);
-      DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts
+      DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // decrements refcounts on actor and furniture
    };
    struct TESGrabReleaseEvent {
-      TESObjectREFR* ref; // 00 // grabbed/released ref
-      UInt8 unk04; // whether grabbing or releasing
+      TESObjectREFR* ref;        // 00 // grabbed/released ref
+      bool           isGrabbing; // 04 // whether grabbing or releasing
    };
    struct TESHitEvent {
+      //
+      // Fires when any reference is attacked, including static objects like walls and floors.
+      //
+      enum Flags : UInt8 {
+         kFlag_PowerAttack = 0x01,
+         kFlag_Unk10       = 0x10,
+         kFlag_Unk20       = 0x20,
+         kFlag_Unk40       = 0x40,
+         kFlag_Unk80       = 0x80,
+      };
+      //
       // Constructor at 006E11A0 with 5 args, and another inlined in 006E3FF0
-      UInt32 unk00;
-      UInt32 unk04;
-      UInt32 unk08;
-      UInt32 unk0C;
-      UInt8  unk10;
+      //
+      // For concentration spells, seems to fire on a per-projectile basis, so you can receive a lot 
+      // of these! Papyrus docs say this fires per-enchantment for enchanted weapons as well, but they 
+      // also say that sourceFormID is always the weapon in that case; I should test that.
+      //
+      TESObjectREFR* target;   // 00
+      TESObjectREFR* attacker; // 04
+      UInt32 sourceFormID;     // 08 // can be a weapon or a spell; Papyrus docs say poisons, ingredients, enchantments, and explosions can show up here as well
+      UInt32 projectileFormID; // 0C // for spells only? seems to be nullptr for projectiles from ranged weapons
+      UInt8  flags;            // 10 // flags as high as 0xE0 seen; Papyrus offers four bool args, but this clearly has more
+      //
+      // Observed flags: 11110001
+      //
    };
    struct TESInitScriptEvent {
       TESObjectREFR* ref; // 00
    };
    struct TESLoadGameEvent {
-      // This is a zero-size struct. Skyrim compiles to allocate a single byte for it.
+      // This is a zero-size struct. Skyrim allocates a single byte for it in order to obey specific 
+      // C/C++ standards (i.e. zero-size structs must be compiled to have size, so that they can be 
+      // allocated).
    };
    struct TESLockChangedEvent {
       TESObjectREFR* ref; // 00
@@ -186,10 +228,14 @@ namespace RE {
       TESObjectREFR* ref;   // 00
       UInt32         unk04; // 04
    };
-   struct TESOpenCloseEvent {
-      TESObjectREFR* unk00; // one of these refs is the door; the other is what opened/closed it
-      TESObjectREFR* unk04;
-      UInt8          unk08; // whether opening or closing
+   struct TESOpenCloseEvent { // fires when the door completes its opening/closing animation
+      enum Type : UInt8 {
+         kType_Close = 0,
+         kType_Open  = 1,
+      };
+      TESObjectREFR* door; // 00
+      TESObjectREFR* whoInteracted; // 04
+      Type           type; // 08
    };
    struct TESPackageEvent {
       enum Type : UInt32 {
@@ -249,18 +295,70 @@ namespace RE {
       UInt32 unk04;
       void*  unk08;
    };
-   struct TESSceneActionEvent {}; // TODO
-   struct TESScenePhaseEvent {}; // TODO
-   struct TESSellEvent {}; // TODO
-   struct TESSleepStartEvent {}; // TODO
-   struct TESSleepStopEvent {}; // TODO
-   struct TESSpellCastEvent {}; // TODO
+   struct TESSceneActionEvent {
+      UInt32 unk00;
+      UInt32 unk04;
+      UInt32 unk08;
+      UInt32 unk0C;
+      TESObjectREFR* unk10;
+   };
+   struct TESScenePhaseEvent {
+      UInt32 unk00;
+      UInt32 unk04;
+      UInt32 unk08;
+      TESObjectREFR* unk0C;
+   };
+   struct TESSellEvent {
+      TESObjectREFR* unk00;
+      UInt32 unk04;
+      UInt16 unk08;
+      UInt16 pad0A;
+   };
+   struct TESSleepStartEvent {
+      UInt32 unk00;
+      float  unk04; // time to sleep? same unit of measurement as gamehour, i.e. number of hours / 24.0F
+   };
+   struct TESSleepStopEvent {
+      UInt8  unk00;
+   };
+   struct TESSpellCastEvent {
+      TESObjectREFR* unk00;
+      UInt32         unk04;
+   };
    struct TESSwitchRaceCompleteEvent {
       TESObjectREFR* unk00;
    };
-   struct TESTopicInfoEvent {}; // TODO
-   struct TESTrackedStatsEvent {}; // TODO
-   struct TESTrapHitEvent {}; // TODO
+   struct TESTopicInfoEvent {
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32 unk08;
+      UInt32 unk0C;
+   };
+   struct TESTrackedStatsEvent {
+      UInt32 unk00; // StringCache::Ref?
+      UInt32 unk04;
+   };
+   struct TESTrapHitEvent {
+      //
+      // Constructor: 005894E0, takes 8 args
+      //
+      TESObjectREFR* unk00;
+      TESObjectREFR* unk04;
+      UInt32 unk08;
+      UInt32 unk0C; // not set?
+      float  unk10;
+      float  unk14;
+      float  unk18;
+      float  unk1C;
+      float  unk20;
+      float  unk24;
+      float  unk28;
+      float  unk2C;
+      SInt32 unk30; // either material or motion type
+      SInt32 unk34; // either material or motion type
+      bool   isInitialHit; // 38
+      UInt8  unk39[3];
+   };
    struct TESTriggerEvent {
       TESObjectREFR* unk00;
       TESObjectREFR* unk04;
