@@ -271,10 +271,10 @@ namespace RE {
       DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts // same destructor as TESFurnitureEvent
    };
    struct TESPlayerBowShotEvent {
-      UInt32 unk00; // 00
-      UInt32 unk04; // 04
-      UInt32 unk08; // 08
-      bool   isSungazing; // 0C
+      UInt32 weaponFormID; // 00
+      UInt32 ammoFormID;   // 04
+      float  shotPower;    // 08 // by how much the player pulled the arrow; ranges from fArrowMinPower to 1.0F
+      bool   isSungazing;  // 0C
    };
    struct TESQuestInitEvent {
       UInt32 questFormID; // 00
@@ -334,9 +334,9 @@ namespace RE {
    struct TESSleepStopEvent {
       UInt8  unk00;
    };
-   struct TESSpellCastEvent {
-      TESObjectREFR* unk00;
-      UInt32         unk04;
+   struct TESSpellCastEvent { // fires once when casting starts; is not repeated for concentration spells
+      TESObjectREFR* caster;      // 00
+      UInt32         spellFormID; // 04
    };
    struct TESSwitchRaceCompleteEvent {
       TESObjectREFR* unk00;
