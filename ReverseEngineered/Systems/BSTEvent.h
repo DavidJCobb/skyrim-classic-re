@@ -102,13 +102,22 @@ namespace RE {
       UInt32         unk08;
    };
    struct TESContainerChangedEvent {
-      UInt32 unk00;
-      UInt32 unk04;
-      UInt32 unk08;
-      UInt32 unk0C;
-      UInt32 unk10;
-      UInt16 unk14;
-      UInt16 pad16;
+      //
+      // Fires for any transfer of an item between containers, or between a container and the 
+      // world. This includes bartering (one transfer of the item being bartered, and another 
+      // of the gold used in the transaction).
+      //
+      // This event also fires when items are added to or removed from a container via scripts 
+      // and the debug console. Given the fields in this struct, it seems like it powers not 
+      // just Papyrus's OnContainerChanged event, but also OnItemAdded and OnItemRemoved, so 
+      // that makes sense.
+      //
+      UInt32 sourceFormID; // 00 // container giving up the item; when picking up items from the world, this is 00000000
+      UInt32 targetFormID; // 04 // container receiving the item; when dropping   items into the world, this is 00000000
+      UInt32 itemFormID;   // 08 // item base form
+      UInt32 countMoved;   // 0C
+      UInt32 itemRefID;    // 10 // form ID of the item TESObjectREFR, if there is one; 00000000 otherwise
+      UInt16 unk14;        // 14 // seems to always be 0?
    };
    struct TESDeathEvent { // OnDying, OnDeath
       //
@@ -325,7 +334,6 @@ namespace RE {
       TESObjectREFR* unk00;
       UInt32 unk04;
       UInt16 unk08;
-      UInt16 pad0A;
    };
    struct TESSleepStartEvent {
       UInt32 unk00;
@@ -334,7 +342,7 @@ namespace RE {
    struct TESSleepStopEvent {
       UInt8  unk00;
    };
-   struct TESSpellCastEvent { // fires once when casting starts; is not repeated for concentration spells
+   struct TESSpellCastEvent { // fires once when casting starts; it's not once per projectile (i.e. concentration spells don't spam)
       TESObjectREFR* caster;      // 00
       UInt32         spellFormID; // 04
    };
@@ -347,7 +355,7 @@ namespace RE {
       // before their currently-playing info finishes, then you get the new info's start event before 
       // the old info's end event.
       //
-      enum Type : UInt32 {
+      enum Type : UInt32 { // hm, i wanna check this a bit more
          kType_Start = 0,
          kType_End   = 1,
       };
@@ -358,7 +366,7 @@ namespace RE {
    };
    struct TESTrackedStatsEvent {
       UInt32 unk00; // StringCache::Ref?
-      UInt32 unk04;
+      SInt32 unk04;
    };
    struct TESTrapHitEvent {
       //
