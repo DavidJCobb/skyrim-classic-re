@@ -6,6 +6,7 @@
 
 namespace RE {
    class refr_ptr;
+   class Actor;
    class TESObjectCELL;
    class TESObjectREFR;
 
@@ -82,7 +83,7 @@ namespace RE {
       UInt32 unk08;
    };
    struct TESBookReadEvent { // powers Papyrus ObjectReference.OnRead
-      TESObjectREFR* unk00;
+      TESObjectREFR* book;  // 00
       UInt32         unk04;
       UInt16         unk08;
    };
@@ -96,21 +97,22 @@ namespace RE {
    struct TESCellReadyToApplyDecalsEvent {
       TESObjectCELL* unk00;
    };
-   struct TESCombatEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32         unk08;
+   struct TESCombatEvent { // Papyrus OnCombatStateChanged
+      Actor* subject; // 00
+      Actor* target;  // 04 // The target of the subject actor's scrutiny and hostility; the person the subject is/was searching for.
+      SInt32         combatState; // 008
    };
    struct TESContainerChangedEvent {
       //
-      // Fires for any transfer of an item between containers, or between a container and the 
-      // world. This includes bartering (one transfer of the item being bartered, and another 
-      // of the gold used in the transaction).
+      // This BSTEvent powers Papyrus OnContainerChanged, OnItemAdded, and OnItemRemoved. It 
+      // runs in any situation that would trigger those Papyrus events, including:
       //
-      // This event also fires when items are added to or removed from a container via scripts 
-      // and the debug console. Given the fields in this struct, it seems like it powers not 
-      // just Papyrus's OnContainerChanged event, but also OnItemAdded and OnItemRemoved, so 
-      // that makes sense.
+      //  - Dropping an item
+      //  - Transferring an item between containers
+      //  - Picking up an item
+      //  - Adding or removing items from a container using scripts or the console
+      //  - Using an item that gets destroyed on use (potions, spell tomes, etc.)
+      //  - Firing an arrow
       //
       UInt32 sourceFormID; // 00 // container giving up the item; when picking up items from the world, this is 00000000
       UInt32 targetFormID; // 04 // container receiving the item; when dropping   items into the world, this is 00000000
@@ -149,6 +151,11 @@ namespace RE {
       // Looting an equipped item off of a corpse sends an unequip event for that 
       // corpse. Killing an actor who has spells equipped and drawn will send un-
       // equip events for their spells.
+      //
+      // Furthermore, this fires when "using" any item in an inventory or container, 
+      // including books and misc-items; using them fires an equip event but no 
+      // matching unequip event. Be sure to check the item type when listening to 
+      // this event.
       //
       enum Type : UInt8 {
          kType_Unequip = 0,
@@ -233,10 +240,20 @@ namespace RE {
       UInt32         effectFormID; // 08
    };
    struct TESMagicWardHitEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32         unk08;
-      UInt32         unk0C;
+      enum Status : SInt32 {
+         kStatus_FriendlyHit = 0, // per CK wiki; can wards detect/block friendly healing, or is this for friendly fire?
+         kStatus_Absorbed    = 1,
+         kStatus_WardBroke   = 2,
+         //
+         // I've seen Drain Life pass 0 when it was cast on the player by a hostile actor. Maybe 
+         // 0 just means that the spell passed through the ward, and Bethesda had friendly heals 
+         // in mind when they wrote the docs?
+         //
+      };
+      TESObjectREFR* defender; // 00 // Actor casting the ward
+      TESObjectREFR* attacker; // 04 // Actor casting the spell that hit the ward
+      UInt32         incomingSpellFormID; // 08
+      Status         status;   // 0C
    };
    struct TESMoveAttachDetachEvent {
       TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
@@ -313,19 +330,19 @@ namespace RE {
       UInt32 unk00;
    };
    struct TESSceneEvent {
-      UInt32 unk00;
-      UInt32 unk04;
-      void*  unk08;
+      UInt32 sceneFormID; // 00
+      UInt32 unk04; // 04 // 0 = begin, 1 = end?
+      void*  unk08; // 08
    };
    struct TESSceneActionEvent {
-      UInt32 unk00;
-      UInt32 unk04;
-      UInt32 unk08;
-      UInt32 unk0C;
+      UInt32 sceneFormID; // 00
+      UInt32 actionIndex; // 04 // INAM subrecord; indices are not contiguous
+      UInt32 questFormID; // 08
+      UInt32 unk0C;       // 0C // either an enum or the action type
       TESObjectREFR* unk10;
    };
    struct TESScenePhaseEvent {
-      UInt32 unk00;
+      UInt32 sceneFormID; // 00
       UInt32 unk04;
       UInt32 unk08;
       TESObjectREFR* unk0C;
@@ -496,7 +513,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SendCellAttachDetachEvent,        void, 0x004CB130, refr_ptr& ref, UInt8); // also fired at 004CEB5F
          DEFINE_MEMBER_FN(SendCellFullyLoadedEvent,         void, 0x00437650, TESObjectCELL*);
          DEFINE_MEMBER_FN(SendCellReadyToApplyDecalsEvent,  void, 0x004CB1A0, TESObjectCELL*);
-         DEFINE_MEMBER_FN(SendCombatEvent,                  void, 0x006E3F90, refr_ptr&, refr_ptr&, UInt32 actorCombatState);
+         DEFINE_MEMBER_FN(SendCombatEvent,                  void, 0x006E3F90, refr_ptr&, refr_ptr&, SInt32 actorCombatState);
          DEFINE_MEMBER_FN(SendContainerChangedEvent,        void, 0x0047E570, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(SendDeathEvent,                   void, 0x006C46C0, UInt32, UInt32); //
          DEFINE_MEMBER_FN(SendDeathEvent_B,                 void, 0x006C4660, UInt32, UInt32); // the difference between these two is a bool they store on the event struct -- a "murder" or "detected" bool?
