@@ -98,9 +98,9 @@ namespace RE {
       TESObjectCELL* unk00;
    };
    struct TESCombatEvent { // Papyrus OnCombatStateChanged
-      Actor* subject; // 00
-      Actor* target;  // 04 // The target of the subject actor's scrutiny and hostility; the person the subject is/was searching for.
-      SInt32         combatState; // 008
+      Actor* subject;     // 00
+      Actor* target;      // 04 // The target of the subject actor's scrutiny and hostility; the person the subject is/was searching for.
+      SInt32 combatState; // 08
    };
    struct TESContainerChangedEvent {
       //
@@ -129,9 +129,9 @@ namespace RE {
       // (false) or dead (true). Calls to victim->IsDead(0) should return the same 
       // result.
       //
-      TESObjectREFR* victim;
-      TESObjectREFR* killer;
-      bool           isDead;
+      TESObjectREFR* victim; // 00
+      TESObjectREFR* killer; // 04
+      bool           isDead; // 08
    };
    struct TESDestructionStageChangedEvent {
       TESObjectREFR* ref;      // 00
@@ -246,7 +246,7 @@ namespace RE {
          kStatus_WardBroke   = 2,
          //
          // I've seen Drain Life pass 0 when it was cast on the player by a hostile actor. Maybe 
-         // 0 just means that the spell passed through the ward, and Bethesda had friendly heals 
+         // 0 just means that the spell passed through the ward, but Bethesda had friendly heals 
          // in mind when they wrote the docs?
          //
       };
@@ -288,10 +288,10 @@ namespace RE {
       Type   eventType; // 08
    };
    struct TESPerkEntryRunEvent {
-      TESObjectREFR* unk00;
-      TESObjectREFR* unk04;
-      UInt32         unk08; // perk form ID?
-      UInt16         unk0C;
+      TESObjectREFR* perkTarget;    // 00 // for an Activate perk entry point, the thing activated; not sure what this would be for other perk entry points
+      TESObjectREFR* perkHaver;     // 04
+      UInt32         perkFormID;    // 08
+      UInt16         fragmentIndex; // 0C // perk script fragment index
       //
       MEMBER_FN_PREFIX(TESPerkEntryRunEvent);
       DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // handles refcounts // same destructor as TESFurnitureEvent
@@ -353,18 +353,18 @@ namespace RE {
       UInt16 unk08;
    };
    struct TESSleepStartEvent {
-      UInt32 unk00;
+      float  unk00;
       float  unk04; // time to sleep? same unit of measurement as gamehour, i.e. number of hours / 24.0F
    };
    struct TESSleepStopEvent {
-      UInt8  unk00;
+      bool   interrupted;
    };
    struct TESSpellCastEvent { // fires once when casting starts; it's not once per projectile (i.e. concentration spells don't spam)
       TESObjectREFR* caster;      // 00
       UInt32         spellFormID; // 04
    };
    struct TESSwitchRaceCompleteEvent {
-      TESObjectREFR* unk00;
+      Actor* subject; // 00
    };
    struct TESTopicInfoEvent {
       //
@@ -382,8 +382,8 @@ namespace RE {
       Type           type;       // 0C
    };
    struct TESTrackedStatsEvent {
-      UInt32 unk00; // StringCache::Ref?
-      SInt32 unk04;
+      StringCache::Ref statName; // 00
+      SInt32           value;    // 04
    };
    struct TESTrapHitEvent {
       //
@@ -419,18 +419,18 @@ namespace RE {
       TESObjectREFR* unk04;
    };
    struct TESUniqueIDChangeEvent {
-      UInt32 unk00;
-      UInt32 unk04;
-      UInt32 unk08;
-      UInt16 unk0C;
-      UInt16 unk0E;
+      UInt32 refrFormID; // 00 // form ID of a created   TESObjectREFR
+      UInt32 unk04;      // 04 // form ID of a preplaced TESObjectREFR -- possibly a container for the created ref
+      UInt32 baseFormID; // 08
+      UInt16 unk0C; // 0C // maybe "old unique ID?"
+      UInt16 unk0E; // 0E // maybe "new unique ID?"
    };
    struct TESWaitStartEvent {
-      UInt32 unk00;
-      float  days; // 04 // number of hours divided by 24
+      float  unk00; // 00
+      float  days;  // 04 // seems wrong, based on testing; it's a float, but i don't have the meaning right?
    };
    struct TESWaitStopEvent {
-      uint8_t unk00;
+      bool   interrupted;
    };
 
    extern BSTEventSource<UInt32>* g_menuModeChangeEventSource; // 0x01271CE8
