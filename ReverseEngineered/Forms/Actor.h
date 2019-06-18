@@ -1,4 +1,5 @@
 #pragma once
+#include "ReverseEngineered/Forms/BGSBodyPartData.h"
 #include "ReverseEngineered/Forms/TESObjectREFR.h"
 #include "ReverseEngineered/Forms/TESPackage.h"
 #include "ReverseEngineered/NetImmerse/objects.h"
@@ -157,16 +158,17 @@ namespace RE {
          UInt32	unkA0;	// A0
          BSResponse<BSFixedStringCI, Actor, BSFixedStringCI, DoNothingUnhandledPolicy<BSFixedStringCI>>* unkA4; // A4
          tArray<UInt32> unkA8; // A8 // templated type unknown
-         UInt32 unkB4[(0xD0 - 0xB4) / 4];
-         UInt32	unkD0;	// D0 // NiNode*?
-         void*	unkD4;	// D4 - NiNode?
-         void*	unkD8;	// D8 - NiNode?
-         UInt32	unkDC;	// D8
-         void*	unkE0;	// E0 - BSFaceGenNiNode?
-         void*	unkE4;	// E4 // smart pointer/refcounted
-         UInt32	unkE8;	// E8
-         UInt32	unkEC;	// EC
-         void*	unkF0;	// F0
+         NiNode* bodyPartNodes[BGSBodyPartData::kPartType_Count]; // B4 // After init, vanilla game only ever modifies unkB4[1], for the head node during decapitation.
+         UInt32  unkCC;
+         UInt32  unkD0;
+         NiNode* unkD4; // D4 // Initialized to the "Head"  body part.
+         NiNode* unkD8; // D8 // Initialized to the "Torso" body part.
+         UInt32  unkDC;
+         void*   unkE0; // E0 - BSFaceGenNiNode?
+         void*   unkE4; // E4 // smart pointer/refcounted; vtbl but no rtti
+         UInt32  unkE8; // E8
+         UInt32  unkEC; // EC
+         void*   unkF0; // F0
             // Object:
             //    UInt32 unk68; // bitmask
             //                  //  - 00000008 == last hit was a critical hit
@@ -721,6 +723,13 @@ namespace RE {
 
          DEFINE_MEMBER_FN(GetCurrentBSResponse, bool, 0x00721E70, void** response); // arg is actually a smart pointer
          DEFINE_MEMBER_FN(SetCurrentBSResponse, void, 0x00721ED0, void** response); // arg is actually a smart pointer
+
+         // Stuff related to limbs and/or body parts:
+         //
+         DEFINE_MEMBER_FN(SetBodyPartNode,    void,    0x0071FAF0, BGSBodyPartData::PartType index, NiNode* node); // only called during decapitation, for the Head part
+         DEFINE_MEMBER_FN(GetBodyPartNode,    NiNode*, 0x0071FB30, BGSBodyPartData::PartType index);
+         DEFINE_MEMBER_FN(ClearBodyPartNodes, void,    0x00720150); // wipes unkB4..., unkD4, and unkD8
+         DEFINE_MEMBER_FN(InitBodyPartNodes,  void,    0x00720F30, NiNode* root, BGSBodyPartData*); // initializes unkB4
 
          DEFINE_MEMBER_FN(WriteSavedata, void, 0x00718F70, BGSSaveFormBuffer*);
    };

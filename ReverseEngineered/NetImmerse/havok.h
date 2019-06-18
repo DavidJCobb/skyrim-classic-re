@@ -4,7 +4,11 @@
 #include "skse/NiNodes.h"
 
 typedef void(*BhkCollisionIteratorFunction)(RE::bhkCollisionObject* collision, void* parameters);
-static DEFINE_SUBROUTINE(void, IterateOverBhkCollisionObjects, 0x00D0E520, NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
+static DEFINE_SUBROUTINE(void, IterateOverBhkCollisionObjects,        0x00D0E520, NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
+//
+// Alternate name:
+//
+static DEFINE_SUBROUTINE(void, RecurseOverCollisionObjectsInNodeTree, 0x00D0E520, NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
 
 //
 // It would appear that hk_____ classes are native Havok, while bhk_____ are Bethesda wrappers and extensions.
@@ -327,7 +331,7 @@ namespace RE {
          virtual UInt32 Unk_23(); // returns this->unk08 ? this->unk08->unk08 : NULL;
          virtual UInt32 Unk_24(); // same as Unk_23, but it checks if this exists first
          virtual bool Unk_25(void);
-         virtual void Unk_26(void); // does stuff (not sure what) and then recursively executes self on all unk18 elements
+         virtual void Unk_26(); // does stuff (not sure what) and then recursively executes self on all unk18 elements
          virtual void Unk_27(bool);
          virtual UInt32 Unk_28(); // returns 0xF0
          virtual void Unk_29();
@@ -347,10 +351,11 @@ namespace RE {
       //
       public:
          enum Flags : UInt32 {
-            kFlag_Active = 0x00000001,
-            kFlag_Notify = 0x00000004,
-            kFlag_Local  = 0x00000008,
-            kFlag_Reset  = 0x00000040,
+            kFlag_Active  = 0x00000001,
+            kFlag_Notify  = 0x00000004,
+            kFlag_Local   = 0x00000008,
+            kFlag_Reset   = 0x00000040,
+            kFlag_Unknown = 0x00000080, // set by subroutine 0x00D0DF10
          };
          //
          UInt32        unk08 = 0; // 08 // almost certainly the NiNode* that the collision object is attached to, but I'd like to confirm that

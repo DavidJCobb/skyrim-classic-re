@@ -114,12 +114,16 @@ namespace RE {
       //  - Using an item that gets destroyed on use (potions, spell tomes, etc.)
       //  - Firing an arrow
       //
+      // Miscellaneous observations:
+      //
+      //  - Eating an ingredient fires two identical events?
+      //
       UInt32 sourceFormID; // 00 // container giving up the item; when picking up items from the world, this is 00000000
       UInt32 targetFormID; // 04 // container receiving the item; when dropping   items into the world, this is 00000000
       UInt32 itemFormID;   // 08 // item base form
       UInt32 countMoved;   // 0C
       UInt32 itemRefID;    // 10 // form ID of the item TESObjectREFR, if there is one; 00000000 otherwise
-      UInt16 unk14;        // 14 // seems to always be 0?
+      UInt16 unk14;        // 14 // apparently the return value of ExtraContainerChangesData::Subroutine0047A4D0
    };
    struct TESDeathEvent { // OnDying, OnDeath
       //
@@ -153,9 +157,9 @@ namespace RE {
       // equip events for their spells.
       //
       // Furthermore, this fires when "using" any item in an inventory or container, 
-      // including books and misc-items; using them fires an equip event but no 
-      // matching unequip event. Be sure to check the item type when listening to 
-      // this event.
+      // including books, ingredients, and misc-items; using them fires an equip 
+      // event but no matching unequip event. Be sure to check the item type when 
+      // listening to this event.
       //
       enum Type : UInt8 {
          kType_Unequip = 0,
@@ -361,7 +365,7 @@ namespace RE {
    };
    struct TESSpellCastEvent { // fires once when casting starts; it's not once per projectile (i.e. concentration spells don't spam)
       TESObjectREFR* caster;      // 00
-      UInt32         spellFormID; // 04
+      UInt32         spellFormID; // 04 // actually, this can also be the base form ID of an eaten ingredient or, presumably, a potion/poison
    };
    struct TESSwitchRaceCompleteEvent {
       Actor* subject; // 00
@@ -371,6 +375,9 @@ namespace RE {
       // These can fire out of order: if you initiate dialogue with an NPC and then select a topic 
       // before their currently-playing info finishes, then you get the new info's start event before 
       // the old info's end event.
+      //
+      // "Start" events fire when a decapitated actor tries to speak, even though they produce no 
+      // sound or subtitles.
       //
       enum Type : UInt32 { // hm, i wanna check this a bit more
          kType_Start = 0,
@@ -514,7 +521,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SendCellFullyLoadedEvent,         void, 0x00437650, TESObjectCELL*);
          DEFINE_MEMBER_FN(SendCellReadyToApplyDecalsEvent,  void, 0x004CB1A0, TESObjectCELL*);
          DEFINE_MEMBER_FN(SendCombatEvent,                  void, 0x006E3F90, refr_ptr&, refr_ptr&, SInt32 actorCombatState);
-         DEFINE_MEMBER_FN(SendContainerChangedEvent,        void, 0x0047E570, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32);
+         DEFINE_MEMBER_FN(SendContainerChangedEvent,        void, 0x0047E570, UInt32 sourceFormID, UInt32 targetFormID, UInt32 itemFormID, UInt32 countMoved, UInt32 itemRefID, UInt32);
          DEFINE_MEMBER_FN(SendDeathEvent,                   void, 0x006C46C0, UInt32, UInt32); //
          DEFINE_MEMBER_FN(SendDeathEvent_B,                 void, 0x006C4660, UInt32, UInt32); // the difference between these two is a bool they store on the event struct -- a "murder" or "detected" bool?
          DEFINE_MEMBER_FN(SendDestructionStageChangedEvent, void, 0x00449A60, void**, UInt32, UInt32);

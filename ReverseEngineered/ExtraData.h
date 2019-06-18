@@ -270,26 +270,26 @@ namespace RE {
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData,            0x00476800, TESObjectREFR*);
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetOrCreateExtraContainerChangesDataFor, 0x00477780, TESObjectREFR*);
    //
-   class ExtraDismemberedLimbs : public BSExtraData {
+   class ExtraDismemberedLimbs : public BSExtraData { // sizeof == 0x24 -- smaller than in FO3
       public:
          enum DismembermentBits : UInt16 {
             kDismembermentBit_MaybeHead = 2,
          };
-         struct UnkEntry {
-            tArray<UInt32> unk00; // 00
+         struct UnkEntry { // sizeof == 0x10
+            tArray<TESObjectARMO*> unk00; // 00 // currently-equipped armors, including DecapitateHead?
             UInt8 unk0C; // 0C
             UInt8 unk0D; // 0D
             bool  unk0E; // 0E
             UInt8 unk0F; // 0F
          };
          
-         UInt16 unk08; // 08 // bitmask
-         bool   hasBeenEaten; // 0A // HasBeenEaten checks this. WerewolfFeedEffect sets it; maybe cannibalism does, too?
-         UInt8  pad0B;
-         SInt32 unk0C = -1; // 0C
-         TESForm* unk10 = nullptr; // 10 // possibly the object that killed this actor? IsKilledObject checks whether a FormList contains this.
+         UInt16   unk08; // 08 // bitmask
+         bool     hasBeenEaten; // 0A // HasBeenEaten checks this. WerewolfFeedEffect sets it; maybe cannibalism does, too?
+         UInt8    pad0B;
+         SInt32   unk0C = -1; // 0C
+         TESForm* unk10 = nullptr; // 10 // memory inspection shows this is the dismembered actor. why is this stored here? IsKilledObject checks whether a FormList contains this.
          tArray<UnkEntry*> unk14; // 14
-         SInt32 unk20 = -1; // 20
+         SInt32   unk20 = -1; // 20
 
          MEMBER_FN_PREFIX(ExtraDismemberedLimbs);
          DEFINE_MEMBER_FN(CheckUnk08Flag, bool, 0x00420A10, UInt32 bitIndex);

@@ -596,6 +596,8 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(GetExtraEnableStateChildren,      RE::ExtraEnableStateChildren::Entry*, 0x004EA870);
          DEFINE_MEMBER_FN(GetExtraEnableStateParentFlag1,   bool, 0x004EA860);
+
+         DEFINE_MEMBER_FN(Subroutine004D5B10, void, 0x004D5B10, SInt32 limbIndex, TESForm* maybeKiller, SInt32, SInt32, UInt32);
    };
    
    class refr_ptr { // smart pointer for TESObjectREFRs
