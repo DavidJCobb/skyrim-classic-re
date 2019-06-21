@@ -137,8 +137,9 @@ namespace RE {
          UInt16 critDamage() { return critData.critDamage; }
 
          MEMBER_FN_PREFIX(TESObjectWEAP);
-         DEFINE_MEMBER_FN(Fire,                  void,  0x004AA6A0, TESObjectREFR* shooter, TESAmmo* ammo, UInt32, UInt32); // can use zero for other args
-         DEFINE_MEMBER_FN(GetProjectilesPerShot, UInt8, 0x00493B40);
+         DEFINE_MEMBER_FN(Fire,                  void,   0x004AA6A0, TESObjectREFR* shooter, TESAmmo* ammo, UInt32, UInt32); // can use zero for other args
+         DEFINE_MEMBER_FN(GetProjectilesPerShot, UInt8,  0x00493B40);
+         DEFINE_MEMBER_FN(GetLoudness,           UInt32, 0x004A8100);
    };
 
 };

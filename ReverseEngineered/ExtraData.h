@@ -277,10 +277,10 @@ namespace RE {
          };
          struct UnkEntry { // sizeof == 0x10
             tArray<TESObjectARMO*> unk00; // 00 // currently-equipped armors, including DecapitateHead?
-            UInt8 unk0C; // 0C
+            UInt8 unk0C; // 0C // dismemberment bit index
             UInt8 unk0D; // 0D
             bool  unk0E; // 0E
-            UInt8 unk0F; // 0F
+            UInt8 unk0F; // 0F // maybe just padding?
          };
          
          UInt16   unk08; // 08 // bitmask
@@ -292,7 +292,8 @@ namespace RE {
          SInt32   unk20 = -1; // 20
 
          MEMBER_FN_PREFIX(ExtraDismemberedLimbs);
-         DEFINE_MEMBER_FN(CheckUnk08Flag, bool, 0x00420A10, UInt32 bitIndex);
+         DEFINE_MEMBER_FN(CheckUnk08Flag,     bool, 0x00420A10, UInt32 bitIndex);
+         DEFINE_MEMBER_FN(Subroutine004269F0, void, 0x004269F0, Actor*, UInt32 dismembermentBitIndex, UInt8);
    };
    class ExtraDroppedItemList : public BSExtraData {
       public:
@@ -783,6 +784,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraEnableStateParentFlag4,   bool,    0x0040D2F0); // Returns extraDataObject->unk08 & 4, or zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraEncounterZone,            BGSEncounterZone*, 0x0040D9F0);
          DEFINE_MEMBER_FN(GetExtraFlagByIndex,              bool,    0x0040E850, UInt32 index); // Returns false if no extra data.
+         DEFINE_MEMBER_FN(GetExtraForcedTargetRefHandle,    UInt32*, 0x0040E7C0, UInt32& refHandle); // returns &refHandle
          DEFINE_MEMBER_FN(GetExtraGhost,                    bool,    0x0040C3E0); // Returns ghost flag, or false if no extra data.
          DEFINE_MEMBER_FN(GetExtraGlobal,                   void*,   0x0040C0F0); // Return type not verified. Could be a form ID, I suppose.
          DEFINE_MEMBER_FN(GetExtraHealth,                   float,   0x0040C130); // Returns health (or -1.0 if no extra data) via the FPU stack.
@@ -859,6 +861,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraCollisionData,            void,             0x00411FA0, ExtraCollisionData::Data*); // Destroys any existing extra-data, and then creates some if the supplied pointer is not null.
          DEFINE_MEMBER_FN(SetExtraEnableStateParentFlags,   void,             0x0040D310, UInt8 flags);  // Does nothing if no extra-data present.
          DEFINE_MEMBER_FN(SetExtraFlagByIndex,              void,             0x00416C50, UInt32 index, bool value); // Creates the new extra-data if needed.
+         DEFINE_MEMBER_FN(SetExtraForcedTargetRefHandle,    void,             0x00413F30, UInt32);
          DEFINE_MEMBER_FN(SetExtraGhost,                    ExtraGhost*,      0x0040C940, bool isGhost); // Sets the ghost flag. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraLock,                     ExtraLock*,       0x0040C560, void*);        // Deletes the unk08 on any existing lock data, and then sets a new unk08 pointer. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraMapMarkerData,            void,             0x0040F960, ExtraMapMarker::Data*); // If argument is NULL, deletes existing data.

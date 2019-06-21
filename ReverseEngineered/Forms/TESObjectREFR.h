@@ -401,7 +401,7 @@ namespace RE {
          virtual void	Unk_55(); // 55 // related to lights
          virtual UInt32* Unk_56(UInt32* outHandle, TESForm* baseItem, bool, bool, BaseExtraList* item, bool, bool, bool); // modifies and returns outHandle
          virtual bool	Unk_57(UInt32, UInt32, UInt32, UInt32, UInt32); // related to inventory
-         virtual void	Unk_58(UInt32);
+         virtual void	Unk_58(void*); // 58 // related to hit events?
          virtual void	Unk_59(UInt32, UInt32);
          virtual void	Unk_5A(UInt32, UInt32, UInt32, UInt32); // related to ownership and inventory
          virtual void	GetMarkerPosition(NiPoint3* pos); // 5B

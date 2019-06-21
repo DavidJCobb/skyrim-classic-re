@@ -5,9 +5,10 @@
 
 class TESObjectARMO;
 namespace RE {
-   enum BinaryGender { // 's how Bethesda set it up
-      kBinaryGender_Male   = 0,
-      kBinaryGender_Female = 1,
+   enum BinaryGender { // typically used as an index into fixed-length arrays of animation/model/etc. data, e.g. model[gender]
+      kBinaryGender_Male    =  0,
+      kBinaryGender_Female  =  1,
+      kBinaryGender_Unknown = -1, // NOTE: This is returned as an error code in one or two places but is rarely checked for. Trying to use this deliberately will probably just lead to things like someArray[-1] and crashes.
    };
    enum RaceDetectionSize : UInt32 {
       kDetectionSize_Small = 0,
@@ -168,6 +169,7 @@ namespace RE {
          DEFINE_MEMBER_FN(AddHairColor,             void, 0x005782F0, BinaryGender which, BGSColorForm*); // aborts if given null pointer // appends to CharGenData::hairColors
          DEFINE_MEMBER_FN(AddHeadPart,              void, 0x00578120, BinaryGender which, BGSHeadPart*); // aborts if given null pointer // appends to CharGenData::headParts
          DEFINE_MEMBER_FN(AddPresetNPC,             void, 0x00578220, BinaryGender which, TESNPC*); // aborts if given null pointer // appends to CharGenData::presets
+         DEFINE_MEMBER_FN(GetBodyPartData,          BGSBodyPartData*, 0x00576880);
          DEFINE_MEMBER_FN(SetDefaultFaceTexture,    void, 0x005768F0, BinaryGender which, BGSTextureSet*);
          DEFINE_MEMBER_FN(SetDefaultHairColor,      void, 0x00576890, BinaryGender which, BGSColorForm*);
    };

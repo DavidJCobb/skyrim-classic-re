@@ -49,10 +49,10 @@ namespace RE {
             enum Flags {
                kFlag_Severable            =  1, // Seems to be unused. It isn't set on Skyrim's default head data even though humanoids can be decapitated.
                kFlag_IKData               =  2,
-               kFlag_IKData_BipedData     =  4,
+               kFlag_IKData_BipedData     =  4, // Is the body part used for locomotion?
                kFlag_Explodable           =  8,
                kFlag_IKData_IsHead        = 16,
-               kFlag_IKData_Headtracking  = 32,
+               kFlag_IKData_Headtracking  = 32, // Will the body part turn toward whatever the actor is headtracking?
                kFlag_ChanceToHit_Absolute = 64,
             };
             //
@@ -60,13 +60,13 @@ namespace RE {
             UInt8         flags;              // 04
             PartType      type;               // 05
             UInt8         healthPercent;      // 06 // FO3: The percentage of the actor's total health used as the limb's health.
-            UInt8         actorValue;         // 07 // FO3: The actor value affected when the limb's health is reduced to zero (i.e. for crippled limbs).
+            UInt8         actorValue;         // 07 // FO3: The actor value used for the limb's health.
             UInt8         chanceToHit;        // 08 // FO3: The base percentage chance to hit this body part in VATS.
             UInt8         chanceToExplode;    // 09 // FO3: chance to explode the limb into gibs
             UInt16        explodeDebrisCount; // 0A
             BGSDebris*    explodeDebris;      // 0C // type assumed from xEdit specs
             BGSExplosion* explodeExplosion;   // 10 // type assumed from xEdit specs
-            float         trackingAngleMax;   // 14
+            float         trackingAngleMax;   // 14 // the maximum angle that this body part will rotate in order to look at what the actor is headtracking
             float         explodeDebrisScale; // 18
             SInt32        severDebrisCount;   // 1C // FO3: related to dismemberment
             BGSDebris*    severDebris;        // 20
@@ -84,19 +84,19 @@ namespace RE {
             float         limbReplacementScale; // 50
          };
          struct Data { // sizeof == 0x90
-            //
             StringCache::Ref partNode;    // 00 // BPNN: node in the actor's skeleton
             StringCache::Ref vatsTarget;  // 04 // BPNT
             StringCache::Ref ikStartNode; // 08 // BPNI
             StringCache::Ref partName;    // 0C // BPTN
-            StringCache::Ref unk10;		// 10
+            StringCache::Ref goreBone;    // 10 // NAM4
             TESModel         model;    // 14
             TESModelRDT      modelRDT; // 28 // PNAM
             BPND             limbData; // 3C // BPND
 
             MEMBER_FN_PREFIX(Data);
-            DEFINE_MEMBER_FN(Constructor, void, 0x0054A180);
-            DEFINE_MEMBER_FN(Load,        bool, 0x0054A1F0, BGSLoadFormBuffer*);
+            DEFINE_MEMBER_FN(Constructor, Data*, 0x0054A180);
+            DEFINE_MEMBER_FN(Destructor,  void,  0x00549EA0);
+            DEFINE_MEMBER_FN(Load,        bool,  0x0054A1F0, BGSLoadFormBuffer*);
          };
 
          Data*  part[kPartType_Max]; // 2C - init'd to 0
@@ -124,9 +124,82 @@ namespace RE {
    //    it's *probably* used by destructor code as well, so we may need to instead 
    //    have it delete run-time body part data entirely.
    //
+   //  - BGSBodyPartData::LoadForm doesn't seem to handle extended type values 
+   //    correctly. Inspection of the code establishes that given a form (form) and 
+   //    a body part entry (entry),
+   //
+   //       entry = new BGSBodyPartData::Data();
+   //       if (!entry->Load(buffer)) {
+   //          if (entry) {
+   //             entry->~Data();
+   //             delete entry;
+   //          }
+   //          return false; // if an entry fails to load, the form fails to load
+   //       } else {
+   //          auto type = entry->type;
+   //          if (type <= kPartType_Max) {
+   //             if (form->part[type]) {
+   //                //
+   //                // We can only have one body part of any given type. The last-
+   //                // loaded one is the one we keep; the others present before it 
+   //                // are discarded (and properly freed).
+   //                //
+   //                form->part[type]->~Data();
+   //                delete form->part[type];
+   //             }
+   //             form->part[type] = entry;
+   //          }
+   //       }
+   //
+   //    It appears that entries with out-of-bounds type values won't get freed 
+   //    (unless they fail to load, which counts as the entire form failing to 
+   //    load). That's better than crashing, but memory leaks are... not ideal.
+   //
    // The decapitation function doesn't let you specify the part to sever -- it's 
    // always the head -- so I'd have to duplicate the function almost in its entire-
    // ty, with the requisite changes to control the severed limb and prevent CTDs.
+   //
+   // ---
+   //
+   // Implementation ideas for dismemberment:
+   //
+   //  - Provide a Papyrus API to register a BodyPartData to serve as dismemberment 
+   //    data for a race. (This is the only kind of association that can survive a 
+   //    mod merge.) This means that a race would potentially have two BGSBodyPartData 
+   //    forms associated with it: one accessible to the vanilla engine, used for 
+   //    vanilla purposes including decapitation; and one that we keep track of, 
+   //    where we co-opt the body part type values for our own ends (e.g. treating 
+   //    "0" as "left leg" even though canonically it means "torso").
+   //
+   //    This in turn would allow mod authors to use Bethesda's own dismemberment 
+   //    configuration.
+   //
+   //  - We need to see if any locational-damage-related processing still exists in 
+   //    the vanilla game.
+   //
+   //    I would *expect* Bethesda not to strip out Fallout-exclusive dismemberment 
+   //    code just because it's unused. They iterate on the same engine for Fallout 
+   //    and TES: Skyrim is an upgraded New Vegas is an upgraded Oblivion, and 
+   //    Fallout 4 is an upgraded Skyrim; so removing one franchise's unused code 
+   //    from the other would just complicate things, no? That doesn't mean they 
+   //    can't lock locational damage stuff behind an #ifdef, though, in which case 
+   //    it wouldn't make it into TESV.exe.
+   //
+   //    If there is any locational damage stuff, it probably works like this:
+   //
+   //     - Perform a raycast or collision check to determine that one actor has 
+   //       attacked another. By definition this means we have access to the node 
+   //       on the target actor that was hit.
+   //
+   //     - Traverse up the node tree, checking the node and its ancestors against 
+   //       all of the body part nodes cached on the actor's MiddleProcess, to 
+   //       identify the body part that was hit. (In fact, this would explain why 
+   //       MiddleProcess even bothers to cache those NiNode pointers.)
+   //
+   //     - If we find no match, then use standard damage. Otherwise, apply any 
+   //       pertinent damage modifiers that weren't disabled from Skyrim's final 
+   //       build, and perform any limb-related effects that weren't disabled in 
+   //       Skyrim's final build.
    //
    // ---
    //
@@ -139,11 +212,37 @@ namespace RE {
    // 4D5B10 is only called by one function (for decapitation) with args:
    //
    // 1, this (actor being decapped), 2, 1, 0
+   //    where the first argument is a dismemberment bit index
    //
    // Actor::Subroutine006DB530 also does stuff related to dismemberment.
    //
    // For code related to loading decapitation state from the save, check 004DEEE0.
    //
-   // Investigate Papyrus Actor.ResetHealthAndLimbs to see how it works.
+   // Actor::ResetHealthAndLimbs restores health but doesn't appear to modify limb 
+   // state in any way.
+   //
+   // Actor::Subroutine006E6FC0 is part of the processing for an actor being hit.
+   //
+   //  - 006E74A0
+   //
+   //  - 006E57D0 determines if a swing connects with its target? returns a refr
+   //
+   //     - If the struck refr is an Actor, then it's obtained at 006E5A20, which 
+   //       calls 004D7C90 on a NiNode returned by a raycast process. The callee 
+   //       traverses up the node tree until it finds a BSFadeNode with a 
+   //       TESObjectREFR* pointer. If that ref isn't an Ammo, then it is returned; 
+   //       if it's an Ammo, then 004D7C90 recurses on its parent node.
+   //
+   //       004D7C90 is called all over the executable. If we wanted to get the 
+   //       hit body part along with the hit actor, we might try replacing this 
+   //       specific call with one that behaves identically while also IDing the 
+   //       body part and caching that in a static variable somewhere.
+   //
+   //     - 006E57D0 is only called if the attacker's "forced target" doesn't 
+   //       exist or is a ghost actor -- or so it seems. The actor being checked 
+   //       CAN be the forced target, but maybe it can be other things, too?
+   //
+   // 01275A6C is the bDisableAllGore setting's bool value. Might be worth looking 
+   // at everything that reads it.
    //
 };

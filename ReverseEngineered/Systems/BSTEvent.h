@@ -221,6 +221,8 @@ namespace RE {
       //
       // Observed flags: 11110001
       //
+      MEMBER_FN_PREFIX(TESHitEvent);
+      DEFINE_MEMBER_FN(Destructor, void, 0x0044BB80); // decrements refcounts on first two refs // shared with TESFurnitureEvent
    };
    struct TESInitScriptEvent {
       TESObjectREFR* ref; // 00
@@ -530,8 +532,8 @@ namespace RE {
          DEFINE_MEMBER_FN(SendFurnitureEvent,               void, 0x00725000, refr_ptr&, refr_ptr&, bool);
          DEFINE_MEMBER_FN(SendGrabReleaseEvent,             void, 0x00742080, refr_ptr& target, UInt8);
          DEFINE_MEMBER_FN(SendInitScriptEvent,              void, 0x004E0540, refr_ptr&);
-         DEFINE_MEMBER_FN(SendHitEvent,                     void, 0x006E3FF0, refr_ptr&, UInt32, UInt32, UInt32);
-         DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr&, refr_ptr&, UInt32 formID_maybeWeapon, UInt32, void*);
+         DEFINE_MEMBER_FN(SendHitEvent,                     void, 0x006E3FF0, refr_ptr& target, refr_ptr& attacker, UInt32 sourceFormID, UInt32 projectileFormID);
+         DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr& target, refr_ptr& attacker, UInt32 sourceFormID, UInt32 projectileFormID, void* hitData);
          DEFINE_MEMBER_FN(SendLockChangedEvent,             void, 0x004E05A0, refr_ptr&);
          DEFINE_MEMBER_FN(SendMagicEffectApplyEvent,        void, 0x006646E0, refr_ptr&, refr_ptr&, UInt32);
          DEFINE_MEMBER_FN(SendMagicWardHitEvent,            void, 0x006EBE70, refr_ptr&, refr_ptr&, UInt32, UInt32);

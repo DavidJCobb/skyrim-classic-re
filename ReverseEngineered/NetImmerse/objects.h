@@ -8,6 +8,8 @@ class bhkAabbPhantom;
 namespace RE {
    class bhkCollisionObject;
    class bhkRigidBody;
+   class TESObjectREFR;
+
    class NiObject : public NiRefObject {
       //
       // Notes:
@@ -131,7 +133,7 @@ namespace RE {
          float		unk94;				// 94
          UInt32   m_flags;			   // 98 - bitfield
          float		unk9C;				// 9C
-         UInt32   unkA0;				// A0
+         TESObjectREFR* unkA0;				// A0 // per 004D7C90
          UInt8		unkA4;				// A4
          UInt8		unkA5;				// A5 - bitfield
          //
@@ -169,5 +171,6 @@ namespace RE {
    static_assert(sizeof(LoadedAreaBound) == 0x6C, "LoadedAreaBound is the wrong size.");
    static_assert(offsetof(LoadedAreaBound, boundsMax) == 0x44, "LoadedAreaBound::boundsMax is at the wrong offset.");
 
-   DEFINE_SUBROUTINE_EXTERN(bool, NiObjectIs, 0x0042A960, const NiRTTI*, const NiObject*);
+   DEFINE_SUBROUTINE_EXTERN(bhkCollisionObject*, GetBhkCollisionObjectForNiObject, 0x0046A240, NiObject* obj); // returns obj->unk1C ? obj->unk1C : obj->GetAsBhkCollisionObject();
+   DEFINE_SUBROUTINE_EXTERN(bool,                NiObjectIs,                       0x0042A960, const NiRTTI*, const NiObject*);
 };

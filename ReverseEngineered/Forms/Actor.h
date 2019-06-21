@@ -412,7 +412,7 @@ namespace RE {
             UInt32 unk0198 = 0;
             Unk019C actorsWeDetect; // 019C
             tArray<UInt32> unk01A8;
-            UInt32 unk01B4 = 0;
+            void*  unk01B4 = nullptr; // 1B4
             NiPoint3 unk01B8;
             UInt32 unk01C4 = 0;
             float  unk01C8 = -1.0F; // 1C8 // distance from the actor to the player
@@ -976,7 +976,7 @@ namespace RE {
          virtual void Unk_BE(void);
          virtual void StartVampireFeed(Actor* target, TESObjectREFR* targetUsingFurniture); // BF // 0x00731350? // vampire feed? first argument is target. second is furniture that the target is using. runs AI packages on all involved actors.
          virtual void Unk_C0(void);
-         virtual void Unk_C1(NiPoint3&, UInt32, UInt32); // C1 // works with first-person camera position // args 2 and 3 unknown
+         virtual void Unk_C1(NiPoint3&, void*, UInt32); // C1 // works with first-person camera position // args 2 and 3 unknown
          virtual void Unk_C2(void);
          virtual void Unk_C3(void);
          virtual void Unk_C4(void);
@@ -1125,7 +1125,7 @@ namespace RE {
             kFlags_IsGuard          = 0x40000000,
          };
          enum Flags2 : UInt32 {
-            kFlags_Flag2_00000002         = 0x00000002,
+            kFlags_Flag2_00000002         = 0x00000002, // somehow related to hit processing
             kFlags_NoBleedoutRecovery     = 0x00000020,
             kFlags_Flag2_00000040         = 0x00000040, // related to bleedout?
             kFlags_CanDoFavor             = 0x00000080,
