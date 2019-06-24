@@ -154,15 +154,16 @@ void TESObjectWEAP::Fire(TESObjectREFR* Arg1, TESAmmo* Arg2, UInt32 Arg3, UInt32
    SInt32 esi = (UInt32)al * (SInt32)esp3E;
    espA0 = 0;
    if (ecx->unk10 == 4) {
-      if (esp50 == esp60)
+      if (Arg1 == esp60) // Arg1 == esp50
          esp54 = ecx->TESV_007A5B60();
    }
    esp3D = false;
    esp5B = false;
-   if (ebx) { // at 0x004AADF6
-      //
-      // ... code here sets esp3D, esp5B ...
-      //
+   if (ebx && !Arg1->IsInCombatAndNotIgnoringCombat()) { // at 0x004AADF6 // Arg1 == esp50
+      esp3D = ebx->Subroutine0071FD40();
+      esp5B = ebx->GetMiddleProcessUnk208();
+      if (esp5B)
+         ebx->SetMiddleProcessUnk208(false);
    }
    // at 0x004AAE28
    bool esp5A = false;

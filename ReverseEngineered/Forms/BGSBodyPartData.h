@@ -242,7 +242,22 @@ namespace RE {
    //       exist or is a ghost actor -- or so it seems. The actor being checked 
    //       CAN be the forced target, but maybe it can be other things, too?
    //
+   //     - Testing indicates that 006E57D0 is not what we're looking for.
+   //
    // 01275A6C is the bDisableAllGore setting's bool value. Might be worth looking 
    // at everything that reads it.
+   //
+   // How does the ShouldAttackKill function work? Surely the damage of an attack 
+   // must be stored somewhere that it can check... If we can find where the damage 
+   // is stored, then we can find what stores it.
+   //
+   //  - Analyze Actor::ShouldAttackKill.
+   //
+   // Subroutine 00798180 handles most or all damage calculations, including for 
+   // sneak attacks, criticals, perk entry points, and a seemingly redundant kill-
+   // move damage multiplier.
+   //
+   // Research code near 00797CBA; it looks up a body part index and is involved 
+   // in the struct that also does damage calcs
    //
 };

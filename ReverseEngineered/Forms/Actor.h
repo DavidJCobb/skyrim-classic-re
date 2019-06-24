@@ -225,6 +225,7 @@ namespace RE {
          // float unk1C4; // killmove time remaining
          // float unk1C8; // stagger time remaining?
          //       ...
+         // bool  unk208; // checked by Actor::ShouldAttackKill (if true for attacker AND attacker isn't in combat or is ignoring combat AND target isn't dead, then SAK is false); gets forced to 0 by TESObjectWEAP::Fire
          // bool  unk209; // related to soul trapping -- may indicate whether the actor has already been soul trapped -- getter 0x71FFF0, setter-to-true 0x71FFE0
          //       ...
          // bool  unk20C;
@@ -232,7 +233,7 @@ namespace RE {
          // bool  unk211; // true if the actor is in combat with the player
          //       ...
          // bool  unk215  // related to death processing
-         // bool  unk216  // related to death or killmove processing
+         // bool  unk216  // related to death or killmove processing; flag 0x01 means "in deferred kill"
          //       ...
          // float unk280;
    };
@@ -721,6 +722,9 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(FlagUnk30ActorValuesAsDirty, void, 0x006F4870);
 
+         DEFINE_MEMBER_FN(GetMiddleProcessUnk208, bool, 0x0071FD80);
+         DEFINE_MEMBER_FN(SetMiddleProcessUnk208, void, 0x0071FDA0, bool); // arg is actually a smart pointer
+
          DEFINE_MEMBER_FN(GetCurrentBSResponse, bool, 0x00721E70, void** response); // arg is actually a smart pointer
          DEFINE_MEMBER_FN(SetCurrentBSResponse, void, 0x00721ED0, void** response); // arg is actually a smart pointer
 
@@ -822,7 +826,7 @@ namespace RE {
    };
    class ActorMagicCaster : public MagicCaster { // sizeof == 0x90
       public:
-         virtual void Unk_1D(void);
+         virtual void Unk_1D(UInt32); // related to player killmoves
          virtual void Unk_1E(void);
          virtual void Unk_1F(void);
          virtual void Unk_20(void);
@@ -1326,6 +1330,7 @@ namespace RE {
          DEFINE_MEMBER_FN(AdvanceRegenTimerForStamina,      void, 0x006E0AA0, float time); // if the timer falls to zero or is already there, regens the stat
          DEFINE_MEMBER_FN(AdvanceVoiceRecoveryTime,         void, 0x006DEA70, float time);
          //
+         DEFINE_MEMBER_FN(CanBeKilledBy,         bool,    0x006AADF0, Actor* attacker); // used by ShouldAttackKill; accounts for protected actors being killable only by the player and such
          DEFINE_MEMBER_FN(CanFlyHere,            bool,    0x006A6F80);
          DEFINE_MEMBER_FN(CanRegenMagicka,       bool,    0x006EA2A0); // the player can't regen magicka while casting, and a game setting controls whether NPCs can
          DEFINE_MEMBER_FN(ClearExtraArrows,      void,    0x006A9F20);
@@ -1402,6 +1407,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetSwimming,           bool,    0x006B9670, bool); // returns previous state?
          DEFINE_MEMBER_FN(SetVoiceRecoveryTime,  void,    0x006E8B10, float);
          DEFINE_MEMBER_FN(SetYaw,                void,    0x006A8910, float); // Honors actor-specific settings, like the race "immobile" flag. Uses underlying SetYaw method on TESObjectREFR.
+         DEFINE_MEMBER_FN(ShouldAttackKill,      bool,    0x006E1770, Actor* target);
          DEFINE_MEMBER_FN(TrapSoul,              bool,    0x006EC950, Actor* target); // (this) traps the soul of (target)
          DEFINE_MEMBER_FN(UpdateArmorAbility,    void,    0x006E8650, TESForm*, BaseExtraList* extraData);
          DEFINE_MEMBER_FN(UpdateWeaponAbility,   void,    0x006ED980, TESForm*, BaseExtraList* extraData, bool bLeftHand);
