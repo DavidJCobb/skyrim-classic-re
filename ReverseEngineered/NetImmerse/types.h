@@ -14,13 +14,19 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(NiPoint3);
          DEFINE_MEMBER_FN(Add,              NiPoint3*, 0x00420320, NiPoint3& out, const NiPoint3& other);
+         DEFINE_MEMBER_FN(Add_B,            NiPoint3&, 0x00420470, const NiPoint3& other); // modifies and returns self
          DEFINE_MEMBER_FN(GetLength,        float,     0x0040A4B0);
          DEFINE_MEMBER_FN(GetLengthSquared, float,     0x004310E0); // if you're comparing the length to a constant, it's faster to compare the squared length to the squared constant
          DEFINE_MEMBER_FN(Multiply,         NiPoint3*, 0x004203A0, NiPoint3& out, const float other);
+         DEFINE_MEMBER_FN(Negate,           NiPoint3*, 0x0045C680, NiPoint3& out);
          DEFINE_MEMBER_FN(NotEqualTo,       bool,      0x0040B7D0, const NiPoint3& other); // Bethesda operator!=
          DEFINE_MEMBER_FN(Subtract,         NiPoint3*, 0x00420360, NiPoint3& out, const NiPoint3& other);
          DEFINE_MEMBER_FN(VectorNormalize,  void,      0x00420500);
          DEFINE_MEMBER_FN(VectorNormalize2, float,     0x00431120); // returns old length
+
+         NiPoint3& operator+(const NiPoint3& other) {
+            return CALL_MEMBER_FN(this, Add_B)(other);
+         };
    };
    class NiMatrix33 : public ::NiMatrix33 { // sizeof == 0x24
       public:

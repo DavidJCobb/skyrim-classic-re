@@ -1,5 +1,6 @@
 #pragma once
 
+class BGSBodyPartData;
 class BGSExplosion;
 class BGSVoiceType;
 class TESEyes;
@@ -20,6 +21,7 @@ namespace RE {
    extern TESObjectSTAT** const ptrCOCMarkerHeadingForm;
    extern TESObjectACTI** const ptrDefaultAshPile1Form;
    extern TESObjectACTI** const ptrDefaultAshPile2Form;
+   extern BGSBodyPartData** const ptrDefaultBodyPartData;
    extern BGSExplosion**  const ptrDefaultWaterExplosionForm;
    extern TESWaterForm**  const ptrDefaultWaterForm;
    extern TESObjectSTAT** const ptrDivineMarkerForm;
@@ -32,6 +34,7 @@ namespace RE {
    extern TESObjectSTAT** const ptrMultiBoundMarkerForm;
    extern TESObjectSTAT** const ptrNorthMarkerForm;
    extern TESObjectSTAT** const ptrPlaneMarkerForm;
+   extern BGSBodyPartData** const ptrPlayerBodyPartData;
    extern TESObjectSTAT** const ptrPortalMarkerForm;
    extern TESObjectDOOR** const ptrPrisonMarkerForm;
    extern TESObjectSTAT** const ptrRoomMarkerForm;

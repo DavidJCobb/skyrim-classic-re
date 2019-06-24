@@ -61,7 +61,7 @@ namespace RE {
             PartType      type;               // 05
             UInt8         healthPercent;      // 06 // FO3: The percentage of the actor's total health used as the limb's health.
             UInt8         actorValue;         // 07 // FO3: The actor value used for the limb's health.
-            UInt8         chanceToHit;        // 08 // FO3: The base percentage chance to hit this body part in VATS.
+            UInt8         chanceToHit;        // 08 // FO3: The base percentage chance to hit this body part in VATS. // Apparently used by melee attacks? See 0079807E
             UInt8         chanceToExplode;    // 09 // FO3: chance to explode the limb into gibs
             UInt16        explodeDebrisCount; // 0A
             BGSDebris*    explodeDebris;      // 0C // type assumed from xEdit specs
@@ -259,5 +259,23 @@ namespace RE {
    //
    // Research code near 00797CBA; it looks up a body part index and is involved 
    // in the struct that also does damage calcs
+   //
+   //  - Searching near this turned up Actor::FindBodyPartTypeMatchingNode
+   //
+   // NEW PLAN:
+   //
+   //  - Use Papyrus to register one BGSBodyPartData as an "addendum" to another. 
+   //    The addendum will hold locational damage and dismemberment data.
+   //
+   //  - Patch BGSBodyPartData::GetPart so that extended part indices look up 
+   //    from the addendum, i.e. part 6 in DefaultBodyPartData == part 0 in the 
+   //    addendum.
+   //
+   //  - Patch Actor::FindBodyPartTypeMatchingNode to be able to return extended 
+   //    body part indices. Examine all callers to ensure we know exactly where 
+   //    those indices will end up and how they will be used.
+   //
+   //  - Look for any calls to BGSBodyPartData::GetParts and verify that they 
+   //    don't access by index.
    //
 };

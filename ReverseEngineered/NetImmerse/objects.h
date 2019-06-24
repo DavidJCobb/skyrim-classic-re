@@ -127,9 +127,7 @@ namespace RE {
          bhkCollisionObject* collision; // 1C
          NiTransform	m_localTransform;  // 20
          NiTransform	m_worldTransform;  // 54
-         float		unk88;				// 88
-         float		unk8C;				// 8C
-         float		unk90;				// 90
+         NiPoint3 unk88; // 88
          float		unk94;				// 94
          UInt32   m_flags;			   // 98 - bitfield
          float		unk9C;				// 9C

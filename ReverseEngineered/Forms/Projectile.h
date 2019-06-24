@@ -122,6 +122,17 @@ namespace RE {
                // TESObjectREFR::SetYaw, and TESObjectREFR::SetPitch by the Projectile constructor.
                //
          };
+         struct Unk54Entry {
+            NiPoint3 unk00;
+            NiPoint3 unk0C;
+            UInt32   unk18; // refHandle
+
+            UInt32 unk24; // BGSBodyPartData::PartType
+
+            UInt16 unk34;
+            UInt16 unk36;
+            UInt8  unk38;
+         };
          //
          /*
          Projectile() {};

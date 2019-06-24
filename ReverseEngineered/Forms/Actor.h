@@ -1339,6 +1339,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Dismount,              void,    0x006C2EA0);
          DEFINE_MEMBER_FN(EnableAI,              void,    0x006AA690, bool); // argument determines whether we enable (true) or disable (false)
          DEFINE_MEMBER_FN(ExecuteDoNothingPackage, void,        0x006AC890);
+         DEFINE_MEMBER_FN(FindBodyPartTypeMatchingNode, BGSBodyPartData::PartType, 0x006A9020, NiNode*);
          DEFINE_MEMBER_FN(GetCurrentPackage,       TESPackage*, 0x006A9AD0); // TODO: Rename this here and in OllyDbg; it's NOT what Papyrus uses! It's used internally.
          DEFINE_MEMBER_FN(GetActorValueStateObj,   ActorValueState*, 0x006DE850, UInt32 avIndex);
          DEFINE_MEMBER_FN(GetActorValueModifier, float,   0x006DE980, ActorValueModifier which, UInt32 avIndex);
@@ -1346,6 +1347,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetActorValueRegenDelay, float,       0x006DEB40, UInt32 avIndex); // only valid for health/magicka/stamina
          DEFINE_MEMBER_FN(GetAimPitch,           float,   0x006C3490);
          DEFINE_MEMBER_FN(GetAimYaw,             float,   0x006C3420); // actor look direction? // Similar to GetHeading(0), but it accounts for the "AimHeadingCurrent" animation graph variable
+         DEFINE_MEMBER_FN(GetBodyPartData,       BGSBodyPartData*, 0x006AA020); // for the player, always returns PlayerBodyPartData; for other actors, returns BPD on the race or, if none set, DefaultBodyPartData
          DEFINE_MEMBER_FN(GetBribeAmount,        SInt32,  0x006AF030);
          DEFINE_MEMBER_FN(GetCombatState,        UInt32,  0x006E10F0); // same as Papyrus: 0, 1, 2 == not in combat; in combat; searching
          DEFINE_MEMBER_FN(GetComputedHeight,     float,   0x006AB410);

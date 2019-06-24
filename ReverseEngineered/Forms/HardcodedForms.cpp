@@ -9,6 +9,7 @@ namespace RE {
    extern TESObjectSTAT** const ptrCOCMarkerHeadingForm = (TESObjectSTAT**) 0x01310538;
    extern TESObjectACTI** const ptrDefaultAshPile1Form = (TESObjectACTI**) 0x01310564;
    extern TESObjectACTI** const ptrDefaultAshPile2Form = (TESObjectACTI**) 0x01310568;
+   extern BGSBodyPartData** const ptrDefaultBodyPartData = (BGSBodyPartData**) 0x01B10F78;
    extern BGSExplosion**  const ptrDefaultWaterExplosionForm = (BGSExplosion**) 0x0131056C;
    extern TESWaterForm**  const ptrDefaultWaterForm = (TESWaterForm**) 0x01B10690;
    extern TESObjectSTAT** const ptrDivineMarkerForm = (TESObjectSTAT**) 0x0131054C;
@@ -21,6 +22,7 @@ namespace RE {
    extern TESObjectSTAT** const ptrMultiBoundMarkerForm = (TESObjectSTAT**) 0x0131051C;
    extern TESObjectSTAT** const ptrNorthMarkerForm = (TESObjectSTAT**) 0x01310540;
    extern TESObjectSTAT** const ptrPlaneMarkerForm = (TESObjectSTAT**) 0x01310520;
+   extern BGSBodyPartData** const ptrPlayerBodyPartData = (BGSBodyPartData**) 0x01B10F7C;
    extern TESObjectSTAT** const ptrPortalMarkerForm = (TESObjectSTAT**) 0x01310528;
    extern TESObjectDOOR** const ptrPrisonMarkerForm = (TESObjectDOOR**) 0x01310544;
    extern TESObjectSTAT** const ptrRoomMarkerForm = (TESObjectSTAT**) 0x01310524;
