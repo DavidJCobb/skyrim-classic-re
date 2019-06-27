@@ -19,7 +19,7 @@ namespace RE {
       UInt32 unk2C = 0;
       UInt32 unk30 = 0;
       void*  unk34 = nullptr;
-      float  damage = 0.0F; // 38
+      float  damage = 0.0F; // 38 // most damage-modifying GMSTs are applied to this
       UInt32 unk3C = 0;    // 3C // weapon data -- the result of the Calculate Weapon Damage perk entry point
       float  unk40 = 0.0F; // 40 // fCombatPlayerLimbDamageMult is applied to this
       UInt32 unk44 = 0;

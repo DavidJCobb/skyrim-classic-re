@@ -5,6 +5,7 @@
 
 class bhkSimpleShapePhantom;
 class bhkSphereShape;
+class BGSMaterialType;
 class BGSProjectile;
 namespace RE {
    class Actor;
@@ -122,16 +123,24 @@ namespace RE {
                // TESObjectREFR::SetYaw, and TESObjectREFR::SetPitch by the Projectile constructor.
                //
          };
-         struct Unk54Entry {
+         struct Struct0079C430 { // sizeof == 0x3C
             NiPoint3 unk00;
-            NiPoint3 unk0C;
+            NiPoint3 unk0C; // angle? gets set to Projectile::unk94, negated, and then normalized
             UInt32   unk18; // refHandle
+            void*    unk1C = nullptr; // 1C // hkpWorldObject*
+            BGSMaterialType* unk20 = nullptr;
+            SInt32   unk24 = -1; // BGSBodyPartData::PartType
+            UInt32   unk28 = 0; // 28 // actually an int, or an enum; value 0xB has some meaning
+            NiNode*  unk2C = nullptr; // node on the actor -- likely the node hit
+            UInt32   unk30 = 0;
+            UInt16   unk34 = 0;
+            UInt16   unk36 = 0;
+            UInt8    unk38 = 0;
+            UInt8    unk39 = 0;
+            UInt16   pad3A;
 
-            UInt32 unk24; // BGSBodyPartData::PartType
-
-            UInt16 unk34;
-            UInt16 unk36;
-            UInt8  unk38;
+            MEMBER_FN_PREFIX(Struct0079C430);
+            DEFINE_MEMBER_FN(Constructor, Struct0079C430&, 0x0079C430);
          };
          //
          /*
@@ -192,10 +201,10 @@ namespace RE {
          }
          */
          //
-         BStList<UInt32> unk54; // 54
+         BStList<Struct0079C430> unk54; // 54 // entries are added at Projectile::Subroutine0079EBB0
          NiTransform unk5C; // 5C
          bhkSimpleShapePhantom* unk90 = nullptr; // 90
-         NiPoint3 unk94; // 94
+         NiPoint3 unk94; // 94 // angle?
          NiPoint3 unkA0; // A0
          UInt32 unkAC = 0;
          void*  unkB0 = nullptr; // B0 // NiPointer; don't know what it points to
@@ -214,7 +223,7 @@ namespace RE {
          UInt8 unkD2;
          UInt8 unkD3;
          UInt32 unkD4 = 0;
-         UInt32 unkD8 = 0;
+         UInt32 unkD8 = 0; // D8 // refhandle
          UInt32 unkDC = 0;
          UInt32 unkE0 = 0; // E0 // related to explosions
          void*  unkE4; // E4 // LaunchData::unk4C

@@ -275,7 +275,14 @@ namespace RE {
    //    body part indices. Examine all callers to ensure we know exactly where 
    //    those indices will end up and how they will be used.
    //
+   //     - Check nodes for our limbs before we check the vanilla nodes; it's 
+   //       important that our Head override the vanilla Head
+   //
    //  - Look for any calls to BGSBodyPartData::GetParts and verify that they 
    //    don't access by index.
+   //
+   //     - The sole caller is ActorProcessManager::InitBodyPartNodes, which 
+   //       loops over the parts by index; we'd have to patch that function 
+   //       to handle extended body parts anyway.
    //
 };

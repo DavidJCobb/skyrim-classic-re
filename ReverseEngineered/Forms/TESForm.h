@@ -31,7 +31,7 @@ namespace RE {
             kFormFlag_Unk00000001 = 0x00000001, // set when marking for delete, but could be more general
             kFormFlag_Unk00000002 = 0x00000002, // "modified?" // setting this on a REFR also sets it on its CELL, if the refr doesn't have flag 0x8000; setting it on a CELL sets it on the cell's parent WRLD
             //
-            kFormFlag_IsDeleted   = 0x00000020, // indicates that deletion has already been carried out
+            kFormFlag_IsDeleted   = 0x00000020, // form is marked for deletion
             kFlagPlayerKnows  = 0x000040,
             kFlagUnk_0x400    = 0x000400,
             kFormFlag_IsDisabled  = 0x000800,

@@ -60,7 +60,7 @@ namespace RE {
          //
          // Members:
          enum { kRace_NumSkillBonuses = 7 };
-         struct Data { // sizeof == 0xA8
+         struct Data { // sizeof == 0xA4
             struct SkillBonus {
                UInt8 skill;
                UInt8 bonus;
@@ -104,40 +104,7 @@ namespace RE {
             float	unk9C;
             float	unkA0;
             float	unkA4;
-            float	unkA8;
          };
-         //
-         TESModel					models[2];			// 058
-         Data						data;				// 080
-         BGSTextureModel				textureModel[2];	// 12C
-         BGSBehaviorGraphModel		behaviorGraph[2];	// 154
-         StringCache::Ref			behaviorPath[2];	// 17C
-         StringCache::Ref			behaviorName[2];	// 184
-         BGSVoiceType*    voiceTypes[2]; // 18C // indices: 0 = male; 1 = female // if not specified, these default to the hardcoded voicetypes
-         BGSBodyPartData* bodyPartData;  // 190
-         TESObjectARMO*   decapitateArmor[2];	// 194
-         UnkArray unk180[2]; // 180 // "Default Hair Colors" -- likely ColorForms; a set for males and a set for females
-         void* unk198[4];
-         void* unk1A8[2]; // AttackAnimationArrayMap
-         StringCache::Ref        editorId; // 1B0
-         BGSMaterialType*        impactMaterial; // 1B4
-         BGSImpactDataSet*       meleeImpact; // 1B8
-         BGSArtObject*           decapitateBloodArt; // 1BC
-         BGSSoundDescriptorForm* openCorpseSound; // 1C0
-         BGSSoundDescriptorForm* closeCorpseSound; // 1C4
-         //
-         // Next member is wrong? 1DC is the offset of whatever is defined in the NAM7 subrecord.
-         //
-         StringCache::Ref        bipedObjectNames[0x20];
-         tArray<BGSEquipSlot*>   slotRestrictions;
-         UInt32                  unk274;
-         BGSEquipSlot*           unarmedEquipSlot; // 278
-         TESRace*                morphRace; // 27C
-         TESRace*                armorRace; // 280
-         UnkArray unk284;
-         UnkArray unk290;
-         UInt8    unk29C[0x18];
-
          struct CharGenData { // sizeof == 0xAC
             struct TintOption {
                UInt32					unk00;			// 00
@@ -160,7 +127,44 @@ namespace RE {
             MEMBER_FN_PREFIX(CharGenData);
             DEFINE_MEMBER_FN(Constructor, CharGenData*, 0x00576810);
          };
-
+         //
+         TESModel              models[2];			 // 058
+         Data                  data;				 // 080
+         float                 faceGenFaceClamp; // 128
+         BGSTextureModel       textureModel[2];	 // 12C
+         BGSBehaviorGraphModel behaviorGraph[2]; // 154
+         StringCache::Ref      behaviorPath[2];  // 17C
+         StringCache::Ref      behaviorName[2];  // 184
+         BGSVoiceType*         voiceTypes[2];    // 18C // indices: 0 = male; 1 = female // if not specified, these default to the hardcoded voicetypes
+         BGSBodyPartData*      bodyPartData;     // 194 // GNAM
+         TESObjectARMO*        decapitateArmor[2]; // 198 // DNAM
+         UInt32 unk1A0;
+         UInt32 unk1A4;
+         UInt32 unk1A8;
+         UInt32 unk1AC;
+         UInt32 unk1B0;
+         UInt32 unk1B4;
+         UInt32 unk1B8;
+         UInt32 unk1BC;
+         UInt32 unk1C0; // 1C0
+         UInt32 unk1C4; // 1C4
+         UInt32 unk1C8; // 1C8
+         UInt32 unk1CC; // 1CC
+         const char* editorID; // 1D0
+         BGSMaterialType*  materialType; // 1D4 // NAM4
+         BGSImpactDataSet* unk1D8; // NAM5
+         BGSArtObject* decapitateBloodArt; // 1DC // NAM7
+         BGSSoundDescriptorForm* openCorpseSound;  // 1E0 // ONAM
+         BGSSoundDescriptorForm* closeCorpseSound; // 1E4 // LNAM
+         StringCache::Ref        bipedObjectNames[0x20]; // 1E8 // strings can't be longer than 259 chars
+         tArray<BGSEquipSlot*>   slotRestrictions; // 268 // QNAM
+         UInt32                  unk274; // 274
+         BGSEquipSlot*           unarmedEquipSlot; // 278
+         TESRace*                morphRace; // 27C
+         TESRace*                armorRace; // 280
+         UnkArray unk284;
+         UnkArray unk290;
+         UInt8    unk29C[0x18];
          CharGenData* chargenData[2]; // 2B4 // face data
 
          MEMBER_FN_PREFIX(TESRace);
@@ -174,6 +178,14 @@ namespace RE {
          DEFINE_MEMBER_FN(SetDefaultHairColor,      void, 0x00576890, BinaryGender which, BGSColorForm*);
    };
    static_assert(offsetof(TESRace, data) == 0x80, "TESRace::data is in the wrong place!");
+   static_assert(offsetof(TESRace, textureModel) >= 0x12C, "TESRace::textureModel is too early!");
+   static_assert(offsetof(TESRace, textureModel) <= 0x12C, "TESRace::textureModel is too late!");
+   static_assert(offsetof(TESRace, decapitateArmor) >= 0x198, "TESRace::decapitateArmor is too early!");
+   static_assert(offsetof(TESRace, decapitateArmor) <= 0x198, "TESRace::decapitateArmor is too late!");
+   static_assert(offsetof(TESRace, unk1C0) >= 0x1C0, "TESRace::unk1C0 is too early!");
+   static_assert(offsetof(TESRace, unk1C0) <= 0x1C0, "TESRace::unk1C0 is too late!");
+   static_assert(offsetof(TESRace, editorID) >= 0x1D0, "TESRace::editorID is too early!");
+   static_assert(offsetof(TESRace, editorID) <= 0x1D0, "TESRace::editorID is too late!");
    static_assert(offsetof(TESRace, chargenData) == 0x2B4, "TESRace::chargenData is in the wrong place!");
    static_assert(offsetof(TESRace::CharGenData, tintData) == 0x90, "TESRace::CharGenData is in the wrong place!");
 };
