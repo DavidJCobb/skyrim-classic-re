@@ -3,6 +3,8 @@
 #include "ReverseEngineered/Forms/TESObjectREFR.h"
 #include "ReverseEngineered/Forms/TESPackage.h"
 #include "ReverseEngineered/NetImmerse/objects.h"
+#include "ReverseEngineered/NetImmerse/types.h"
+#include "ReverseEngineered/Systems/AttackProcessing.h"
 #include "ReverseEngineered/Miscellaneous.h"
 #include "ReverseEngineered/Types.h"
 #include "skse/NiObjects.h"
@@ -168,13 +170,7 @@ namespace RE {
          void*   unkE4; // E4 // smart pointer/refcounted; vtbl but no rtti
          UInt32  unkE8; // E8
          UInt32  unkEC; // EC
-         void*   unkF0; // F0
-            // Object:
-            //    UInt32 unk68; // bitmask
-            //                  //  - 00000008 == last hit was a critical hit
-            //    UInt32 unk74; // FO3 GetHitLocation value, though the game may not actually maintain it
-            //
-            //
+         Struct00797220* unkF0; // F0 // see AttackProcessing.h
          UInt32	unkF4;	// F4
          EffectListNode*	effectList;	// F8
          void* unkFC;	// FC // smart pointer/refcounted
@@ -789,6 +785,8 @@ namespace RE {
             kState_Flying_Landing      = 0x00100000,
             kState_Flying_Any          = 0x00140000, // use this for checks
             //
+            kState_Bleedout            = 0x01000000,
+            //
             kState_MaybeAttacking_All = 0xF0000000, // checked by EquipManager; swapping weapon/spell/scroll/etc. when any of these are set interrupts your attack
          };
          enum Flags08 {
@@ -1016,7 +1014,7 @@ namespace RE {
          virtual bool IsInCombat(); // E2
          virtual void Unk_E3(void);
          virtual void Unk_E4(); // E4 // Unknown. Related to AI.
-         virtual void Unk_E5(void);
+         virtual float Unk_E5(); // E5
          virtual float Unk_E6(); // E6 // related to computing the actor's threat level
          virtual void Unk_E7(void);
          virtual void Unk_E8(void);
@@ -1127,6 +1125,7 @@ namespace RE {
             kFlags_IsPlayerTeammate = 0x04000000,
             kFlags_Flag1_10000000   = 0x10000000, // related to AI
             kFlags_IsGuard          = 0x40000000,
+            kFlags_Flag1_80000000   = 0x80000000, // if set, then damage calcs don't bother checking whether the actor is blocking; see 00797799
          };
          enum Flags2 : UInt32 {
             kFlags_Flag2_00000002         = 0x00000002, // somehow related to hit processing
@@ -1353,6 +1352,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetComputedHeight,     float,   0x006AB410);
          DEFINE_MEMBER_FN(GetComputedHeightMult, float,   0x004D5230); // ActorBase height mult * Race height mult
          DEFINE_MEMBER_FN(GetCrimeFaction,       TESFaction*, 0x006AED30);
+         DEFINE_MEMBER_FN(GetDamageResist,       float,   0x006E0D10); // literally just returns the DamageResist AV's current value
          DEFINE_MEMBER_FN(GetDetected,           SInt32,  0x006AE830, Actor* canWeSeeThisActor, UInt32 oftenIs3_mustNotExceed5); // GetDetected condition uses 3 for the enum and checks if the result > 0
          DEFINE_MEMBER_FN(GetDominantArmorSkill, SInt32,  0x006E1B70); // if you take a giant's club to the face, this is the armor skill that should level. can be -1 if no skill
          DEFINE_MEMBER_FN(GetEquippedShield,     TESObjectARMO*, 0x006E1BE0);

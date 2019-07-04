@@ -333,6 +333,22 @@ namespace RE {
          UInt32 unk08;        // 08 // first child handle? or flags?
          Entry* firstEntry;   // 0C // are we sure there's a linked list here? I mean, why would there be?
    };
+   class ExtraFlags : public BSExtraData { // sizeof == 0xC
+      public:
+         ExtraFlags();
+         virtual ~ExtraFlags();
+
+         UInt32 flags; // 08
+
+         enum Flags : UInt32 {
+            //
+            // In Skyrim Classic, these are the only flags, and ExtraFlags is seemingly only ever added 
+            // to references (as opposed to cells, which can also have extra-data).
+            //
+            kFlag_REFR_ActivationBlocked = 0x00000001,
+            kFlag_REFR_HasAshPile        = 0x00000002, // seems redundant. why not just GetExtraAshPileRef straightaway? bethesda probably had their reasons... :\
+         };
+   };
    class ExtraGhost : public BSExtraData { // sizeof: 0x0C
       public:
          ExtraGhost(bool isGhost) : isGhost(isGhost) {};
@@ -360,7 +376,7 @@ namespace RE {
          //
          float  modifiedFOV;  // 08
          float  modifiedFade; // 0C
-         UInt32	unk10;        // 10 // Not any of the flags that the CK offers for light references.
+         UInt32 unk10;        // 10 // Not any of the flags that the CK offers for light references.
          float  depthBias;    // 14
          UInt8  unk18;        // 18 // Not any of the flags that the CK offers for light references.
          UInt8  pad19[3];     // 19, 20, 21
@@ -519,7 +535,7 @@ namespace RE {
             Entry* next;
             UInt32 formID; // confirmed via memory examination
          };
-         Entry first;  // confirmed via memory and code examination
+         Entry  first; // confirmed via memory and code examination
          UInt32 count; // confirmed via memory and code examination
          UInt32 unk14; // 14 // a form ID // See 0x004DDD2A
          void*  unk18; // 18
@@ -783,7 +799,6 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraEnableStateParentFlag2,   bool,    0x0040D2D0); // Returns extraDataObject->unk08 & 2, or zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraEnableStateParentFlag4,   bool,    0x0040D2F0); // Returns extraDataObject->unk08 & 4, or zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraEncounterZone,            BGSEncounterZone*, 0x0040D9F0);
-         DEFINE_MEMBER_FN(GetExtraFlagByIndex,              bool,    0x0040E850, UInt32 index); // Returns false if no extra data.
          DEFINE_MEMBER_FN(GetExtraForcedTargetRefHandle,    UInt32*, 0x0040E7C0, UInt32& refHandle); // returns &refHandle
          DEFINE_MEMBER_FN(GetExtraGhost,                    bool,    0x0040C3E0); // Returns ghost flag, or false if no extra data.
          DEFINE_MEMBER_FN(GetExtraGlobal,                   void*,   0x0040C0F0); // Return type not verified. Could be a form ID, I suppose.
@@ -845,6 +860,8 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(GetExtraUnknown3F, void*, 0x0040C010);
          //
+         DEFINE_MEMBER_FN(TestExtraFlags,                   bool,    0x0040E850, UInt32 flags); // Returns true if any of the specified flags are set. Returns false if no extra data.
+         //
          // FINDERS:
          //
          DEFINE_MEMBER_FN(ExtraRunOncePacksContains, bool, 0x0040D1F0, void* searchFor); // Checks searchFor against the unk00 of each linked list entry.
@@ -860,7 +877,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraCharge,                   ExtraCharge*,     0x0040C780, UInt32);       // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraCollisionData,            void,             0x00411FA0, ExtraCollisionData::Data*); // Destroys any existing extra-data, and then creates some if the supplied pointer is not null.
          DEFINE_MEMBER_FN(SetExtraEnableStateParentFlags,   void,             0x0040D310, UInt8 flags);  // Does nothing if no extra-data present.
-         DEFINE_MEMBER_FN(SetExtraFlagByIndex,              void,             0x00416C50, UInt32 index, bool value); // Creates the new extra-data if needed.
+         DEFINE_MEMBER_FN(SetExtraFlags,                    void,             0x00416C50, UInt32 flagsMask, bool value); // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraForcedTargetRefHandle,    void,             0x00413F30, UInt32);
          DEFINE_MEMBER_FN(SetExtraGhost,                    ExtraGhost*,      0x0040C940, bool isGhost); // Sets the ghost flag. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraLock,                     ExtraLock*,       0x0040C560, void*);        // Deletes the unk08 on any existing lock data, and then sets a new unk08 pointer. Creates the new extra-data if needed.

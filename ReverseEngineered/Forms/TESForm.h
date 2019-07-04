@@ -52,6 +52,7 @@ namespace RE {
             //
             kRefrFlag_Inaccessible       = 0x00000100, // for DOOR references
             kRefrFlag_DontLightWater     = 0x00000100, // for LIGH references
+            kRefrFlag_Unk00000100        = 0x00000100, // for all other references; gets modified (can be set or cleared) on all created refs after they're created
             kRefrFlag_MotionBlur         = 0x00000200, // for MSTT references
             kRefrFlag_CastsShadows       = 0x00000200, // for LIGH references
             kRefrFlag_Persistent         = 0x00000400,
@@ -59,19 +60,20 @@ namespace RE {
             //
             kRefrFlag_Unk00040000        = 0x00040000, // possibly "marked for disable"
             //
-            kRefrFlag_LightNeverFades    = 0x00010000,
+            kRefrFlag_LightNeverFades    = 0x00010000, // also gets set on references when Papyrus marks them for deletion
             kRefrFlag_DontLightLandscape = 0x00020000, // for LIGH references
             //
             kRefrFlag_Unk00080000        = 0x00080000, // getter at 00401A60
             //
             kRefrFlag_IgnoringFriendlyHits = 0x00100000, // maybe actor only?
             //
-            kRefrFlag_Unk00400000        = 0x00400000,
+            kRefrFlag_Unk00400000        = 0x00400000, // always set on ash piles when they're created; can be set on references when Papyrus marks them for deletion
             kRefrFlag_Destroyed          = 0x00800000,
-            //
+            kRefrFlag_Unk01000000        = 0x01000000, // always set on ash piles when they're created
             kRefrFlag_NoAIAcquire        = 0x02000000, // for item references
             //
-            kRefrFlag_Unk01000000        = 0x01000000,
+            kRefrFlag_Unk08000000        = 0x08000000,
+            //
             kRefrFlag_DontHavokSettle    = 0x20000000,
             kRefrFlag_NoRespawn          = 0x40000000,
             kRefrFlag_Multibound         = 0x80000000,
@@ -161,9 +163,9 @@ namespace RE {
          UInt8    pad13;    // 13
 
          MEMBER_FN_PREFIX(TESForm);
-         DEFINE_MEMBER_FN(GetBodyPartsMask, UInt32, 0x00475280);
-         DEFINE_MEMBER_FN(ModifyFlag00000008,    void, 0x004507F0, bool clearOrSet);
-         DEFINE_MEMBER_FN(SetFormFlags_Internal, void, 0x00450A60, UInt32 flagsMask, bool clearOrSet);
+         DEFINE_MEMBER_FN(GetBodyPartsMask,   UInt32, 0x00475280);
+         DEFINE_MEMBER_FN(ModifyFlag00000008, void,   0x004507F0, bool clearOrSet);
+         DEFINE_MEMBER_FN(SetFormHighFlags,   void,   0x00450A60, UInt32 flagsMask, bool clearOrSet);
          //
          // Maybe avoid calling these:
          //

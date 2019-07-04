@@ -70,6 +70,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B2E724.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B9ED08.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ActorAI\base.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\AttackProcessing.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTaskPool.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTEvent.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ChangeForms.h" />

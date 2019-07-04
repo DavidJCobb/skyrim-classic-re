@@ -7,6 +7,18 @@ namespace RE {
    class TESObjectWEAP : public TESBoundObject { // sizeof == 0x134
       public:
          enum { kTypeID = kFormType_Weapon };
+         enum WeaponType : UInt8 {
+            kType_HandToHandMelee = 0,
+            kType_OneHandSword,
+            kType_OneHandDagger,
+            kType_OneHandAxe,
+            kType_OneHandMace,
+            kType_TwoHandSword,
+            kType_TwoHandAxe,
+            kType_Bow,
+            kType_Staff,
+            kType_CrossBow,
+         };
          //
          // Parents:
          TESFullName         fullName;		// 020
@@ -28,34 +40,13 @@ namespace RE {
          // Members:
          //
          struct GameData { // sizeof == 0x34
-            enum {
-               kType_HandToHandMelee = 0,
-               kType_OneHandSword,
-               kType_OneHandDagger,
-               kType_OneHandAxe,
-               kType_OneHandMace,
-               kType_TwoHandSword,
-               kType_TwoHandAxe,
-               kType_Bow,
-               kType_Staff,
-               kType_CrossBow,
-               kType_H2H,
-               kType_1HS,
-               kType_1HD,
-               kType_1HA,
-               kType_1HM,
-               kType_2HS,
-               kType_2HA,
-               kType_Bow2,
-               kType_Staff2,
-               kType_CBow
-            };
             enum Flags1 {
                kFlags_PlayerOnly = 0x01,
                kFlags_NPCUseAmmo = 0x02,
                kFlags_NoJamAfterReload = 0x04,
                kFlags_MinorCrime = 0x10,
                kFlags_NotUsedInNormalCombat = 0x40,
+               kFlags_OverrideDamageToWeaponMult = 0x80,
                kFlags_Unknown1 = 0x100,
                kFlags_LongBursts = 0x800,
                kFlags_NonHostile = 0x1000,
@@ -65,18 +56,18 @@ namespace RE {
                kFlags_Hidebackpack = 0x01,
                kFlags_Automatic = 0x02,
                kFlags_CantDrop = 0x08,
-               kFlags_EmbeddedWeapon = 0x20,
+               kFlags_EmbeddedWeapon = 0x20, // "embedded" weapons don't degrade but I otherwise don't know what this means
                kFlags_Unknown2 = 0x40,
                kFlags_NotPlayable = 0x80,
             };
             //
             struct Unk00 { // sizeof == 0x1C
                float  sightFOV;            // 00
-               float  unk04;               // 04 // WEAP/DNAM offset 0x30; engine default is 5.0F
+               float  unk04;               // 04 // WEAP/DNAM offset 0x40; engine default is 5.0F
                float  rumbleStrengthLeft;  // 08
                float  rumbleStrengthRight; // 0C
                float  rumbleDuration;      // 10
-               float  unk14;               // 14 // WEAP/DNAM offset 0x44; engine default is 0.0F
+               float  unk14;               // 14 // WEAP/DNAM offset 0x54; engine default is 0.0F
                UInt8  numProjectiles;      // 18
                UInt8  pad19[3];
             };
@@ -86,8 +77,8 @@ namespace RE {
             float  reach;	// 08
             float  minRange;	// 0C
             float  maxRange;	// 10
-            float  animationMult;	// 14
-            float  unk18;	// 18
+            float  animationMult; // 14
+            float  damageToWeaponMult; // 18 // damage to weapon mult, used only if Flags1::kFlags_OverrideDamageToWeaponMult is set
             float  stagger;// 1C
             UInt32 unk20;	// 20
             SInt32 skill;	// 24 // actor value index (must be skill; validated on load: bad AVs replaced with -1)
@@ -96,7 +87,7 @@ namespace RE {
             UInt8  vatsChance;	// 2E
             UInt8  unk2F;	// 2F
             UInt8  unk30;	// 30
-            UInt8  type;	// 31
+            WeaponType type;	// 31
             UInt8  flags2;	// 32
             UInt8  unk33;	// 33
 
@@ -135,6 +126,9 @@ namespace RE {
          float maxRange() { return gameData.maxRange; }
          UInt8 type() { return gameData.type; }
          UInt16 critDamage() { return critData.critDamage; }
+
+         inline bool IsMelee() const noexcept { return gameData.type < kType_Bow; };
+         inline bool IsGun() const noexcept { return (gameData.type == kType_Bow || gameData.type == kType_CrossBow); };
 
          MEMBER_FN_PREFIX(TESObjectWEAP);
          DEFINE_MEMBER_FN(Fire,                  void,   0x004AA6A0, TESObjectREFR* shooter, TESAmmo* ammo, UInt32, UInt32); // can use zero for other args

@@ -1,6 +1,7 @@
 #pragma once
 #include "ReverseEngineered/Forms/Actor.h"
 #include "ReverseEngineered/Forms/TESObjectREFR.h"
+#include "ReverseEngineered/NetImmerse/types.h"
 #include "ReverseEngineered/Shared.h"
 
 class bhkSimpleShapePhantom;
@@ -128,7 +129,7 @@ namespace RE {
             NiPoint3 unk0C; // angle? gets set to Projectile::unk94, negated, and then normalized
             UInt32   unk18; // refHandle
             void*    unk1C = nullptr; // 1C // hkpWorldObject*
-            BGSMaterialType* unk20 = nullptr;
+            BGSMaterialType* unk20 = nullptr; // 20 // == TESRace::unk1D4
             SInt32   unk24 = -1; // BGSBodyPartData::PartType
             UInt32   unk28 = 0; // 28 // actually an int, or an enum; value 0xB has some meaning
             NiNode*  unk2C = nullptr; // node on the actor -- likely the node hit
