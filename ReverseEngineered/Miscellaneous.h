@@ -68,6 +68,42 @@ namespace RE {
       };
    };
 
+   struct BSRandomNumberGenerator { // sizeof > 0x9CC
+      static BSRandomNumberGenerator* GetInstance() {
+         return (BSRandomNumberGenerator*)0x012E4238;
+      };
+      static BSRandomNumberGenerator* GetOrCreate() { // is often inlined
+         DEFINE_SUBROUTINE(BSRandomNumberGenerator*, f, 0x00432A90);
+         return f();
+         //
+         // This is often inlined, so here's the implementation:
+         //
+         /*__declspec(naked) static BSRandomNumberGenerator* GetOrCreate() {
+            _asm {
+               mov  eax, 1;
+               mov  ecx, 0x012E4C08;
+               test byte ptr [ecx], eax;
+               jnz  lExists;
+               or   dword ptr [ecx], eax;
+               mov  ecx, 0x012E4238;
+               mov  eax, 0x00A4B6E0;
+               call eax;
+               push 0x0103D150;
+               mov  eax, 0x00F520BC;
+               call eax;
+               add  esp, 4;
+            lExists:
+               mov  eax, 0x012E4238;
+               retn;
+            };
+         };*/
+      };
+
+      MEMBER_FN_PREFIX(BSRandomNumberGenerator);
+      DEFINE_MEMBER_FN(GetInt,             UInt32, 0x00A4B900, UInt32 maximum);
+      DEFINE_MEMBER_FN(Subroutine00A4B6E0, void,   0x00A4B6E0); // This is only called by GetOrCreate, so if you see calls to it, then that's GetOrCreate inlined
+   };
+
    // ExtractPath:
    //
    // This would typically be called like:
@@ -78,6 +114,7 @@ namespace RE {
    //
    DEFINE_SUBROUTINE_EXTERN(const char*, BSExtractPath, 0x00A3F5C0, char* outPath, size_t outBufferSize, const char* inputPath, const char* prefixFolder);
 
-   DEFINE_SUBROUTINE_EXTERN(bool, IsCellOrWorldspace, 0x00472D10, void* thingToTest, ::TESObjectCELL** outCell, ::TESWorldSpace** outWorld);
-   DEFINE_SUBROUTINE_EXTERN(void, FillBufferWithByte, 0x00F52240, void* buffer, UInt8 byte, UInt32 length);
+   DEFINE_SUBROUTINE_EXTERN(bool,  IsCellOrWorldspace, 0x00472D10, void* thingToTest, ::TESObjectCELL** outCell, ::TESWorldSpace** outWorld);
+   DEFINE_SUBROUTINE_EXTERN(void,  FillBufferWithByte, 0x00F52240, void* buffer, UInt8 byte, UInt32 length);
+   DEFINE_SUBROUTINE_EXTERN(float, GetRandomFloat,     0x00448A90, float minVal, float maxVal);
 };

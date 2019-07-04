@@ -1,5 +1,6 @@
 #pragma once
 #include "TESForm.h"
+#include "ReverseEngineered/NetImmerse/types.h"
 
 namespace RE {
    //
@@ -99,11 +100,12 @@ namespace RE {
             DEFINE_MEMBER_FN(Load,        bool,  0x0054A1F0, BGSLoadFormBuffer*);
          };
 
-         Data*  part[kPartType_Max]; // 2C - init'd to 0
+         Data*  parts[kPartType_Max]; // 2C - init'd to 0
          UInt32 unk40; // 40 - init'd to 0
 
          MEMBER_FN_PREFIX(BGSBodyPartData);
-         DEFINE_MEMBER_FN(GetPart, Data*, 0x0054A7D0, PartType);
+         DEFINE_MEMBER_FN(GetPart,             Data*, 0x0054A7D0, PartType);
+         DEFINE_MEMBER_FN(GetPartByActorValue, Data*, 0x0054A8E0, UInt32 avIndex); // loops over parts; returns the first part to match
    };
    //
    // If, uh, hypothetically, I wanted to add dismemberment back into the game for 

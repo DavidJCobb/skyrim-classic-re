@@ -731,6 +731,12 @@ namespace RE {
          DEFINE_MEMBER_FN(ClearBodyPartNodes, void,    0x00720150); // wipes unkB4..., unkD4, and unkD8
          DEFINE_MEMBER_FN(InitBodyPartNodes,  void,    0x00720F30, NiNode* root, BGSBodyPartData*); // initializes unkB4
 
+         // Related to hit data:
+         //
+         DEFINE_MEMBER_FN(CreateOrClearHitStruct, Struct00797220*, 0x0071FC90);
+         DEFINE_MEMBER_FN(GetHitStruct,           Struct00797220*, 0x0071FC10);
+         DEFINE_MEMBER_FN(ImportHitStruct,        void,            0x0071FC30, Struct00797220* other); // copies the struct
+
          DEFINE_MEMBER_FN(WriteSavedata, void, 0x00718F70, BGSSaveFormBuffer*);
    };
    static_assert(offsetof(ActorProcessManager, unk9B) >= 0x9B, "RE::ActorProcessManager::unk9B is too early!");
@@ -1359,6 +1365,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetEquippedWeapon,     TESObjectWEAP*, 0x006E0D20, bool whichHand);
          DEFINE_MEMBER_FN(GetGoldAmount,         SInt32,  0x006A8190);
          DEFINE_MEMBER_FN(GetHealthPercentage,   float,   0x006A8320); // just a convenience wrapper for GetActorValuePercentage
+         DEFINE_MEMBER_FN(GetHitStruct,          Struct00797220*, 0x006E1460); // not sure if last hit or current hit
          DEFINE_MEMBER_FN(GetLevel,              UInt16,  0x006A7320);
          DEFINE_MEMBER_FN(GetLightLevel,         double,  0x006AE980); // places result on the FPU stack
          DEFINE_MEMBER_FN(GetMaxCarryWeight,     float,   0x006A8600); // gets the CarryWeight actor value and then applies the GetMaxCarryWeight perk entry point
@@ -1370,6 +1377,7 @@ namespace RE {
          DEFINE_MEMBER_FN(HasBeenEaten,          bool,    0x006A8B50);
          DEFINE_MEMBER_FN(HasPerk,               bool,    0x006AA190, BGSPerk* perk);
          DEFINE_MEMBER_FN(HasSpell,              bool,    0x006EAF10, SpellItem* perk);
+         DEFINE_MEMBER_FN(ImportHitStruct,       void,    0x006E1480, Struct00797220* other); // copies the struct
          DEFINE_MEMBER_FN(InterruptCast,         void,    0x006E8F60, UInt32 unk_usuallyZero);
          DEFINE_MEMBER_FN(IsAlerted,             bool,    0x006A87C0); // Calls this->processManager->TESV_006F4770();
          DEFINE_MEMBER_FN(IsArrestingTarget,     bool,    0x006B4650);

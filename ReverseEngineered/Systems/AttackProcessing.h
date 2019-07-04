@@ -49,15 +49,20 @@ namespace RE {
    //
    DEFINE_SUBROUTINE_EXTERN(float, ComputeDamageBlocked, 0x00599E80, float weaponDamage, float blockAV, float shieldPerksAV, bool arg4, bool arg5, bool isPowerAttack);
 
+   struct Struct007A6F60;
    struct Struct00797220 { // sizeof == 0x78
       enum Flags : UInt32 {
          kFlag_00000001 = 0x00000001, // flag is set at 00797888
          kFlag_00000004 = 0x00000004, // based on Projectile flag 0x08000000
+         kFlag_IsCriticalHit     = 0x00000008, // flag is set at 00798479 // checked by GetLastHitCritical
+         kFlag_CritEffectOnDeath = 0x00000010, // flag is set at 007984E4
          kFlag_00000020 = 0x00000020, // flag is set at 00798702
          kFlag_00000040 = 0x00000040, // flag is set at 00798744
          kFlag_00000080 = 0x00000080, // flag is set at 0079874F
          kFlag_00000100 = 0x00000100, // flag is set at 007986A9 if the limb damage (unk40) is enough to drop the target limb's health to or below 0, but only if the limb is not already at 0, and only if the limb is flagged as explodable
+         kFlag_00000800 = 0x00000800, // flag is set at 007983D1 // related to sneak attacks
          kFlag_IsPowerAttack = 0x00010000, // checked at 00797928
+         kFlag_00020000 = 0x00020000, // flag is set at 0079880E
       };
 
       NiPoint3 unk00;
@@ -69,20 +74,20 @@ namespace RE {
       TESObjectWEAP* unk28 = nullptr; // 28
       UInt32 unk2C = 0;
       UInt32 unk30 = 0;
-      void*  unk34 = nullptr;
+      Struct007A6F60* unk34 = nullptr; // 34
       float  damage = 0.0F; // 38 // most damage-modifying GMSTs are applied to this; it's probably damageBase or damageToActor or such
       float  unk3C  = 0.0F; // 3C // one of the damage values, possibly damage done by the weapon (i.e. without most modifiers)
       float  damageToTargetLimb = 0.0F; // 40 // fCombatPlayerLimbDamageMult is applied to this
       float  damageBlocked      = 0.0F; // 44 // see ComputeDamageBlocked
       float  damageToArmorItems = 0.0F; // 48 // the damage that should be taken by the armor itself (for equipment degradation); set at 0079771D
       float  damageToWeaponItem = 0.0F; // 4C // the damage taken by the weapon; see ComputeDamageTakenByWeapon
-      float  unk50 = 0.0F; // 50 // possibly one of the damage values
+      float  unk50 = 0.0F; // 50 // possibly one of the damage values // set at 00798A43
       float  unk54 = 1.0F;
       float  unk58 = 1.0F;
       UInt32 unk5C = 0;
       UInt32 unk60 = 0;
-      float  unk64 = 0.0F; // 64 // related to the ReflectDamage AV; see 00797A7C; apparently set to (unk38 * ReflectDamage / 100.0F)
-      UInt32 unk68 = 0; // 68 // flags
+      float  reflectedDamage = 0.0F; // 64 // amount of damage reflected back at attacker == damage * (Victim:ActorValue:ReflectDamage / 100.0F)
+      UInt32 flags = 0; // 68 // flags
       UInt32 unk6C = 0;
       SInt32 unk70 = -1; // 70 // actor value i.e. the weapon skill, unless the weapon is the Unarmed form, in which case == -1
       SInt32 unk74 = -1; // 74 // this is BGSBodyPartData::PartType as an SInt32? see code at 00797CBA
@@ -92,10 +97,11 @@ namespace RE {
       DEFINE_MEMBER_FN(Copy,        Struct00797220*, 0x00797540, const Struct00797220& other); // copy-constructor
       DEFINE_MEMBER_FN(SetFlags,    void,            0x006E0B90, UInt32 flags, bool clearOrSet); // apparently only used in one place :(
       DEFINE_MEMBER_FN(Subroutine007975E0, void, 0x007975E0, UInt32); // computes armor degradation and several damage-related values
-      DEFINE_MEMBER_FN(Subroutine00798180, void, 0x00798180); // does most damage calculations
+      DEFINE_MEMBER_FN(Subroutine00798180, void, 0x00798180); // does most damage calculations, as well as critical hit chance/result
       DEFINE_MEMBER_FN(Subroutine00798580, void, 0x00798580); // sets some flags; may handle limb explosion chance
       DEFINE_MEMBER_FN(Subroutine007987B0, void, 0x007987B0, UInt32, UInt32, UInt32, UInt32); // computes weapon degradation and some other things
       DEFINE_MEMBER_FN(Subroutine00798AC0, void, 0x00798AC0, Actor* attacker, Actor* attacked, Projectile* projectile); // one of the callers for 00798180
+      DEFINE_MEMBER_FN(Subroutine00798EB0, void, 0x00798EB0, UInt32); // modifies unk34
       DEFINE_MEMBER_FN(Subroutine00797BC0, void, 0x00797BC0, Projectile*); // computes limb damage?
 
       //
@@ -112,5 +118,22 @@ namespace RE {
       //  - Damage taken by armor is computed and set at 0079771D. Unarmed attacks cannot damage the 
       //    armor worn by an enemy, and attacks with no TESObjectWEAP can't either.
       //
+   };
+
+   struct Struct007A6F60 { // sizeof == 0x98; possibly struct for a VATS hit
+      UInt32 unk00 = 0xC;
+      UInt8  unk04 = 0;
+      UInt8  unk05 = 0;
+      UInt8  unk06 = 0;
+      UInt8  unk07 = 0;
+      UInt8  unk08 = 0;
+      UInt8  unk09 = 0;
+      UInt16 pad0A;
+      UInt32 unk0C = 0;
+      SInt32 unk10 = -1; // 10 // actor value index, used to lookup a body part; VATS groups body parts by actor value, so this could be "VATS-targeted body part AV"
+      Struct00797220 unk14;
+      UInt32 unk8C = 0;
+      UInt32 unk90 = 0;
+      UInt32 unk94 = 0;
    };
 };
