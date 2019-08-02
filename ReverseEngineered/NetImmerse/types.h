@@ -12,6 +12,13 @@ namespace RE {
          //
          inline static NiPoint3* as(::NiPoint3& other) { return (NiPoint3*) &other; };
          //
+         inline NiPoint3& operator=(const ::NiPoint3& other) {
+            this->x = other.x;
+            this->y = other.y;
+            this->z = other.z;
+            return *this;
+         }
+         //
          MEMBER_FN_PREFIX(NiPoint3);
          DEFINE_MEMBER_FN(Add,              NiPoint3*, 0x00420320, NiPoint3& out, const NiPoint3& other);
          DEFINE_MEMBER_FN(Add_B,            NiPoint3&, 0x00420470, const NiPoint3& other); // modifies and returns self

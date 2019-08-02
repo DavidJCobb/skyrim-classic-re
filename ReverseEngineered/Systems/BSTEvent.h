@@ -83,6 +83,10 @@ namespace RE {
       UInt32 unk08;
    };
    struct TESBookReadEvent { // powers Papyrus ObjectReference.OnRead
+      //
+      // TODO: I can't seem to get this to fire at ALL. I should reverse-engineer the code 
+      // that sends the event.
+      //
       TESObjectREFR* book;  // 00
       UInt32         unk04;
       UInt16         unk08;
@@ -160,6 +164,8 @@ namespace RE {
       // including books, ingredients, and misc-items; using them fires an equip 
       // event but no matching unequip event. Be sure to check the item type when 
       // listening to this event.
+      //
+      // TODO: Does this fire when using a spell tome stored in another container?
       //
       enum Type : UInt8 {
          kType_Unequip = 0,
@@ -533,7 +539,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SendGrabReleaseEvent,             void, 0x00742080, refr_ptr& target, UInt8);
          DEFINE_MEMBER_FN(SendInitScriptEvent,              void, 0x004E0540, refr_ptr&);
          DEFINE_MEMBER_FN(SendHitEvent,                     void, 0x006E3FF0, refr_ptr& target, refr_ptr& attacker, UInt32 sourceFormID, UInt32 projectileFormID);
-         DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr& target, refr_ptr& attacker, UInt32 sourceFormID, UInt32 projectileFormID, void* hitData);
+         DEFINE_MEMBER_FN(SendHitEvent_B,                   void, 0x006E4060, refr_ptr& target, refr_ptr& attacker, UInt32 sourceFormID, UInt32 projectileFormID, Struct00797220* hitDataCopy);
          DEFINE_MEMBER_FN(SendLockChangedEvent,             void, 0x004E05A0, refr_ptr&);
          DEFINE_MEMBER_FN(SendMagicEffectApplyEvent,        void, 0x006646E0, refr_ptr&, refr_ptr&, UInt32);
          DEFINE_MEMBER_FN(SendMagicWardHitEvent,            void, 0x006EBE70, refr_ptr&, refr_ptr&, UInt32, UInt32);

@@ -55,7 +55,9 @@ namespace RE {
          UInt32 unk094 = 0;
          tArray<ShaderReferenceEffect*> activeEffectShaders;      // 098
          SimpleLock                     activeEffectShaderLock;   // 0A4
-         UInt32 pad0AC[(0x11C - 0x0AC) / sizeof(UInt32)]; // 0AC
+         UInt32 unk0AC[(0xD4 - 0x0AC) / sizeof(UInt32)]; // 0AC
+         BStList<UInt32> unkD4; // D4 // list of ref handles
+         UInt32 unk0DC[(0x11C - 0x0DC) / sizeof(UInt32)]; // 0DC
          bool   enableActorAI;        // 11C // if true, then all AI processing is on
          bool   enableActorMovement;  // 11D // if true, then all actor movement processing is on
          bool   enableActorAnimation; // 11E // if true, then all actor animation processing is on
@@ -70,6 +72,7 @@ namespace RE {
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
          DEFINE_MEMBER_FN(RemoveValueInArray,        void,   0x007563E0, UInt32 value, UInt32 which); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
+         DEFINE_MEMBER_FN(RemoveHandleFromUnkD4,     void,   0x00756720, UInt32& refHandle);
          DEFINE_MEMBER_FN(ResetAllDetection,         void,   0x00542970, bool* unused);
          DEFINE_MEMBER_FN(RunFunctorOnAllUnk28,      void,   0x006931E0, void* functor); // for each of this->unk028, call functor->Unk_00(item)
          DEFINE_MEMBER_FN(RunIteratorOnAllUnk28,     void,   0x006A09E0, void* func); // for each of this->unk028, runs func(item); terminates early if func returns false

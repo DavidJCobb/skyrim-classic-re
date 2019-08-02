@@ -60,7 +60,7 @@ namespace RE {
             float         damageMult = 1.0F;  // 00 // FO3: The damage multiplier used for damage done to this body part.
             UInt8         flags;              // 04
             PartType      type;               // 05
-            UInt8         healthPercent;      // 06 // FO3: The percentage of the actor's total health used as the limb's health.
+            UInt8         healthPercent;      // 06 // Strikes to this limb do this much bonus damage to the actor's health. Scaled by the Adjust Limb Damage perk entry point. Applied at 0x006E4BAB.
             UInt8         actorValue;         // 07 // FO3: The actor value used for the limb's health.
             UInt8         chanceToHit;        // 08 // FO3: The base percentage chance to hit this body part in VATS. // Apparently used by melee attacks? See 0079807E
             UInt8         chanceToExplode;    // 09 // FO3: chance to explode the limb into gibs

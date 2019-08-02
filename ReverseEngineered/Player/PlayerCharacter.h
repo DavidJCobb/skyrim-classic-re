@@ -1,5 +1,6 @@
 #pragma once
 #include "ReverseEngineered/Forms/Actor.h"
+#include "ReverseEngineered/ExtraData.h"
 
 #include "skse/Utilities.h"
 
@@ -200,6 +201,9 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(SetPlayerAIDriven, void, 0x0073E0C0, bool);
          DEFINE_MEMBER_FN(SetPoison, void, 0x007505E0, UInt32 whichHand, TESForm*); // whichHand should be 0 or 1 // sets 640 or 644
+         //
+         DEFINE_MEMBER_FN(IncreaseTeammateCount, void, 0x0073B3C0);
+         DEFINE_MEMBER_FN(DecreaseTeammateCount, void, 0x0073B3E0);
    };
    static_assert(sizeof(PlayerCharacter) <= 0x72C, "RE::PlayerCharacter is too large.");
    static_assert(sizeof(PlayerCharacter) >= 0x72C, "RE::PlayerCharacter is too small.");

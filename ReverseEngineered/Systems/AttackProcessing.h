@@ -60,9 +60,9 @@ namespace RE {
          kFlag_00000040 = 0x00000040, // flag is set at 00798744
          kFlag_00000080 = 0x00000080, // flag is set at 0079874F
          kFlag_00000100 = 0x00000100, // flag is set at 007986A9 if the limb damage (unk40) is enough to drop the target limb's health to or below 0, but only if the limb is not already at 0, and only if the limb is flagged as explodable
-         kFlag_00000800 = 0x00000800, // flag is set at 007983D1 // related to sneak attacks
+         kFlag_IsSneakAttack = 0x00000800, // flag is set at 007983D1; checked at 006E495B // related to sneak attacks
          kFlag_IsPowerAttack = 0x00010000, // checked at 00797928
-         kFlag_00020000 = 0x00020000, // flag is set at 0079880E
+         kFlag_00020000 = 0x00020000, // flag is set at 0079880E // related to soul trapping?
       };
 
       NiPoint3 unk00;
@@ -77,17 +77,17 @@ namespace RE {
       Struct007A6F60* unk34 = nullptr; // 34
       float  damage = 0.0F; // 38 // most damage-modifying GMSTs are applied to this; it's probably damageBase or damageToActor or such
       float  unk3C  = 0.0F; // 3C // one of the damage values, possibly damage done by the weapon (i.e. without most modifiers)
-      float  damageToTargetLimb = 0.0F; // 40 // fCombatPlayerLimbDamageMult is applied to this
-      float  damageBlocked      = 0.0F; // 44 // see ComputeDamageBlocked
+      float  damageToTargetLimb = 0.0F; // 40 // fCombatPlayerLimbDamageMult is applied to this; a percentage of this damage is also directly dealt to the actor on top of the normal damage
+      float  damageBlocked      = 0.0F; // 44 // see ComputeDamageBlocked; seems like this is stored to allow for Block skill advancement
       float  damageToArmorItems = 0.0F; // 48 // the damage that should be taken by the armor itself (for equipment degradation); set at 0079771D
-      float  damageToWeaponItem = 0.0F; // 4C // the damage taken by the weapon; see ComputeDamageTakenByWeapon
+      float  damageToWeaponItem = 0.0F; // 4C // the damage taken by the weapon (for equipment degradation); see ComputeDamageTakenByWeapon
       float  unk50 = 0.0F; // 50 // possibly one of the damage values // set at 00798A43
       float  unk54 = 1.0F;
       float  unk58 = 1.0F;
       UInt32 unk5C = 0;
       UInt32 unk60 = 0;
       float  reflectedDamage = 0.0F; // 64 // amount of damage reflected back at attacker == damage * (Victim:ActorValue:ReflectDamage / 100.0F)
-      UInt32 flags = 0; // 68 // flags
+      UInt32 flags = 0; // 68
       UInt32 unk6C = 0;
       SInt32 unk70 = -1; // 70 // actor value i.e. the weapon skill, unless the weapon is the Unarmed form, in which case == -1
       SInt32 unk74 = -1; // 74 // this is BGSBodyPartData::PartType as an SInt32? see code at 00797CBA
@@ -117,6 +117,43 @@ namespace RE {
       //
       //  - Damage taken by armor is computed and set at 0079771D. Unarmed attacks cannot damage the 
       //    armor worn by an enemy, and attacks with no TESObjectWEAP can't either.
+      //
+      // THINGS TO RESEARCH:
+      //
+      //  - Where is the damage actually applied?
+      //
+      //     - Actor::006E4470 is a very promising candidate to examine.
+      //     - 006E7327
+      //
+      //     - It SEEMS like the damage is applied using not ActorValueOwner, but the internal Actor 
+      //       method (TESV_006E0760) that ActorValueOwner calls when you use it to apply damage. 
+      //       However, that may only be true for reflected damage and maybe limb damage.
+      //
+      //     - The actor takes limb damage at 0x006E4BAB. That is: a certain amount of damage is 
+      //       (presumably) done to the limb (by damaging the actor value associated with the limb), 
+      //       and then a percentage of THAT damage is done to the actor as bonus damage. The percent-
+      //       age is controlled by BGSBodyPartData::Data::BPND::healthPercent.
+      //
+      //  - How exactly is equipment degradation applied? How does the game take an item, as listed in 
+      //    an ExtraContainerChanges, and reduce its health?
+      //
+      //     - It would be worthwhile to reverse-engineer Oblivion for this, since I've done so much 
+      //       work in that game already. I'm pretty sure some of the conditions for checking hit 
+      //       details also exist in Oblivion, so we can look at those to quickly locate the hit 
+      //       struct in that game. From there, it *should* be *relatively* trivial to find the code 
+      //       that sets equipment damage, and the code that applies it.
+      //
+      //       I assume that we'd need to attach an ExtraHealth to the items in order to track their 
+      //       degradation -- and we'd need plenty of hooks elsewhere to forcibly unequip them when 
+      //       they break, prevent them from being equipped once they're broken, AND we'd need to 
+      //       design a way to repair them -- and that's what Oblivion would help us with: how do we 
+      //       apply a new ExtraHealth to just a single one of an item, when the user may potentially 
+      //       have multiple identical copies of the item (i.e. how do we separate out and modify 
+      //       just one)? The harder concern would of course be serialization: if the game doesn't 
+      //       save ExtraHealth, then we'd need to hook the game and find some way to save it without 
+      //       making the save file backwards-incompatible.
+      //
+      //        - I'd expect the GetLastHitCritical condition to exist in Oblivion.
       //
    };
 

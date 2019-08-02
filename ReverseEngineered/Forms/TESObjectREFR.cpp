@@ -485,7 +485,7 @@ namespace RE {
       return parameters.result;
    };
    bool TESObjectREFR::IsActivationBlocked() {
-      return CALL_MEMBER_FN((RE::BaseExtraList*)(&this->extraData), GetExtraFlagByIndex)(1);
+      return CALL_MEMBER_FN((RE::BaseExtraList*)(&this->extraData), TestExtraFlags)(1);
    };
    bool TESObjectREFR::IsTeleportMarkerInAttachedCell(refr_ptr& destination) {
       if (!this->extraData.HasType(kExtraData_Teleport))

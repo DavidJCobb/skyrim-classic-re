@@ -49,7 +49,7 @@ namespace RE {
             Struct00A88CB0*  unk10;					// 10 // conditions
             BGSListForm*   buySellList;			// 14
             TESObjectREFR* merchantContainer;	// 18
-            UInt32 unk1C;					// 1C
+            SInt32 lastShoppedAt; // 1C // number of days; -1 == not set
          };
          struct Rank { // sizeof == 0x10
             UInt32 titleMasc;    // 00
@@ -91,6 +91,7 @@ namespace RE {
          float  unk94;			// 94 // if FLT_MAX, it's not used // related to GMST:iCrimeEnemyCoolDownTimer
 
          MEMBER_FN_PREFIX(TESFaction);
+         DEFINE_MEMBER_FN(DoMerchantRestockCheck, void, 0x0055CF60); // updates lastShoppedAt and respawns the merchant container if iDaysToRespawnVendor or more have passed
          DEFINE_MEMBER_FN(GetBounty,       SInt32, 0x0055D2F0, TESNPC*);
          DEFINE_MEMBER_FN(GetReaction,     SInt32, 0x0055C1B0, TESFaction*);
          DEFINE_MEMBER_FN(IsInCrimeGroup,  bool,   0x0055C540, TESFaction* crimeGroup);

@@ -97,6 +97,14 @@ namespace RE {
          UInt32 unk0C; // ?
          float  unk10; // per 0x0040D4E0
    };
+   class ExtraAliasInstanceArray : public BSExtraData {
+      public:
+         //
+         // ...
+         //
+         MEMBER_FN_PREFIX(ExtraAliasInstanceArray);
+         DEFINE_MEMBER_FN(IsQuestObject, bool, 0x00425BB0);
+   };
    class ExtraAshPileRef : public BSExtraData {
       public:
          struct Data {
@@ -149,15 +157,16 @@ namespace RE {
    class InventoryEntryData {
       public:
          TESForm* type;
-         ExtendDataList* extendDataList;
+         tList<BaseExtraList>* extendDataList;
          SInt32   countDelta;
 
          MEMBER_FN_PREFIX(InventoryEntryData);
-         DEFINE_MEMBER_FN(GenerateName, const char*, 0x00475AA0);
-         DEFINE_MEMBER_FN(GetSoulLevel, SInt32, 0x00475740); // charge amount
-         DEFINE_MEMBER_FN(GetSoulSize,  UInt32, 0x004756F0); // enum
-         DEFINE_MEMBER_FN(GetValue,     SInt32, 0x00475450);
-         DEFINE_MEMBER_FN(IsOwnedBy,    bool,   0x00477010, TESForm* actor, bool unk1);
+         DEFINE_MEMBER_FN(GenerateName,  const char*, 0x00475AA0);
+         DEFINE_MEMBER_FN(GetSoulLevel,  SInt32, 0x00475740); // charge amount
+         DEFINE_MEMBER_FN(GetSoulSize,   UInt32, 0x004756F0); // enum
+         DEFINE_MEMBER_FN(GetValue,      SInt32, 0x00475450);
+         DEFINE_MEMBER_FN(IsQuestObject, bool,   0x00475B90);
+         DEFINE_MEMBER_FN(IsOwnedBy,     bool,   0x00477010, TESForm* actor, bool unk1);
 
          UInt8 GetSoulSize() const;
    };
@@ -172,8 +181,7 @@ namespace RE {
       //  - InventoryEntryData holds all of the item data for a given item base form. 
       //    Its countDelta is the total difference in the item's count.
       //
-      //  - ExtendDataList is an array of BaseExtraLists, each of which describes the 
-      //    items.
+      //  - An array of BaseExtraLists describes the items.
       //
       // So if you have three greatswords of the same base form, one of which has an 
       // enchantment, then you have...
@@ -188,29 +196,6 @@ namespace RE {
       //      - ...one with ExtraCount = 1 and an enchantment.
       //
       public:
-         typedef tList<InventoryEntryData> EntryDataList;
-         /*struct Data {
-            struct Entry {
-               struct EntryItems {
-                  struct Item {
-                     BaseExtraList* extraData;
-                     Item*          nextItem;
-                  };
-                  TESForm* baseForm;
-                  Item*    firstItem;
-               };
-               EntryItems* items;      // 00
-               Entry*      nextEntry;  // 04
-            };
-            //
-            Entry* firstEntry;
-            UInt32 unk04;
-            //
-            MEMBER_FN_PREFIX(Data);
-            DEFINE_MEMBER_FN(Subroutine00481AE0,            bool, 0x00481AE0, TESObjectREFR*, UInt32, UInt32); // Drops the specified reference from its container into the world?
-            DEFINE_MEMBER_FN(Subroutine00481AE0GuessedBool, bool, 0x00481AE0, bool, UInt32, UInt32); // I'm really not sure what this subroutine's first argument is.
-            DEFINE_MEMBER_FN(Subroutine0047E920,            void, 0x0047E920, UInt32, UInt32 myUnk04, TESForm* baseForm, UInt32, UInt32, BaseExtraList*, UInt32, UInt32, UInt32); // Called by 0x00481AE0.
-         };*/
          class InventoryVisitor {
             //
             // NOTE: These visitors see only the ExtraContainerChanges data itself. These are container CHANGES: 
@@ -225,16 +210,19 @@ namespace RE {
          };
          class Data {
             public:
-               EntryDataList* objList;
+               tList<InventoryEntryData>* objList;
                TESObjectREFR* owner;
                float totalWeight;
                float armorWeight;
 
                MEMBER_FN_PREFIX(Data);
-               DEFINE_MEMBER_FN(ExecuteVisitor,       void, 0x00475D20, void* visitor);
-               DEFINE_MEMBER_FN(ExecuteVisitorOnWorn, void, 0x00475D50, void* visitor);
-               DEFINE_MEMBER_FN(SetUniqueID,          void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
-               DEFINE_MEMBER_FN(UnequipArmorFromSlot, void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
+               DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
+               DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
+               DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
+               DEFINE_MEMBER_FN(RemoveAllLeveledItems, void, 0x0047B990);
+               DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
+               DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
+               DEFINE_MEMBER_FN(UnequipArmorFromSlot,  void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
          };
          Data* data; // 08
 
@@ -299,9 +287,9 @@ namespace RE {
       public:
          struct Entry {
             UInt32 refHandle; // 00
-            Entry* nextEntry; // 04
+            Entry* next;      // 04
             //
-            DEFINE_MEMBER_FN_LONG(Entry, Subroutine006F48A0, bool, 0x006F48A0); // For usage information, see TESObjectREFR virtual method 0x89 at 0x004E1250.
+            DEFINE_MEMBER_FN_LONG(Entry, IsEmpty, bool, 0x006F48A0); // meant to be called on the list head; true if all fields are 0/nullptr
             DEFINE_MEMBER_FN_LONG(Entry, Subroutine0048CB30, void, 0x0048CB30, UInt32, UInt32); // Called after an Entry has been removed. Deallocates?
          };
          Entry firstEntry; // 08 // first entry in linked list
@@ -346,7 +334,7 @@ namespace RE {
             // to references (as opposed to cells, which can also have extra-data).
             //
             kFlag_REFR_ActivationBlocked = 0x00000001,
-            kFlag_REFR_HasAshPile        = 0x00000002, // seems redundant. why not just GetExtraAshPileRef straightaway? bethesda probably had their reasons... :\
+            kFlag_REFR_HasAshPile        = 0x00000002, // seems redundant. why not just GetExtraAshPileRef straightaway? bethesda probably had their reasons... :\ 
          };
    };
    class ExtraGhost : public BSExtraData { // sizeof: 0x0C
@@ -648,7 +636,7 @@ namespace RE {
    };
    class ExtraSound : public BSExtraData {
       public:
-         struct Data {
+         struct Data { // sizeof == 0xC
             SInt32 unk00;
             UInt8  unk04;
             UInt8  pad05[3];
@@ -762,6 +750,7 @@ namespace RE {
          };
          //
          DEFINE_MEMBER_FN(HasExtraCannotWear, bool, 0x0040C460);
+         DEFINE_MEMBER_FN(HasExtraFromAlias,  bool, 0x0040DEA0);
          //
          DEFINE_MEMBER_FN(GetActivateRefEntryFor, ExtraActivateRef::Entry*, 0x00417990, TESObjectREFR* ref); // if it returns NULL, then ref isn't an activate parent of the thing we're calling on
          //
@@ -774,9 +763,9 @@ namespace RE {
          DEFINE_MEMBER_FN(TestExtraActionUnk08,             bool,    0x0040CAD0, UInt32); // Returns (action byte & Arg1), or (Arg1 & 1) if no extra data.
          DEFINE_MEMBER_FN(GetExtraActionUnk0C,              void*,   0x0040CB00); // Return type not verified.
          DEFINE_MEMBER_FN(GetExtraActivateLoopSound,        void,    0x0040C3A0, ExtraSound::Data* out);
-         DEFINE_MEMBER_FN(GetExtraActivateRef,              RE::ExtraActivateRef::Entry*, 0x0040D430); // Returns NULL if no extra data.
+         DEFINE_MEMBER_FN(GetExtraActivateRef,              ExtraActivateRef::Entry*, 0x0040D430); // Returns NULL if no extra data.
          DEFINE_MEMBER_FN(GetExtraActivateRefDelay,         float,   0x0040D450, TESObjectREFR*); // Returns zero if no extra data. Crashes if the data is malformed, as it calls GetEntryFor above.
-         DEFINE_MEMBER_FN(GetExtraActivateRefChildren,      RE::ExtraActivateRefChildren::Entry*, 0x0040D4A0); // Returns NULL if no extra data.
+         DEFINE_MEMBER_FN(GetExtraActivateRefChildren,      ExtraActivateRefChildren::Entry*, 0x0040D4A0); // Returns NULL if no extra data.
          DEFINE_MEMBER_FN(GetExtraActivateRefChildrenDelay, float,   0x0040D4E0); // Returns unk10 on the data. Returns -1 if no extra data.
          DEFINE_MEMBER_FN(GetExtraAshPileRef,               UInt32*, 0x00411850, UInt32* out); // Returns out after modifying its value. Not sure if the value is a ref handle.
          DEFINE_MEMBER_FN(GetExtraAttachRefChildren,        ExtraAttachRefChildren::Entry, 0x0040D350);
@@ -860,7 +849,8 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(GetExtraUnknown3F, void*, 0x0040C010);
          //
-         DEFINE_MEMBER_FN(TestExtraFlags,                   bool,    0x0040E850, UInt32 flags); // Returns true if any of the specified flags are set. Returns false if no extra data.
+         DEFINE_MEMBER_FN(IsQuestObject,  bool, 0x00418FE0);
+         DEFINE_MEMBER_FN(TestExtraFlags, bool, 0x0040E850, UInt32 flags); // Returns true if any of the specified flags are set. Returns false if no extra data.
          //
          // FINDERS:
          //
@@ -880,6 +870,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraFlags,                    void,             0x00416C50, UInt32 flagsMask, bool value); // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraForcedTargetRefHandle,    void,             0x00413F30, UInt32);
          DEFINE_MEMBER_FN(SetExtraGhost,                    ExtraGhost*,      0x0040C940, bool isGhost); // Sets the ghost flag. Creates the new extra-data if needed.
+         DEFINE_MEMBER_FN(SetExtraItemDropper, void, 0x00415420, TESObjectREFR*); // Set who dropped this item.
          DEFINE_MEMBER_FN(SetExtraLock,                     ExtraLock*,       0x0040C560, void*);        // Deletes the unk08 on any existing lock data, and then sets a new unk08 pointer. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraMapMarkerData,            void,             0x0040F960, ExtraMapMarker::Data*); // If argument is NULL, deletes existing data.
          DEFINE_MEMBER_FN(SetExtraRadius,                   void,             0x00412A70, float value);  // Sets radius data. Creates new data if needed, or destroys it if setting to 0.

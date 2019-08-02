@@ -451,7 +451,7 @@ namespace RE {
          virtual void	Unk_87(UInt32);
          virtual void	Unk_88(UInt32);
          virtual void	Disable(); // 89 // ASM at 0x004E1250. Called to initially disable a reference. Calls Unk_6C(0, 0) in the process. // Does nothing to the player-actor.
-         virtual void	Unk_8A(UInt32); // reset inventory?
+         virtual void	ResetInventory(bool); // 8A
          virtual void*  Unk_8B();
          virtual void	Unk_8C(UInt32);
          virtual NiNode* Unk_8D(); // most likely returns NiNode*; some code conditionally uses it instead of GetNiNode
@@ -463,7 +463,7 @@ namespace RE {
          virtual bool	Unk_93();
          virtual void	Unk_94(UInt32);
          virtual void	Unk_95(); // Actor::Unk_95 conditionally calls Actor::Subroutine006B5910, which checks the "never resets" flag on the actor's current encounter zone...
-         virtual void	Unk_96(void); // checks inventory and ExtraLock
+         virtual void	Unk_96(); // checks inventory and ExtraLock; for Actor, kills the actor, supplying g_invalidRefHandle for the killer handle
          virtual TESObjectCELL* GetParentOrPersistentCell(); // 97 // used by 0x004D5EB0 (TESObjectREFR::GetParentWorldspace) when this->parentCell == NULL
          virtual void   Unk_98(TESObjectCELL*); // setter for parentCell?
          virtual bool	IsDead(UInt8 unk1); // 99
@@ -538,6 +538,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Activate,                void,             0x004E4230, TESObjectREFR* activatedBy, UInt32 Arg2_papyrusUses0, UInt32 Arg3_papyrusUses0, UInt32 Arg4_papyrusUses1, bool defaultOnly);
          DEFINE_MEMBER_FN(CheckDismembermentBit,   bool,             0x004D5B90, UInt32 bitIndex);
          DEFINE_MEMBER_FN(ClearDestruction,        void,             0x00449630);
+         DEFINE_MEMBER_FN(ContainsQuestItem,       bool,             0x004D6020);
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
          DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30);
          DEFINE_MEMBER_FN(GetBaseContainerData,    TESContainer*,    0x004D4A30); // returns &(this->baseForm.container) for NPCs and container references
@@ -559,6 +560,7 @@ namespace RE {
          DEFINE_MEMBER_FN(HasEffectKeyword,        bool,             0x004D57A0, BGSKeyword*);
          DEFINE_MEMBER_FN(IsLocked,                bool,             0x004EB5B0); // if the reference is a teleport door, this checks the door on the other side, too
          DEFINE_MEMBER_FN(IsOffLimits,             bool,             0x004DA760);
+         DEFINE_MEMBER_FN(IsPerchFurniture,        bool,             0x004E9F20);
          DEFINE_MEMBER_FN(ModifyPersistentFlag,    void,             0x004D50A0, bool setTo);
          DEFINE_MEMBER_FN(MoveToMyEditorLocation,  bool,             0x004E6270, TESObjectCELL*, UInt32); // both arguments are zeroes?
          DEFINE_MEMBER_FN(SetDestroyed,            void,             0x00450E30, bool);

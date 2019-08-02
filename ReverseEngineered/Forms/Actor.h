@@ -641,7 +641,7 @@ namespace RE {
          UInt32 unk4C; // 4C
          float  bleedoutTimer; // 50 // when this timer expires, the (essential) actor exits bleedout (they stop being downed)
          float  timeOfDeath;   // 54 - GetTimeDead = (GameDaysPassed*24) - timeOfDeath
-         UInt32 unk58; // 58
+         float  unk58; // 58 // see 006F4FE0
          UInt32 unk5C;
          UInt32 unk60;
          UInt32 unk64;
@@ -1054,7 +1054,7 @@ namespace RE {
          virtual void Unk_100(); // 100
          virtual void Unk_101(); // 101 // no-op for Actor
          virtual bool Unk_102(); // 102 // no-op for Actor; returns false
-         virtual void KillIfNoHealth(UInt32 unk1, float currentHealth); // 103 // checks an actor's health; if below zero, kills them
+         virtual void KillIfNoHealth(Actor* attacker, float currentHealth); // 103 // checks an actor's health; if below zero, kills them
          virtual void Unk_104(UInt32); // 104
          virtual bool Unk_105();       // 105 // no-op for Actor; returns false
          virtual bool Unk_106();       // 106 // checks flags1; return strue if flags 0x02 and 0x08 are false
@@ -1069,6 +1069,11 @@ namespace RE {
                                                                //  - calls perk entry point: add leveled list on death
                                                                //  - checks INI settings like fDyingTimer
                                                                //  - has code to force the player into bleedout camera
+                                                               //  - can set refHandleKiller (at 0x006D737C)
+                                                               //  - sends TESDeathEvent (at 0x006D769C)
+                                                               // 
+                                                               // Known calls:
+                                                               //  - 006A1870 (BSTask 0xA: kill actor)
          virtual bool Unk_10E(TESForm*, UInt32 unk);    // 10E
          virtual UInt8 Unk_10F(UInt32, UInt32, UInt32); // 10F
          virtual void Unk_110();       // 110 // no-op for Actor
@@ -1128,7 +1133,7 @@ namespace RE {
             kFlags_Flag1_00008000   = 0x00008000,
             kFlags_Flag1_00040000   = 0x00040000, // related to the Waterbreathing magic effect. also related to the actor being in cell water, or in lava; checked by a condition meant for the latter
             kFlags_Flag1_01000000   = 0x01000000,
-            kFlags_IsPlayerTeammate = 0x04000000,
+            kFlags_IsPlayerTeammate = 0x04000000, // 1 << 0x1A
             kFlags_Flag1_10000000   = 0x10000000, // related to AI
             kFlags_IsGuard          = 0x40000000,
             kFlags_Flag1_80000000   = 0x80000000, // if set, then damage calcs don't bother checking whether the actor is blocking; see 00797799
@@ -1395,7 +1400,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsOverencumbered,      bool,    0x006AFED0); // always false for NPCs; always false if god mode is enabled; always false if the actor has ExtraInteraction; otherwise, compare max carry weight (with perk entry points) with inventory weight
          DEFINE_MEMBER_FN(IsRunning,             bool,    0x006AB210);
          DEFINE_MEMBER_FN(IsSneaking,            bool,    0x004D9290);
-         DEFINE_MEMBER_FN(Kill,                  void,    0x006AC3A0, UInt32, float, UInt32, UInt32); // not instantaneous; queues via the BSTaskPool
+         DEFINE_MEMBER_FN(Kill,                  void,    0x006AC3A0, Actor* killer, float, UInt32, UInt32); // not instantaneous; queues via the BSTaskPool
          DEFINE_MEMBER_FN(ModifyYaw,             void,    0x006A9A50, float); // Sets yaw to GetHeading(0) + Arg1. Uses Actor::SetYaw.
          DEFINE_MEMBER_FN(OnKillmoveDone,        void,    0x006E3CC0);
          DEFINE_MEMBER_FN(OnKillmoveStart,       void,    0x006E3C20, Actor* killer); // for paired anims, call for both actors; killer should use nullptr as argument

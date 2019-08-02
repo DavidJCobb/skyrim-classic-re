@@ -116,7 +116,7 @@ struct UnkAVData {
    UInt32 unk04; // enum
    float  unk08;
 };
-void Actor::TESV_006E0760(UInt32 Arg1, UInt32 avIndex, float changeBy, UInt32 Arg4) { // called by ActorValueInfo::Unk_06
+void Actor::TESV_006E0760(UInt32 Arg1, UInt32 avIndex, float changeBy, Actor* attacker) { // called by ActorValueOwner::Unk_06
    ActorValueState* edi = this->GetActorValueStateObj(avIndex);
    if (!edi) {
       if (Arg3 == 0.0)
