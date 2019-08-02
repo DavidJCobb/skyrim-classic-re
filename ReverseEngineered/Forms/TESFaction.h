@@ -49,7 +49,7 @@ namespace RE {
             Struct00A88CB0*  unk10;					// 10 // conditions
             BGSListForm*   buySellList;			// 14
             TESObjectREFR* merchantContainer;	// 18
-            SInt32 lastShoppedAt; // 1C // number of days; -1 == not set
+            UInt32 lastReset = 0xFFFFFFFF; // 1C // number of days; 0xFFFFFFFF == not set
          };
          struct Rank { // sizeof == 0x10
             UInt32 titleMasc;    // 00
