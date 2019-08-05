@@ -880,13 +880,33 @@ namespace RE {
 
    class ActorWeightData { // sizeof >= 0xA8C
       public:
+         enum BodyPartIndex {
+            kBodyPart_Head = 0x00,
+            kBodyPart_Hair,
+            kBodyPart_Body,
+            kBodyPart_Hands,
+            kBodyPart_Forearms,
+            kBodyPart_Amulet,
+            kBodyPart_Ring,
+            kBodyPart_Feet,
+            kBodyPart_Calves,
+            kBodyPart_Shield,
+            kBodyPart_Tail = 0x0A, // confirmed: game has specific handling for the tail
+            kBodyPart_LongHair,
+            kBodyPart_Circlet,
+            kBodyPart_Ears,
+            //
+            // ...
+            //
+            kBodyPart_MaybeAmmo = 0x29, // game has checks for this being an Ammo, and handling for creating a quiver node
+         };
          struct BodyPart { // sizeof == 0x20
             TESForm*       item;  // 00
             TESObjectARMA* addon; // 04
             TESModelTextureSwap* model; // 08
             BGSTextureSet* textureSet; // 0C
-            NiNode*        unk10; // 10 // apparently created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
-            void*    unk14; // refcounted pointer
+            NiNode*        renderedArmor; // 10 // created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
+            void*    unk14; // refcounted pointer // TailAnimationGraphManagerHolder*
             UInt8    unk18;
             UInt8    pad19[3];
             void*    unk1C; // refcounted pointer, most likely to a NiSomething
@@ -913,16 +933,18 @@ namespace RE {
          };
 
          volatile SInt32 refCount; // 00
-         NiNode*  unk04; // 04
-         BodyPart bodyParts[0x2A]; // 08 // index is a body part index, presumably - 30 (i.e. the first body part in the list, body part 30, is index 0) // count may be higher but some functions only loop over 0x2A
+         NiNode*  npcRootNode; // 04
+         BodyPart bodyParts[0x2A]; // 08 // index is a body part index - 30 (i.e. the first body part in the list, body part 30, is index 0)
          BodyPart unk548[0x2A]; // 548 // could perhaps be "pending" equip data
          UInt32   unkA88; // A88 // refHandle
 
          MEMBER_FN_PREFIX(ActorWeightData);
+         DEFINE_MEMBER_FN(Constructor, ActorWeightData&, 0x0046D9B0, UInt32, UInt32);
+         DEFINE_MEMBER_FN(Destructor,       void, 0x0046DAA0);
          DEFINE_MEMBER_FN(UpdateWeightData, void, 0x0046D690);
-         DEFINE_MEMBER_FN(DeleteThis,       void, 0x0046DAA0);
          // DEFINE_MEMBER_FN(Unk_02, void, 0x004145F0);
 
+         DEFINE_MEMBER_FN(BodyPartHasFacegenHeadModelFlag, bool, 0x0046AE90, UInt32 bodyPartIndex);
          DEFINE_MEMBER_FN(GetBodyByWhichIMeanTorso,  BodyPart*, 0x0046C1D0);
          DEFINE_MEMBER_FN(GetShield,                 BodyPart*, 0x0046C130);
          DEFINE_MEMBER_FN(IdentifyDominantArmorType, void,      0x006E1930, IdentifyDominantArmorTypeVisitor*);
@@ -935,8 +957,12 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
          DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
+         DEFINE_MEMBER_FN(Subroutine0046D750, bool, 0x0046D750, UInt32 bodyPartIndex, void*);
+         DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* fromUnkA88);
+         DEFINE_MEMBER_FN(Subroutine0046E1A0, void, 0x0046E1A0); // loops over body slots; calls 0046DC10 on any that have no unk14, passing the unkA88 ref as arg2
          DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, UInt32 arg4);
    };
+   typedef ActorWeightData Struct0046D9B0;
    DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
 
    class MovementControllerNPC;
@@ -1259,7 +1285,7 @@ namespace RE {
          BSTEventSink<void*> characterMoveFinishEvent; // 074 ?AV?$BSTEventSink@VbhkCharacterMoveFinishEvent@@@@
          IPostAnimationChannelUpdateFunctor	unk078;   // 078 IPostAnimationChannelUpdateFunctor
          UInt32	flags1; // 07C
-         float    unk080; // 080 // related to headtracking, and derived from the "update seconds" min and max when the Actor is constructed
+         float    unk080; // 080 // initialized to a random float between INI:HeadTracking:fUpdateDelaySecondsMin and INI:...Max
          UInt32	unk084; // 084
          ActorProcessManager* processManager; // 088
          UInt32   refHandleDialogueTarget; // 08C // reference handle of this actor's dialogue target
@@ -1297,7 +1323,7 @@ namespace RE {
          ActorValueState avStateVoicePoints; // 174
          float  unk180; // 180 // see code circa 0x006EC46E // related to timers?
          SInt32 unk184; // 184
-         UInt32 unk188; // 188
+         ActorWeightData* actorWeightData; // 188
          float  unk18C; // 18C // set to -1 when HeavyArmor or LightArmor values change
          float  unk190; // 190 // set to -1 when HeavyArmor or LightArmor values change
          UInt8  unk194; // 194 // loaded from the savedata as a single byte; see Actor::Unk_0F

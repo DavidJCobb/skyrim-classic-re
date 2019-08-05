@@ -442,7 +442,7 @@ namespace RE {
          virtual ActorWeightModel* GetWeightModel(UInt32 weightModel); // 0 Small 1 Large
          virtual ActorWeightData*  Unk_7F();
          virtual ActorWeightModel* Unk_80(); // seen in use by the code to fire arrows from a (cross)bow.
-         virtual void	Unk_81(UInt32);
+         virtual void	SetWeightData(ActorWeightData** smartPtr); // 81
          virtual void	Unk_82(UInt32);
          virtual void	Unk_83(UInt32);
          virtual void	SetBaseForm(TESBoundObject*); // 84

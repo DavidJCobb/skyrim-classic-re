@@ -1,0 +1,283 @@
+void PlayerCharacter::Subroutine0074C590(Arg1, Arg2, Arg3, bool Arg4) {
+   auto ebx = Arg1;
+   auto esi = this;
+   edi = 0;
+   esp2C = 0;
+   Actor* esp24 = nullptr; // implicit
+   if (Arg1 && Arg1->parentCell) {
+      Actor* eax = Arg1->formType == 0x3E ? Arg1 : nullptr;
+      esp24 = eax;
+      if (eax) {
+         if (!eax->IsDead(true) && !Arg4) {
+            esp2C.~NiPointer(); // jumped to 0x0074C614
+            return nullptr;
+         }
+      } else if (eax = Arg1->AsProjectile()) { // at 0x0074C632
+         if (Arg1->Unk_A3()) {
+            if (Arg1->Unk_AE()) {
+               if (!(Arg1->unk138 & 0x200)) { // Projectile flags
+                  esp2C.~NiPointer(); // jumped to 0x0074C614
+                  return nullptr;
+               }
+            }
+         }
+      }
+      // at 0x0074C661
+      NiNode* esp44 = Arg1->GetNiNode();
+      esp14 = edi;
+      if (Arg4 && esp24) { // at 0x0074C67F
+         auto esp1C = TESV_00665030(esp24);
+         auto eax   = TESV_00588E20(esp1C);
+         if (eax) {
+            esp40 = eax->unk10;
+            eax = esp40;
+            if (eax)
+               jump to 0x0074C6CD;
+         }
+      }
+      esp6C = edi;
+      TESV_00736410(esp44, &esp6C);
+      esp40 = eax = esp6C;
+      if (eax) { // at 0x0074C6C7
+         // at 0x0074C6CD
+         eax = GetBSXFlags(esp44);
+         edi = 0;
+         bool esp13 = false; // implicit
+         if (eax && (eax->unk0C & 8))
+            esp13 = true;
+         else if (esp24)
+            esp13 = true;
+         this->unk564 = edi;
+         if (!this->unk550.count) { // at 0x0074C700
+            UInt32 edx = *CreateRefHandleFor(&esp30, Arg1);
+            this->unk568 = edx;
+            refr_ptr esp20;
+            TESObjectREFRHandleInterface::ExchangeHandleForRef(&this->unk568, &esp20);
+            BSTEventSourceHolder::GEtInstance()->SendGrabReleaseEvent(esp20, true); // refr_ptr&, bool
+            esp20->~refr_ptr();
+            this->unk6D4 = Arg2;
+            this->unk570 = Arg3;
+         }
+         Struct00734540 esp70; // at 0x0074C75B
+         espC0 = edi;
+         if (esp13 && esp24) {
+            if (!Arg4) {
+               TESV_00D36E80(esp44, &espD0, &espC0);
+            } else {
+               TESV_0045C770(&espD0, &esp14->unk78);
+            }
+         } else {
+            esp40->Unk_35(&espD0);
+         }
+         bool al = this->unk6D4 == 1; // at 0x0074C7D5
+         NiPoint3 espC4; // third-person camera position, on its own axes
+         NiPoint3 actorForward; // espE4 // normalized vector
+         this->Unk_C1(&espC4, &actorForward, al);
+         bool esp1B = false;
+         bhkWorld* esp20 = Arg1->parentCell->TESV_004C5430(); // ExtraHavok::unk08
+         if (this->unk6D4 == 1 && esp20) { // at 0x0074C80F
+            if (!(BGSSaveLoadManager::GetInstance()->unk3F0 & 2)) {
+               if (Unknown01B115D8::GetInstance()->unk1C) {
+                  // jumped to 0x0074CA9C
+                  NiPoint3 esp30 = Unknown01B115D8::GetInstance()->unk10;
+                  NiPoint3& eax = esp30.SubtractArg2(&esp50, &espC4); // eax == esp50
+                  this->unk570 = eax.GetLength();
+                  eax = Unknown01B115D8::GetInstance()->unk1C;
+                  if (!eax)
+                     esp70.unk04 = nullptr;
+                  else
+                     esp70.unk04 = eax->unk08;
+                  jump to 0x0074CB07;
+               }
+               esp110 = Struct0045C7E0();
+               auto eax = this->TESV_006A9740(&esp30);
+               esp110.unk28 = eax->unk02 << 0x10 | 0x28;
+               esp110.TESV_0045CD30(&espC4);
+               NiPoint3& eax = actorForward.Multiply(&esp30, this->unk570); // NiPoint3 * float
+               esp110.TESV_0065E9F0(eax);
+               bool al = esp20->Unk_2F(&esp110);
+               if (al) { // at 0x0074C8B7
+                  void* edi = esp110.TESV_00D0DEB0(); // doesn't look like a NiObject; maybe Havok
+                  bhkNiCollisionObject* eax = TESV_005825B0(edi); // get the pertinent bhkNiCollisionObject for edi?
+                  NiNode* eax = eax ? eax->unk08 : nullptr; // NiCollisionObject::unk08 is most likely the owner node, but I haven't confirmed that
+                  eax = TESV_004D7C90(eax); // seems like {TESObjectREFR* GetPertinentREFR(NiNode*)} // at 0x0074C8E0
+                  esp14 = refr_ptr(eax);
+                  if (edi && esp14 == Arg1) {
+                     if (!esp13) { // at 0x0074C901
+                        edi->unk0C->Unk_35(&espD0);
+                     }
+                     // at 00x074C918
+                     esp1F = true;
+                     esp70.unk08 = edi;
+                     float esp28 = this->unk570 * esp110.unk44;
+                     NiPoint3& eax = actorForward.Multiply(&esp50, esp28);
+                     espC4.Add(&esp30, eax);
+                     esp70.unk20.TESV_006FB4F0(&esp30);
+                  }
+                  // at 0x0074C974
+                  esp14.~refr_ptr();
+                  if (esp1B) {
+                     // jumped to 0x0074CB03
+                     eax = esp70.unk04;
+                     jump to 0x0074CB07; // implicit
+                  }
+               }
+            }
+         }
+         // at 0x0074C988
+         esp70.unk20.TESV_004D4520(&espD0); // at 0x0074C997
+         if (esp13) {
+            // NiMatrix33 esp44->unk54
+            NiPoint3& eax = esp44->m_worldTransform.ConvertPositionToThisFrame(&esp54, 0x012C52D0);
+            TESV_004C0160(&esp30, eax);
+            XMM = esp98;
+            //
+            // TODO: decode XMM stuff later
+            //
+            esp70.unk20.TESV_004D4520(&esp50);
+         }
+         // at 0x0074CA12
+         if (!(BGSSaveLoadManager::GetInstance()->unk3F0 & 2)) {
+            //
+            // scary XMM stuff again
+            //
+            this->unk570 = ?????;
+         }
+         // at 0x0074CA8B
+         if (eax = esp40) { // at 0x0074CA91
+            esp70.unk04 = eax->unk08;
+            //
+            // Skip code at 0x0074CA9C; it's a block that is jumped to from far above.
+            //
+         } else {
+            esp70.unk04 = eax;
+         }
+         // at 0x0074CB07
+         if (this->unk6D4 == 1) {
+            this->TESV_0073B670(4, Arg1);
+            eax = esp70.unk04;
+         }
+         hkpEntity* esp28 = edi = eax;
+         if (!Arg4) {
+            if (!eax->unk08 || IsMotionTypeKeyframedOrFixed(eax->unkE8)) {
+               this->TESV_0074A7F0();
+               esp2C.~NiPointer();
+               return nullptr;
+            }
+         }
+         auto eax = this->GetCharacterProxy();
+         if (eax) { // at 0x0074CB64
+            //
+            // ...
+            //
+         }
+         float espA0;
+         float espA4;
+         float espAC;
+         float d;
+         if (this->unk6D4 == 2) { // at 0x0074CBB1
+            if (esp13) {
+               esp70.unk30 = GMST:fMagicTelekinesisComplexSpringDamping;
+               esp70.unk34 = GMST:fMagicTelekinesisComplexSpringElasticity;
+               esp70.unk3C = GMST:fMagicTelekinesisComplexObjectDamping;
+               d     = GMST:fMagicTelekinesisComplexMaxForce;
+            } else {
+               esp70.unk30 = GMST:fMagicTelekinesisSpringDamping;
+               esp70.unk34 = GMST:fMagicTelekinesisSpringElasticity;
+               esp70.unk3C = GMST:fMagicTelekinesisObjectDamping;
+               d     = GMST:fMagicTelekinesisMaxForce;
+            }
+         } else {
+            eax = 1.0F;
+            esp1C = 1.0F;
+            esp14 = 1.0F;
+            if (esp24) { // if dragged object is an actor?
+               float esp1C = GMST:fZKeyMaxForceWeightLow;
+               float esp24 = GMST:fZKeyMaxForceWeightHigh;
+               float espBC = GMST:fZKeyMaxForceScaleHigh;
+               float esp30 = GMST:fZKeyMaxForceScaleLow;
+               float edi = esp20;
+               float esp1C = std::min<float>(esp24, std::max<float>(esp1C, GetMassOfNiNode(esp44))); // clamped mass of dragged object
+               float b = TESV_004897F0(esp30, espBC, esp24, edi, esp1C); // at 0x0074CCE7
+               b *= 1.0F; // m'kay
+               esp1C = b;
+               esp13 = true;
+               esp30 = esp40->Unk_24();
+               esp34 = 0;
+               if (esp30 && (eax = eax->unk360)) {
+                  eax->TESV_00D0E2C0();
+               }
+               hkpEntity* edx = esp28;
+               ecx = 0;
+               edi = 0;
+               if (0 < edx->unkAC.size) { // at 0x0074CD3A
+                  ebx = 0;
+                  do { // for this loop, ebx == edi * 0x30
+                     if (!esp13)
+                        break;
+                     auto edx = esp28->unkAC[edi]; // sizeof == 0x30
+                     esp13 = edx->unk0C->Unk_0B() == 0xB;
+                  } while (++edi < esp28->unkAC.size);
+                  //
+                  // So we're looking for the first child whose [explain the function call 
+                  // here when we actually know what it means] is not 0xB.
+               }
+               esp30.TESV_004319E0();
+               if (esp13) {
+                  esp14 = 0.1F; // don't try editing the constants directly; they're used by other stuff; you WILL break the game
+                  esp1C = 0.2F; // if you must change them, then patch the game to read from a different location instead
+               }
+            } else {
+               // at 0x0074CDA1
+               _uint8_t al = esp40->TESV_00422250(&esp30);
+               if (al == 0xE) {
+                  esp14 = 0.1F; // don't try editing the constants directly; they're used by other stuff; you WILL break the game
+                  esp1C = 0.5F; // if you must change them, then patch the game to read from a different location instead
+               }
+            }
+            ebx = Arg2; // restore after above loop
+            esp70.unk34 = GMST:fZKeySpringElasticity * esp14;
+            esp70.unk30 = GMST:fZKeySpringDamping;
+            esp70.unk3C = GMST:fZKeyObjectDamping;
+            d     = GMST:fZKeyMaxForce * esp1C;
+         }
+         esp70.unk38 = d;
+         if (this->unk6D4 == 2) { // at 0x0074CE1A
+            esp30 = eax = edi->unk08;
+            esp34 = 1; // dword
+            if (eax) {
+               if (eax = eax->unk360)
+                  eax->TESV_00D0E300();
+            }
+            edi->unk10->Unk_07(0x01BB6D00, 0.001F, edi->unk10, &espF0);
+            //
+            // scary XMM stuff
+            //
+            esp70.unk10.TESV_004D4520(&esp50);
+            esp30.TESV_004319E0();
+         } else {
+            // at 0x0074CEA4
+            //
+            // scary XMM stuff
+            //
+            esp70.unk10.TESV_004D4520();
+            esp70.unk14.TESV_004D4520();
+         }
+         // at 0x0074CF46
+         esp30.TESV_00432A40(esp20, 0);
+         NiPointer<bhkMouseSpringAction> esp2C = new bhkMouseSpringAction(&esp70);
+         esp30.TESV_004319E0();
+         this->unk550.Insert(&esp2C);
+         bhkMouseSpringAction* edi = esp2C; // bare
+         edi->Unk_25(esp20);
+         this->unk56C = GetMassOfNiNode(Arg1->GetNiNode()); // at 0x0074CFBF
+         this->TESV_006A75F0();
+         this->TESV_006CE140();
+      }
+   }
+   this->unk728 |= 2; // at 0x0074CFDB
+   TESObjectREFR* result = edi;
+   if (edi)
+      edi->~refr_ptr();
+   return result;
+}

@@ -226,11 +226,20 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(IncreaseTeammateCount, void, 0x0073B3C0);
          DEFINE_MEMBER_FN(DecreaseTeammateCount, void, 0x0073B3E0);
+
          //
-         DEFINE_MEMBER_FN(TryGrabCrosshairRef,  void, 0x0074FE50);
-         DEFINE_MEMBER_FN(ReleaseGrabbedObject, void,  0x0074A7F0); // not sure when it's safe to call; almost certainly limited to main thread only
-         DEFINE_MEMBER_FN(GrabRef,              void*, 0x0074C590, TESObjectREFR* refToGrab, GrabType grabType, float unk570, bool); // Z-keying passes 1000.0 as the float and 0 as the bool
-         DEFINE_MEMBER_FN(Subroutine0074D020,   void,  0x0074D020); // update grab state per-frame?
+         // Functions related to Z-keying and telekinesis.
+         //
+         // Two of these use PlayerCharacter::Unk_C1 to get the player-forward direction *and* what appears 
+         // to be the camera's position converted to the camera's reference frame (not *quite* the same as 
+         // a local or relative position). This data appears to then be fed to the bhkMouseSpringActions 
+         // that effect the grabbed object's movement.
+         //
+         DEFINE_MEMBER_FN(TryGrabCrosshairRef,       void, 0x0074FE50);
+         DEFINE_MEMBER_FN(ReleaseGrabbedObject,      void,  0x0074A7F0); // not sure when it's safe to call; almost certainly limited to main thread only
+         DEFINE_MEMBER_FN(ReleaseGrabbedObjectIfAny, void, 0x0074C587); // calls ReleaseGrabbedObject only if the current GrabType is "none;" this is probably the one you should use, though again, I don't know when that's safe
+         DEFINE_MEMBER_FN(GrabRef,            void*, 0x0074C590, TESObjectREFR* refToGrab, GrabType grabType, float unk570, bool); // Z-keying passes 1000.0 as the float and 0 as the bool
+         DEFINE_MEMBER_FN(Subroutine0074D020, void,  0x0074D020); // update grab state per-frame?
    };
    static_assert(sizeof(PlayerCharacter) <= 0x72C, "RE::PlayerCharacter is too large.");
    static_assert(sizeof(PlayerCharacter) >= 0x72C, "RE::PlayerCharacter is too small.");
