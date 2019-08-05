@@ -57,7 +57,12 @@ namespace RE {
          SimpleLock                     activeEffectShaderLock;   // 0A4
          UInt32 unk0AC[(0xD4 - 0x0AC) / sizeof(UInt32)]; // 0AC
          BStList<UInt32> unkD4; // D4 // list of ref handles
-         UInt32 unk0DC[(0x11C - 0x0DC) / sizeof(UInt32)]; // 0DC
+         UInt32 unk0DC[(0x108 - 0x0DC) / sizeof(UInt32)]; // 0DC
+         float  unk108; // 108 // related to Z-keying?
+         UInt32 unk10C;
+         UInt32 unk110;
+         UInt32 unk114;
+         UInt32 unk118;
          bool   enableActorAI;        // 11C // if true, then all AI processing is on
          bool   enableActorMovement;  // 11D // if true, then all actor movement processing is on
          bool   enableActorAnimation; // 11E // if true, then all actor animation processing is on

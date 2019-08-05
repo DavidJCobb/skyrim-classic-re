@@ -35,6 +35,11 @@ namespace RE {
             return CALL_MEMBER_FN(this, Add_B)(other);
          };
    };
+   class NiQuaternion : public ::NiQuaternion {
+      public:
+         MEMBER_FN_PREFIX(NiQuaternion);
+         DEFINE_MEMBER_FN(ToMatrix, NiMatrix33&, 0x004719A0, NiMatrix33& out);
+   };
    class NiMatrix33 : public ::NiMatrix33 { // sizeof == 0x24
       public:
          MEMBER_FN_PREFIX(NiMatrix33);

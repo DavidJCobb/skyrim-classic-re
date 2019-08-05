@@ -223,6 +223,7 @@ namespace RE {
          // from code in that function that resets them (via copy) to stock values kept in memory.
 
          MEMBER_FN_PREFIX(ThirdPersonState);
+         DEFINE_MEMBER_FN(GetPositionOnLocalAxes,    void, 0x0083F7E0, NiPoint3& out, bool allowRoll);
          DEFINE_MEMBER_FN(HandleZoomJoystickInput,   void, 0x008405D0, void* joystickInputData);
          DEFINE_MEMBER_FN(HandleZoomMousewheelInput, void, 0x0083FE70);
    };

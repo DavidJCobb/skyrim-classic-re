@@ -1,10 +1,12 @@
 #pragma once
 #include "ReverseEngineered/Forms/Actor.h"
 #include "ReverseEngineered/ExtraData.h"
+#include "ReverseEngineered/Types.h"
 
 #include "skse/Utilities.h"
 
 namespace RE {
+   class  bhkMouseSpringAction;
    class  PlayerCharacter;
    extern constexpr PlayerCharacter** const g_thePlayer = (PlayerCharacter**) 0x01B2E8E4;
 
@@ -15,10 +17,20 @@ namespace RE {
          // virtual SInt32 GetBountyNonViolent(TESFaction*); // Virtual 0x12B
          // virtual void   Unk_12C(TESFaction*);             // Virtual 0x12C // related to paying the player's bounty
 
+         enum GrabType : UInt32 {
+            kGrabType_None = 0,
+            kGrabType_ZKey = 1,
+            kGrabType_Telekinesis = 2,
+         };
+
          struct Unk494 {
-            float  unk00 = -1;
+            float  unk00 = -1; // set to GMST:fAICommentTimeWindow when you first start Z-keying something?
             UInt32 unk04 = 0; // ref handle
             UInt32 unk08 = 0x10;
+         };
+         struct GrabList : public BSTSmallArray<NiPointer<bhkMouseSpringAction>, 4> { // sizeof == 0x18
+            MEMBER_FN_PREFIX(GrabList);
+            DEFINE_MEMBER_FN(Insert, UInt32, 0x007381B0, NiPointer<bhkMouseSpringAction>&); // adds the smart pointer to the tArray; returns index
          };
 
          // parents
@@ -108,15 +120,22 @@ namespace RE {
          UInt32 unk438[(0x48C - 0x438) / 4];
          UInt32 unk48C = 0;
          UInt32	unk490;							// 490 - Handle // own handle?
-         Unk494 unk494[0xE];                    // 494; sizeof each is 0xC
-         UInt32	pad53C[(0x54C - 0x53C) >> 2]; // 53C
+         Unk494   unk494[0xE]; // 494; sizeof each is 0xC
+         UInt32	unk53C[(0x548 - 0x53C) >> 2];
+         UInt32   unk548; // 548
          UInt32	unk54C; // 54C - Handle; PlayerCharacter::Subroutine0073D4B0 returns the actor and clears the handle
-         UInt32	unk550[(0x568 - 0x550) >> 2]; // 550 // some sort of struct related to Z-Keying and telekinesis; see PlayerCharacter::TESV_0074C590
+         GrabList grabSprings; // 550
          UInt32	unk568; // 568 - Handle
          float    unk56C; // 56C // mass of object being Z-Keyed/telekinesis'd? see PlayerCharacter::TESV_0074C590
-         UInt32	unk570[(0x58C - 0x570) >> 2];	// 570
+         float    grabStartDistance; // 570 // related to Z-keying/telekinesising objects; memory inspection confirms it's set to the distance to the node we're dragging when we start dragging (it's not live-updated)
+         float    unk574;
+         UInt32	unk578[(0x588 - 0x578) >> 2];
+         void*    unk588; // 588 // pointer to something that doesn't have a vtbl
          NiNode*  firstPersonSkeleton; // 58C
-         UInt32	pad590[(0x5AC - 0x590) >> 2];
+         float    unk590;
+         UInt32	unk594;
+         float    unk598;
+         UInt32   unk59C[(0x5AC - 0x59C) >> 2];
          UInt32	lastRiddenHorseHandle;			// 5AC - Handle
          UInt32	pad5B0[(0x5FC - 0x5B0) >> 2];
          TESObjectCELL* unk5FC; // 5FC // redundant player cell? can be an interior.
@@ -141,7 +160,10 @@ namespace RE {
          UInt32	unk6B4;
          float    unk6B8; // 6B8 // used as the raycast distance for crosshair/activation, if larger than the INI setting and the player isn't issuing a command to a follower
          float    favorRequestWaitTimer; // 6BC
-         UInt32	unk6C0[(0x6E0 - 0x6C0) >> 2];
+         UInt32	unk6C0[(0x6D4 - 0x6C0) >> 2];
+         GrabType grabType; // 6D4 // 2 = telekinesis
+         UInt32 unk6D8;
+         UInt32 unk6DC;
          UInt8	unk6E0;							// 6E0
          UInt8	numPerkPoints;					// 6E1
          UInt16 unk6E2;							// 6E2
@@ -159,7 +181,7 @@ namespace RE {
          bool   unk725 = true;
          bool   unk726 = true; // 726
          UInt8  unk727; // 727 // bitmask; PlayerCharacter::Unk_71 returns unk727 & 1; value is related to flags on actor's root nodes, somehow; value is related to whether the player is AI driven, too
-         UInt8  unk728 = 4;
+         UInt8  unk728 = 4; // 728 // bitmask; 2 is related to grabbing
          UInt8  unk729; // 729 // bitmask
          UInt8  unk72A; // padding?
          UInt8  unk72B; // padding?
@@ -204,6 +226,11 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(IncreaseTeammateCount, void, 0x0073B3C0);
          DEFINE_MEMBER_FN(DecreaseTeammateCount, void, 0x0073B3E0);
+         //
+         DEFINE_MEMBER_FN(TryGrabCrosshairRef,  void, 0x0074FE50);
+         DEFINE_MEMBER_FN(ReleaseGrabbedObject, void,  0x0074A7F0); // not sure when it's safe to call; almost certainly limited to main thread only
+         DEFINE_MEMBER_FN(GrabRef,              void*, 0x0074C590, TESObjectREFR* refToGrab, GrabType grabType, float unk570, bool); // Z-keying passes 1000.0 as the float and 0 as the bool
+         DEFINE_MEMBER_FN(Subroutine0074D020,   void,  0x0074D020); // update grab state per-frame?
    };
    static_assert(sizeof(PlayerCharacter) <= 0x72C, "RE::PlayerCharacter is too large.");
    static_assert(sizeof(PlayerCharacter) >= 0x72C, "RE::PlayerCharacter is too small.");

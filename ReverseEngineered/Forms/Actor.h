@@ -950,250 +950,7 @@ namespace RE {
          enum { kTypeID = kFormType_Character };
          operator ::Actor*() const { return (::Actor*) this; }
          operator ::TESObjectREFR*() const { return (::TESObjectREFR*) this; }
-
-         virtual ~Actor();
-         //
-         virtual void PlayItemPickupPutdownSound(TESBoundObject* itemBaseForm, bool isPickup, bool forceDefaultSoundForItemFormType); // A2
-         virtual float GetHeading(bool ignoreRaceSettings); // A3 // returns the yaw-rotation for actors that can't pitch/roll; otherwise, returns some mathy stuff
-         virtual void Unk_A4(bool); // A4 // PlayerCharacter constructor calls this on itself
-         virtual void DrawSheatheWeapon(bool draw); // A5
-         virtual void Unk_A6(void);
-         virtual void Unk_A7(void);
-         virtual void Unk_A8(NiPoint3*); // handles movement for certain actor types?
-         virtual void Unk_A9(void);
-         virtual void Unk_AA(UInt32, UInt32); // a total reset -- behavior graph, spells, everything
-         virtual void Unk_AB(void);
-         virtual void Unk_AC(void); // args are at least one float
-         virtual void Unk_AD(float);
-         virtual void Unk_AE(void*);
-         virtual void Unk_AF();
-         virtual void Unk_B0(void);
-         virtual void Unk_B1(bool);
-         virtual void Unk_B2(void);
-         virtual void Unk_B3(TESForm*, UInt32, UInt32); // from what I've seen, the form is generally a weapon // unequipitem?
-         virtual void SetBounty(TESFaction*, bool forViolentCrime, SInt32 gold); // B4 // violent and non-violent bounties are tracked separately
-         virtual void ModBounty(TESFaction*, bool forViolentCrime, SInt32 gold); // B5
-         virtual void Unk_B6(void);
-         virtual UInt32 GetBounty(TESFaction*); // B7
-         virtual void Unk_B8(void*, UInt8, UInt8); // could be bools
-         virtual void ServeJailTime(); // B9
-         virtual void PayBounty(TESFaction*, bool removeStolenItems, bool goToJail); // BA
-         virtual UInt32 IsCannibalizing(); // BB // Is in cannibal feed action? // returns int, but it's really a bool
-         virtual void Unk_BC(void);
-         virtual UInt32 IsVampireFeeding(); // BD // Is in vampire feed action? // returns int, but it's really a bool
-         virtual void Unk_BE(void);
-         virtual void StartVampireFeed(Actor* target, TESObjectREFR* targetUsingFurniture); // BF // 0x00731350? // vampire feed? first argument is target. second is furniture that the target is using. runs AI packages on all involved actors.
-         virtual void Unk_C0(void);
-         virtual void Unk_C1(NiPoint3&, void*, UInt32); // C1 // works with first-person camera position // args 2 and 3 unknown
-         virtual void Unk_C2(void);
-         virtual void Unk_C3(void);
-         virtual void Unk_C4(void);
-         virtual UInt32 Unk_C5();
-         virtual void Unk_C6(void);
-         virtual void Unk_C7(float speed, NiPoint3* velocity); // Handles movement for typical human actors. Positive X velocity moves to the actor's right; positive Y moves forward; Z values don't seem to do anything. The velocity vector can have a non-unit length, and appears to be further scaled by the speed.
-         virtual void Unk_C8(void);
-         virtual void OnArmorActorValueChanged(); // C9 // called when HeavyArmor or LightArmor AV base value changes
-         virtual void Unk_CA(void);
-         virtual void PickUpItem(TESObjectREFR* item, UInt32 count, UInt32, bool doPlaySound); // CB // doPlaySound calls this->PlayItemPickupPutdownSound(item->baseForm, true, false)
-         virtual void Unk_CC(void);
-         virtual void UpdateArrowNodes(ActorWeightData*); // CD // Updates visibility of the actor's equipped arrows. The player's quiver, in particular, reflects how many arrows they have on their person (up to GMST:iMaxArrowsInQuiver).
-         virtual void Unk_CE(void);
-         virtual void Unk_CF(void);
-         virtual void Unk_D0(void);
-         virtual void Unk_D1(UInt32); // argument is the number of projectiles the actor just fired
-         virtual bool  Unk_D2();
-         virtual Struct007AF7A0* Unk_D3(); // returns *(this->unkD8), or 0 if the pointer is null
-         virtual void  Unk_D4(Struct007AF7A0*); // sets *(this->unkD8) to arg1, if the pointer is not null
-         virtual bool  Unk_D5(UInt32);
-         virtual bool  Unk_D6(UInt32);
-         virtual bool  Unk_D7(UInt32, UInt32, UInt32); // constructs a DialoguePackage
-         virtual void Unk_D8(void);
-         virtual void Unk_D9(); // D9 // related to DialoguePackages
-         virtual void Unk_DA(void);
-         virtual void Unk_DB(void);
-         virtual void Unk_DC(void);
-         virtual void Unk_DD();
-         virtual void Unk_DE(TESPackage*, bool, UInt32); // DE // executes specified package? package must not be nullptr // latter args could be bools
-         virtual void Unk_DF(void);
-         virtual void Unk_E0(void);
-         virtual void Unk_E1(void);
-         virtual bool IsInCombat(); // E2
-         virtual void Unk_E3(void);
-         virtual void Unk_E4(); // E4 // Unknown. Related to AI.
-         virtual float Unk_E5(); // E5
-         virtual float Unk_E6(); // E6 // related to computing the actor's threat level
-         virtual void Unk_E7(void);
-         virtual void Unk_E8(void);
-         virtual void Unk_E9(void);
-         virtual void Unk_EA(void);
-         virtual void Unk_EB(void);
-         virtual void Unk_EC(void);
-         virtual void Unk_ED(void);
-         virtual void Unk_EE(void);
-         virtual void Unk_EF(void);
-         virtual void Unk_F0(void);
-         virtual void Unk_F1(void);
-         virtual void Unk_F2(void);
-         virtual void Unk_F3(void);
-         virtual void Unk_F4(void);
-         virtual void Unk_F5(UInt32);
-         virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2); // F6
-         virtual void Unk_F7(void);
-         virtual bool IsInFaction(TESFaction*); // F8
-         virtual void VisitPerks(void); // F9 // BGSPerk::FindPerkInRanksVisitor
-         virtual void AddPerk(BGSPerk* perk, UInt32 unk1); // FA
-         virtual void RemovePerk(BGSPerk* perk); // FB
-         //
-         // Every virtual method after this point was missing from the SKSE definitions, likely because 
-         // Bethesda added them after the SKSE team last checked the VTBL.
-         //
-         virtual void Unk_FC(UInt32); // FC // no-op for Actor
-         virtual void Unk_FD(UInt32); // FC // no-op for Actor
-         virtual bool Unk_FE(UInt32); // FC
-         virtual UInt32 Unk_FF(); // FF
-         virtual void Unk_100(); // 100
-         virtual void Unk_101(); // 101 // no-op for Actor
-         virtual bool Unk_102(); // 102 // no-op for Actor; returns false
-         virtual void KillIfNoHealth(Actor* attacker, float currentHealth); // 103 // checks an actor's health; if below zero, kills them
-         virtual void Unk_104(UInt32); // 104
-         virtual bool Unk_105();       // 105 // no-op for Actor; returns false
-         virtual bool Unk_106();       // 106 // checks flags1; return strue if flags 0x02 and 0x08 are false
-         virtual void ModifyFlags1_00000020(bool); // 107
-         virtual void CreateUnkD0();   // 108 // == non-virtual member function 006B2630 (it's not always called through the VTBL)
-         virtual void* GetUnkE4();     // 109 // type of unkE4/ret-val is unknown
-         virtual void SetUnkE4(void*); // 10A // type of unkE4/arg is unknown
-         virtual void* GetUnkE8();     // 10B // type of unkE8/ret-val is unknown
-         virtual void SetUnkE8(void*); // 10C // type of unkE8/arg is unknown
-         virtual void Unk_10D(UInt32, UInt32, UInt32, UInt32); // 10D
-                                                               // function to kill an actor?
-                                                               //  - calls perk entry point: add leveled list on death
-                                                               //  - checks INI settings like fDyingTimer
-                                                               //  - has code to force the player into bleedout camera
-                                                               //  - can set refHandleKiller (at 0x006D737C)
-                                                               //  - sends TESDeathEvent (at 0x006D769C)
-                                                               // 
-                                                               // Known calls:
-                                                               //  - 006A1870 (BSTask 0xA: kill actor)
-         virtual bool Unk_10E(TESForm*, UInt32 unk);    // 10E
-         virtual UInt8 Unk_10F(UInt32, UInt32, UInt32); // 10F
-         virtual void Unk_110();       // 110 // no-op for Actor
-         virtual SInt32  GetCurrentShoutVariation(); // 111 // returns -1 if no process manager
-         virtual void    SetLastRiddenHorseHandle(UInt32 horseRefHandle); // 112 // no-op for Actor
-         virtual UInt32* GetLastRiddenHorseHandle(UInt32* outHandle); // 113 // no-op for Actor; sets the outHandle to *g_invalidRefHandle and returns outHandle
-         virtual void Unk_114(void);   // 114
-         virtual void Unk_115(); // 115
-         virtual void AdjustProjectileSpawnPosition(NiPoint3* pos); // 116 // only used for the player? // adds this->pos to the argument, but only if this->GetNiRootNode(true) has a zero position
-         virtual void Unk_117();       // 117 // calls stuff related to actor values
-         virtual void* Unk_118();      // 118 // returns a name from the skeleton node name list, building the list if needed. returned name is at 0x012E31B0
-         virtual void Unk_119(UInt32, UInt32, UInt32); // 119 // works with the actor hkCharacterProxy
-         virtual void Unk_11A();       // 11A // works with the actor hkCharacterProxy
-         virtual void Unk_11B(void*); // 11B
-         virtual bool Unk_11C(UInt32, UInt32, UInt32); // 11C
-         virtual bool Unk_11D(UInt32); // 11D
-         virtual void Unk_11E();       // 11E // related to actor pitch
-         virtual void Unk_11F();       // 11F // related to skeleton nodes
-         virtual void Unk_120(TESForm* item, SInt32 count, BaseExtraList* extraData, bool preventUnequip, bool, bool); // 120 // responsible for equipping an item; also used to apply decapitate-armor; callers are Actor::Decapitate and Actor::006D2330 (the latter of which doesn't go through the vtbl, oddly enough)
-         virtual void Unk_121(TESObjectARMO*); // 121 // only caller is Actor::Unk_120
-         virtual void Unk_122(UInt32); // 122 // related to dialogue, headtracking, and the skeleton // checks several INI settings; we should see which ones
-         virtual void Unk_123(UInt32); // 123 // related to facial animations/expressions
-         virtual ActorMover* ResetUnkCC(); // 124 // creates unkCC (first destroying it if it already exists) and returns the new instance
-         virtual void DestroyUnkCC();      // 125 // destroys unkCC
-         virtual bool Unk_126(UInt32, UInt32); // 126 // related to menus and to the actor's "ghost" and "is running" flags
-         virtual float IncerceptActorValueChange(UInt32 avIndex, float avChangingBy); // 127 // Called whenever an AV is about to be damaged or restored; returning a value overrides by how much the AV's damage modifier will change. Return (avChangingBy) verbatim to do nothing.
-
-         class SpellArray { // sizeof == 0x0C // actually just a tArray with special functionality
-            public:
-               SpellItem* Get(UInt32 idx) {
-                  if (idx >= spellCount)
-                     return NULL;
-                  if (allocatedCount & kLocalAlloc)
-                     return (idx == 0) ? singleSpell : NULL;
-                  else
-                     return spells ? spells[idx] : NULL;
-               }
-               UInt32 Length(void) { return spellCount; }
-            private:
-               enum {
-                  kLocalAlloc = 0x80000000,
-               };
-               //
-               UInt32 allocatedCount; // 00 - upper bit is set when single-element optimization is used
-               union {
-                  SpellItem	** spells;     // 04
-                  SpellItem	* singleSpell; // 04 - used when kLocalAlloc is set
-               };
-               UInt32 spellCount; // 08
-         };
-         //
-         enum Flags1 : UInt32 {
-            kFlags_AIEnabled        = 0x00000002,
-            kFlags_Flag1_00000200   = 0x00000200,
-            kFlags_Flag1_00000800   = 0x00000800, // cleared on actors that start dead
-            kFlags_Flag1_00004000   = 0x00004000,
-            kFlags_Flag1_00008000   = 0x00008000,
-            kFlags_Flag1_00040000   = 0x00040000, // related to the Waterbreathing magic effect. also related to the actor being in cell water, or in lava; checked by a condition meant for the latter
-            kFlags_Flag1_01000000   = 0x01000000,
-            kFlags_IsPlayerTeammate = 0x04000000, // 1 << 0x1A
-            kFlags_Flag1_10000000   = 0x10000000, // related to AI
-            kFlags_IsGuard          = 0x40000000,
-            kFlags_Flag1_80000000   = 0x80000000, // if set, then damage calcs don't bother checking whether the actor is blocking; see 00797799
-         };
-         enum Flags2 : UInt32 {
-            kFlags_Flag2_00000002         = 0x00000002, // somehow related to hit processing
-            kFlags_NoBleedoutRecovery     = 0x00000020,
-            kFlags_Flag2_00000040         = 0x00000040, // related to bleedout?
-            kFlags_CanDoFavor             = 0x00000080,
-            kFlags_Flag2_00000100         = 0x00000100,
-            kFlags_AllowBleedoutDialogue  = 0x00000200,
-            kFlags_Flag2_00000800         = 0x00000800, // "is in combat with player" ?
-            kFlags_IsTrespassing          = 0x00001000,
-            kFlags_IsInKillMove           = 0x00004000,
-            kFlags_AttackMeOnSight        = 0x00008000,
-            kFlags_IsCommanded            = 0x00010000,
-            kFlags_IsEssential            = 0x00040000,
-            kFlags_IsProtected            = 0x00080000,
-            kFlags_DontShowOnStealthMeter = 0x04000000,
-            kFlags_Flag2_01000000         = 0x10000000,
-         };
-
-         MagicTarget       magicTarget;     // 054 // MagicTarget::unk08 is flags; flag 02 means the MagicTarget has invisibility
-         ActorValueOwner   actorValueOwner; // 060
-         ActorState        actorState;      // 064
-         BSTEventSink<void*> transformDeltaEvent;      // 070 ?AV?$BSTEventSink@VBSTransformDeltaEvent@@@@
-         BSTEventSink<void*> characterMoveFinishEvent; // 074 ?AV?$BSTEventSink@VbhkCharacterMoveFinishEvent@@@@
-         IPostAnimationChannelUpdateFunctor	unk078;   // 078 IPostAnimationChannelUpdateFunctor
-         UInt32	flags1; // 07C
-         float    unk080; // 080 // related to headtracking, and derived from the "update seconds" min and max when the Actor is constructed
-         UInt32	unk084; // 084
-         ActorProcessManager* processManager; // 088
-         UInt32   refHandleDialogueTarget; // 08C // reference handle of this actor's dialogue target
-         UInt32   refHandleCombatTarget; // 090 // reference handle of this actor's combat target
-         UInt32   refHandleKiller; // 094 // reference handle of this actor's killer; important during killmoves
-         UInt32   unk098; // 098
-         float    unk09C; // 09C
-         UInt32   unk0A0; // 0A0
-         UInt32   unk0A4; // 0A4
-         UInt32   unk0A8; // 0A8 // related to GMST:fActorAlertSoundTimer
-         UInt32   unk0AC; // 0AC // gets set to GMST:fActorAlertSoundTimer
-         UInt32   unk0B0; // 0B0
-         NiPoint3 unk0B4; // 0B4
-         UInt32   unk0C0; // 0C0
-         UInt32   unk0C4; // 0C4
-         BGSLocation* editorLocation; // 0C8
-         ActorMover*    unk0CC; // 0CC
-         MovementControllerNPC* unk0D0; // 0D0 // This uses the same class even for the player. // Papyrus Actor.SetPlayerControls(bool) operates on this.
-         UInt32   unk0D4; // D4
-         Struct007AF7A0* unk0D8; // D8 // Unk_D3 accesses this pointer // AI information; "Confidence" AV affects data in here
-         UInt32   unk0DC[(0x0FC - 0x0DC) >> 2]; // 0D4
-         SpellArray addedSpells;                // 0FC
-         ActorMagicCaster*	unk108[4]; // 108
-         TESForm* equippedItems[4]; // 118 // equipped items or spells; see 0x006ED753
-         TESForm* equippedShout; // 128 // not validated by the game after being loaded from the savegame; if the player were to equip a shout, upgrade the mod it came from, and the upgrade removed the shout and put something else in that form ID, you'd run into problems
-         UInt32	unk12C; // 12C
-         TESRace* race;   // 130
-         float 	unk134; // 134
-         UInt32	flags2; // 138
-
+         
          //
          // The stuff below describes the internals for ActorValues and how they're stored 
          // on actors. It's probably not stuff you should tamper with directly; use the 
@@ -1312,8 +1069,227 @@ namespace RE {
             }
             //*/
          };
+         typedef Struct006F2190 ActorValueStateList;
+
+         virtual ~Actor();
          //
-         Struct006F2190 unk13C; // 13C
+         virtual void PlayItemPickupPutdownSound(TESBoundObject* itemBaseForm, bool isPickup, bool forceDefaultSoundForItemFormType); // A2
+         virtual float GetHeading(bool ignoreRaceSettings); // A3 // returns the yaw-rotation for actors that can't pitch/roll; otherwise, returns some mathy stuff
+         virtual void Unk_A4(bool); // A4 // PlayerCharacter constructor calls this on itself
+         virtual void DrawSheatheWeapon(bool draw); // A5
+         virtual void Unk_A6(void);
+         virtual void Unk_A7(void);
+         virtual void Unk_A8(NiPoint3*); // handles movement for certain actor types?
+         virtual void Unk_A9(void);
+         virtual void Unk_AA(UInt32, UInt32); // a total reset -- behavior graph, spells, everything
+         virtual void Unk_AB(void);
+         virtual void Unk_AC(void); // args are at least one float
+         virtual void Unk_AD(float);
+         virtual void Unk_AE(void*);
+         virtual void Unk_AF();
+         virtual void Unk_B0(void);
+         virtual void Unk_B1(bool);
+         virtual void Unk_B2(void);
+         virtual void Unk_B3(TESForm*, UInt32, UInt32); // from what I've seen, the form is generally a weapon // unequipitem?
+         virtual void SetBounty(TESFaction*, bool forViolentCrime, SInt32 gold); // B4 // violent and non-violent bounties are tracked separately
+         virtual void ModBounty(TESFaction*, bool forViolentCrime, SInt32 gold); // B5
+         virtual void Unk_B6(void);
+         virtual UInt32 GetBounty(TESFaction*); // B7
+         virtual void Unk_B8(void*, UInt8, UInt8); // could be bools
+         virtual void ServeJailTime(); // B9
+         virtual void PayBounty(TESFaction*, bool removeStolenItems, bool goToJail); // BA
+         virtual UInt32 IsCannibalizing(); // BB // Is in cannibal feed action? // returns int, but it's really a bool
+         virtual void Unk_BC(void);
+         virtual UInt32 IsVampireFeeding(); // BD // Is in vampire feed action? // returns int, but it's really a bool
+         virtual void Unk_BE(void);
+         virtual void StartVampireFeed(Actor* target, TESObjectREFR* targetUsingFurniture); // BF // 0x00731350? // vampire feed? first argument is target. second is furniture that the target is using. runs AI packages on all involved actors.
+         virtual void Unk_C0(void);
+         virtual void Unk_C1(NiPoint3& out_add3PCameraLocalPosToThis, NiPoint3& out_actorForwardInclPitch, bool shouldSetArg1); // C1
+         virtual void Unk_C2(void);
+         virtual void Unk_C3(void);
+         virtual void Unk_C4(void);
+         virtual UInt32 Unk_C5();
+         virtual void Unk_C6(void);
+         virtual void Unk_C7(float speed, NiPoint3* velocity); // Handles movement for typical human actors. Positive X velocity moves to the actor's right; positive Y moves forward; Z values don't seem to do anything. The velocity vector can have a non-unit length, and appears to be further scaled by the speed.
+         virtual void Unk_C8(void);
+         virtual void OnArmorActorValueChanged(); // C9 // called when HeavyArmor or LightArmor AV base value changes
+         virtual void Unk_CA(void);
+         virtual void PickUpItem(TESObjectREFR* item, UInt32 count, UInt32, bool doPlaySound); // CB // doPlaySound calls this->PlayItemPickupPutdownSound(item->baseForm, true, false)
+         virtual void Unk_CC(void);
+         virtual void UpdateArrowNodes(ActorWeightData*); // CD // Updates visibility of the actor's equipped arrows. The player's quiver, in particular, reflects how many arrows they have on their person (up to GMST:iMaxArrowsInQuiver).
+         virtual void Unk_CE(void);
+         virtual void Unk_CF(void);
+         virtual void Unk_D0(void);
+         virtual void Unk_D1(UInt32); // argument is the number of projectiles the actor just fired
+         virtual bool  Unk_D2();
+         virtual Struct007AF7A0* Unk_D3(); // returns *(this->unkD8), or 0 if the pointer is null
+         virtual void  Unk_D4(Struct007AF7A0*); // sets *(this->unkD8) to arg1, if the pointer is not null
+         virtual bool  Unk_D5(UInt32);
+         virtual bool  Unk_D6(UInt32);
+         virtual bool  Unk_D7(UInt32, UInt32, UInt32); // constructs a DialoguePackage
+         virtual void Unk_D8(void);
+         virtual void Unk_D9(); // D9 // related to DialoguePackages
+         virtual void Unk_DA(void);
+         virtual void Unk_DB(void);
+         virtual void Unk_DC(void);
+         virtual void Unk_DD();
+         virtual void Unk_DE(TESPackage*, bool, UInt32); // DE // executes specified package? package must not be nullptr // latter args could be bools
+         virtual void Unk_DF(void);
+         virtual void Unk_E0(void);
+         virtual void Unk_E1(void);
+         virtual bool IsInCombat(); // E2
+         virtual void Unk_E3(void);
+         virtual void Unk_E4(); // E4 // Unknown. Related to AI.
+         virtual float Unk_E5(); // E5
+         virtual float Unk_E6(); // E6 // related to computing the actor's threat level
+         virtual void Unk_E7(void);
+         virtual void Unk_E8(void);
+         virtual void Unk_E9(void);
+         virtual void Unk_EA(void);
+         virtual void Unk_EB(void);
+         virtual void Unk_EC(void);
+         virtual void Unk_ED(void);
+         virtual void Unk_EE(void);
+         virtual void Unk_EF(void);
+         virtual void Unk_F0(void);
+         virtual void Unk_F1(void);
+         virtual void Unk_F2(void);
+         virtual void Unk_F3(void);
+         virtual void Unk_F4(void);
+         virtual void Unk_F5(UInt32);
+         virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2); // F6
+         virtual void Unk_F7(void);
+         virtual bool IsInFaction(TESFaction*); // F8
+         virtual void VisitPerks(void); // F9 // BGSPerk::FindPerkInRanksVisitor
+         virtual void AddPerk(BGSPerk* perk, UInt32 unk1); // FA
+         virtual void RemovePerk(BGSPerk* perk); // FB
+         //
+         // Every virtual method after this point was missing from the SKSE definitions, likely because 
+         // Bethesda added them after the SKSE team last checked the VTBL.
+         //
+         virtual void Unk_FC(UInt32); // FC // no-op for Actor
+         virtual void Unk_FD(UInt32); // FC // no-op for Actor
+         virtual bool Unk_FE(UInt32); // FC
+         virtual UInt32 Unk_FF(); // FF
+         virtual void Unk_100(); // 100
+         virtual void Unk_101(); // 101 // no-op for Actor
+         virtual bool Unk_102(); // 102 // no-op for Actor; returns false
+         virtual void KillIfNoHealth(Actor* attacker, float currentHealth); // 103 // checks an actor's health; if below zero, kills them
+         virtual void Unk_104(UInt32); // 104
+         virtual bool Unk_105();       // 105 // no-op for Actor; returns false
+         virtual bool Unk_106();       // 106 // checks flags1; return strue if flags 0x02 and 0x08 are false
+         virtual void ModifyFlags1_00000020(bool); // 107
+         virtual void CreateUnkD0();   // 108 // == non-virtual member function 006B2630 (it's not always called through the VTBL)
+         virtual void* GetUnkE4();     // 109 // type of unkE4/ret-val is unknown
+         virtual void SetUnkE4(void*); // 10A // type of unkE4/arg is unknown
+         virtual void* GetUnkE8();     // 10B // type of unkE8/ret-val is unknown
+         virtual void SetUnkE8(void*); // 10C // type of unkE8/arg is unknown
+         virtual void Unk_10D(UInt32, UInt32, UInt32, UInt32); // 10D
+                                                               // function to kill an actor?
+                                                               //  - calls perk entry point: add leveled list on death
+                                                               //  - checks INI settings like fDyingTimer
+                                                               //  - has code to force the player into bleedout camera
+                                                               //  - can set refHandleKiller (at 0x006D737C)
+                                                               //  - sends TESDeathEvent (at 0x006D769C)
+                                                               // 
+                                                               // Known calls:
+                                                               //  - 006A1870 (BSTask 0xA: kill actor)
+         virtual bool Unk_10E(TESForm*, UInt32 unk);    // 10E
+         virtual UInt8 Unk_10F(UInt32, UInt32, UInt32); // 10F
+         virtual void Unk_110();       // 110 // no-op for Actor
+         virtual SInt32  GetCurrentShoutVariation(); // 111 // returns -1 if no process manager
+         virtual void    SetLastRiddenHorseHandle(UInt32 horseRefHandle); // 112 // no-op for Actor
+         virtual UInt32* GetLastRiddenHorseHandle(UInt32* outHandle); // 113 // no-op for Actor; sets the outHandle to *g_invalidRefHandle and returns outHandle
+         virtual void Unk_114(void);   // 114
+         virtual void Unk_115(); // 115
+         virtual void AdjustProjectileSpawnPosition(NiPoint3* pos); // 116 // only used for the player? // adds this->pos to the argument, but only if this->GetNiRootNode(true) has a zero position
+         virtual void Unk_117();       // 117 // calls stuff related to actor values
+         virtual void* Unk_118();      // 118 // returns a name from the skeleton node name list, building the list if needed. returned name is at 0x012E31B0
+         virtual void Unk_119(UInt32, UInt32, UInt32); // 119 // works with the actor hkCharacterProxy
+         virtual void Unk_11A();       // 11A // works with the actor hkCharacterProxy
+         virtual void Unk_11B(void*); // 11B
+         virtual bool Unk_11C(UInt32, UInt32, UInt32); // 11C
+         virtual bool Unk_11D(UInt32); // 11D
+         virtual void Unk_11E();       // 11E // related to actor pitch
+         virtual void Unk_11F();       // 11F // related to skeleton nodes
+         virtual void Unk_120(TESForm* item, SInt32 count, BaseExtraList* extraData, bool preventUnequip, bool, bool); // 120 // responsible for equipping an item; also used to apply decapitate-armor; callers are Actor::Decapitate and Actor::006D2330 (the latter of which doesn't go through the vtbl, oddly enough)
+         virtual void Unk_121(TESObjectARMO*); // 121 // only caller is Actor::Unk_120
+         virtual void Unk_122(UInt32); // 122 // related to dialogue, headtracking, and the skeleton // checks several INI settings; we should see which ones
+         virtual void Unk_123(UInt32); // 123 // related to facial animations/expressions
+         virtual ActorMover* ResetUnkCC(); // 124 // creates unkCC (first destroying it if it already exists) and returns the new instance
+         virtual void DestroyUnkCC();      // 125 // destroys unkCC
+         virtual bool Unk_126(UInt32, UInt32); // 126 // related to menus and to the actor's "ghost" and "is running" flags
+         virtual float IncerceptActorValueChange(UInt32 avIndex, float avChangingBy); // 127 // Called whenever an AV is about to be damaged or restored; returning a value overrides by how much the AV's damage modifier will change. Return (avChangingBy) verbatim to do nothing.
+
+         enum Flags1 : UInt32 {
+            kFlags_AIEnabled        = 0x00000002,
+            kFlags_Flag1_00000200   = 0x00000200,
+            kFlags_Flag1_00000800   = 0x00000800, // cleared on actors that start dead
+            kFlags_Flag1_00004000   = 0x00004000,
+            kFlags_Flag1_00008000   = 0x00008000,
+            kFlags_Flag1_00040000   = 0x00040000, // related to the Waterbreathing magic effect. also related to the actor being in cell water, or in lava; checked by a condition meant for the latter
+            kFlags_Flag1_01000000   = 0x01000000,
+            kFlags_IsPlayerTeammate = 0x04000000, // 1 << 0x1A
+            kFlags_Flag1_10000000   = 0x10000000, // related to AI
+            kFlags_IsGuard          = 0x40000000,
+            kFlags_Flag1_80000000   = 0x80000000, // if set, then damage calcs don't bother checking whether the actor is blocking; see 00797799
+         };
+         enum Flags2 : UInt32 {
+            kFlags_Flag2_00000002         = 0x00000002, // somehow related to hit processing
+            kFlags_NoBleedoutRecovery     = 0x00000020,
+            kFlags_Flag2_00000040         = 0x00000040, // related to bleedout?
+            kFlags_CanDoFavor             = 0x00000080,
+            kFlags_Flag2_00000100         = 0x00000100,
+            kFlags_AllowBleedoutDialogue  = 0x00000200,
+            kFlags_Flag2_00000800         = 0x00000800, // "is in combat with player" ?
+            kFlags_IsTrespassing          = 0x00001000,
+            kFlags_IsInKillMove           = 0x00004000,
+            kFlags_AttackMeOnSight        = 0x00008000,
+            kFlags_IsCommanded            = 0x00010000,
+            kFlags_IsEssential            = 0x00040000,
+            kFlags_IsProtected            = 0x00080000,
+            kFlags_DontShowOnStealthMeter = 0x04000000,
+            kFlags_Flag2_01000000         = 0x10000000,
+         };
+
+         MagicTarget       magicTarget;     // 054 // MagicTarget::unk08 is flags; flag 02 means the MagicTarget has invisibility
+         ActorValueOwner   actorValueOwner; // 060
+         ActorState        actorState;      // 064
+         BSTEventSink<void*> transformDeltaEvent;      // 070 ?AV?$BSTEventSink@VBSTransformDeltaEvent@@@@
+         BSTEventSink<void*> characterMoveFinishEvent; // 074 ?AV?$BSTEventSink@VbhkCharacterMoveFinishEvent@@@@
+         IPostAnimationChannelUpdateFunctor	unk078;   // 078 IPostAnimationChannelUpdateFunctor
+         UInt32	flags1; // 07C
+         float    unk080; // 080 // related to headtracking, and derived from the "update seconds" min and max when the Actor is constructed
+         UInt32	unk084; // 084
+         ActorProcessManager* processManager; // 088
+         UInt32   refHandleDialogueTarget; // 08C // reference handle of this actor's dialogue target
+         UInt32   refHandleCombatTarget; // 090 // reference handle of this actor's combat target
+         UInt32   refHandleKiller; // 094 // reference handle of this actor's killer; important during killmoves
+         UInt32   unk098; // 098
+         float    unk09C; // 09C
+         UInt32   unk0A0; // 0A0
+         UInt32   unk0A4; // 0A4
+         UInt32   unk0A8; // 0A8 // related to GMST:fActorAlertSoundTimer
+         UInt32   unk0AC; // 0AC // gets set to GMST:fActorAlertSoundTimer
+         UInt32   unk0B0; // 0B0
+         NiPoint3 unk0B4; // 0B4
+         UInt32   unk0C0; // 0C0
+         UInt32   unk0C4; // 0C4
+         BGSLocation* editorLocation; // 0C8
+         ActorMover*    unk0CC; // 0CC
+         MovementControllerNPC* unk0D0; // 0D0 // This uses the same class even for the player. // Papyrus Actor.SetPlayerControls(bool) operates on this.
+         UInt32   unk0D4; // D4
+         Struct007AF7A0* unk0D8; // D8 // Unk_D3 accesses this pointer // AI information; "Confidence" AV affects data in here
+         UInt32   unk0DC[(0x0FC - 0x0DC) >> 2]; // 0D4
+         BSTSmallArray<SpellItem*, 1> addedSpells; // 0FC
+         ActorMagicCaster*	unk108[4]; // 108
+         TESForm* equippedItems[4]; // 118 // equipped items or spells; see 0x006ED753
+         TESForm* equippedShout; // 128 // not validated by the game after being loaded from the savegame; if the player were to equip a shout, upgrade the mod it came from, and the upgrade removed the shout and put something else in that form ID, you'd run into problems
+         UInt32	unk12C; // 12C
+         TESRace* race;   // 130
+         float 	unk134; // 134
+         UInt32	flags2; // 138
+         ActorValueStateList avState; // 13C
          BGSDialogueBranch* unk14C; // 14C // found the code that loads its form ID from a save file
          ActorValueState avStateHealth;      // 150
          ActorValueState avStateMagicka;     // 15C

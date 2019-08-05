@@ -21,6 +21,72 @@ namespace RE {
          MEMBER_FN_PREFIX(BSString);
          DEFINE_MEMBER_FN(assign, bool, 0x00402C00, const char*, UInt32 maxLength); // zero maxLength will copy the entire input string
    };
+
+   struct BSTArrayAllocator {
+      virtual bool initial(UInt32, UInt32) = 0; // 00
+      virtual bool realloc(UInt32 desiredCount, UInt32 currentCount, UInt32 zero, UInt32 zero, UInt32) = 0; // 01
+
+      // unk04 is typically a pointer to the array
+   };
+   struct BSTArrayCount { // actual name not known
+      MEMBER_FN_PREFIX(BSTArrayCount);
+      DEFINE_MEMBER_FN(Constructor, BSTArrayCount&, 0x00A49B40); // literally just sets itself to zero
+      DEFINE_MEMBER_FN(Increment, SInt32, 0x00A49B83, void* allocator, UInt32 currentCapacity, UInt32 seemsToAlwaysBe4EvenWhenTheArrayElementSizeIsLarger);
+
+      UInt32 size; // 00
+
+      inline operator UInt32&() { return this->size; }
+      inline operator const UInt32&() const { return this->size; }
+   };
+
+   template<typename T, UInt32 minCapacity> struct BSTSmallArray {
+      enum {
+         kFlagsMask  = 0x80000000,
+         //
+         kFlag_Local = 0x80000000, // confirmed: this is the only flag
+      };
+      ~BSTSmallArray() { CALL_MEMBER_FN(this, Destructor)(); };
+      //
+      UInt32 capacityAndFlags; // 00
+      union {
+         T  local[minCapacity]; // use if flag is set
+         T* arr;
+      } data; // 04
+      BSTArrayCount count; // 04+(sizeof(T)*minCapacity)
+
+      UInt32 capacity() const {
+         return this->capacityAndFlags & ~kFlagsMask;
+      }
+      void decrement_refcounts(UInt32 start, UInt32 end) {};
+      T* items() {
+         if (this->capacityAndFlags & kFlag_Local)
+            return &this->data.local;
+         return this->data.arr;
+      }
+      const T* items() const {
+         if (this->capacityAndFlags & kFlag_Local)
+            return &this->data.local;
+         return this->data.arr;
+      }
+      UInt32 size() const {
+         return this->count;
+      }
+
+      T& operator[](UInt32 index) { return this->items()[index]; }
+      const T& operator[](UInt32 index) const { return this->items()[index]; }
+
+      MEMBER_FN_PREFIX(OptimizedArray);
+      DEFINE_MEMBER_FN(Destructor,   void, 0x00A4A8F0);
+      DEFINE_MEMBER_FN(AddressOf,    T*,   0x006B0540, UInt32 index);
+      DEFINE_MEMBER_FN(InitialAlloc, bool, 0x00A4A720, UInt32 desiredCount, UInt32 minCapacity, UInt32 elementSize);
+      DEFINE_MEMBER_FN(Reallocate,   bool, 0x00A4A7A0, UInt32 desiredCount, UInt32 currentCount, UInt32 zeroA, UInt32 zeroB, UInt32 minCapacity, UInt32 elementSize);
+      //
+      // Only valid for arrays templated on NiPointer:
+      //
+      DEFINE_MEMBER_FN(SetElements, void, 0x006B0C90, UInt32 index, UInt32 numCopies, NiPointer<NiRefObject>& value); // assumes you've already allocated enough room
+      DEFINE_MEMBER_FN(MassDecreaseRefcounts, void, 0x006B0930, UInt32 startIndex, UInt32 endIndex);
+   };
+
    template<class T> struct tList {
       //
       // The SKSE team did an iterator-LIKE implementation for tLists. 

@@ -8,6 +8,7 @@ class TESWorldSpace;
 namespace RE {
    namespace native { // here for documentation purposes; don't bother actually using these
       DEFINE_SUBROUTINE_EXTERN(void*,   memmove,     0x00F52E30, void* destination, void* source, uint32_t size);
+      DEFINE_SUBROUTINE_EXTERN(errno_t, memmove_s,   0x00F522BA, void* destination, size_t destSize, void* source, size_t sourceSize);
       DEFINE_SUBROUTINE_EXTERN(void*,   memset,      0x00F52240, void* destination, uint8_t value, uint32_t size);
       DEFINE_SUBROUTINE_EXTERN(size_t,  snprintf,    0x004202A0, char* buffer, size_t bufferSize, const char* format, ...); // unless it's sprintf_s
       DEFINE_SUBROUTINE_EXTERN(errno_t, strcat_s,    0x00F5372D, char* buffer, size_t bufferSize, const char* toAppend);

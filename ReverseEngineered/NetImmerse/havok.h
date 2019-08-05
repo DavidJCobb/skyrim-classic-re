@@ -20,6 +20,28 @@ namespace RE {
    // TODO: Virtual methods for bhk_____ classes.
    //
 
+   template<typename T> struct hkArray { // found RTTI mentioning it; todo: investigate further
+      T*     data;
+      UInt32 size;
+      UInt32 unk08;
+   };
+   template<typename T> struct hkSmallArray { // found RTTI mentioning it; todo: investigate further
+      T*     data;
+      UInt16 size;
+      UInt16 unk08;
+   };
+   struct hkVector4 { // found RTTI mentioning it; todo: investigate further
+      float a; // 00
+      float b; // 04
+      float c; // 08
+      float d; // 0C
+
+      MEMBER_FN_PREFIX(hkVector4);
+      DEFINE_MEMBER_FN(Subroutine004D4520, void, 0x004D4520, void*);
+      DEFINE_MEMBER_FN(Subroutine006FB4F0, void, 0x006FB4F0, void*);
+      DEFINE_MEMBER_FN(Subroutine00D5C490, void, 0x00D5C490, void*, void*);
+   };
+
    struct Struct00D69170 { // sizeof == 0x2C
       UInt32 unk00 = 1;
       UInt32 unk04;
@@ -121,6 +143,33 @@ namespace RE {
       UInt8  unkB3;
    };
 
+   class hkBaseObject {
+      public:
+         virtual ~hkBaseObject();
+   };
+   class hkReferencedObject : public hkBaseObject { // sizeof == 0x08
+      public:
+         enum { kVTBL = 0x01087638 };
+
+         virtual ~hkReferencedObject();
+         virtual NiRTTI* GetRTTI(); // 01 // ...or a Havok struct that works exactly the same way
+         virtual void   Unk_02(UInt32, UInt32); // RTTI-/type-related
+
+         UInt16 memSize;  // 04
+         UInt16 refCount; // 06
+   };
+   class bhkRefObject : public NiObject {
+      public:
+         enum { kVTBL = 0x01164848 };
+         virtual void Unk_21(UInt32); // 21
+         virtual void Unk_22(UInt32);
+
+         UInt32 unk08; // 08 // probably wrapped object i.e. decltype(bhkSomething::unk08) == hkpSomething*
+
+         MEMBER_FN_PREFIX(bhkRefObject);
+         DEFINE_MEMBER_FN(Constructor, bhkRefObject&, 0x00D39470);
+   };
+
    class hkpMotion { // sizeof == 0x120
       public:
          enum MotionSystem : UInt8 {
@@ -217,9 +266,7 @@ namespace RE {
          UInt32 unk0A4 = 0;
          UInt16 unk0A8 = 0xFFFF;
          UInt16 unk0AA;
-         UInt32 unk0AC = 0;
-         UInt16 unk0B0 = 0x0000;
-         UInt16 unk0B2;
+         hkSmallArray<UInt32> unk0AC;
          UInt32 unk0B4 = 0;
          UInt32 unk0B8 = 0;
          UInt32 unk0BC = 0x80000000;
@@ -257,7 +304,6 @@ namespace RE {
    };
    static_assert(sizeof(RE::hkpRigidBody) == 0x220, "RE::hkpRigidBody is not the right size!");
 
-   class bhkRefObject : public NiObject {};
    class bhkSerializable : public bhkRefObject {
       //
       // VTBL: 0x01088364
@@ -411,11 +457,9 @@ namespace RE {
          // ...?
    };
 
-   class bhkWorld : public NiObject { // sizeof == 0x6320
+   class bhkWorld : public bhkRefObject { // sizeof == 0x6320
       public:
          virtual ~bhkWorld();
-         virtual void   Unk_21(UInt32);
-         virtual void   Unk_22(UInt32);
          virtual UInt32 Unk_23() const; // 23 // returns this->unk08
          virtual UInt32 Unk_24() const; // 24 // returns this->unk08
          virtual bool   Unk_25();
@@ -439,5 +483,131 @@ namespace RE {
       //
       // doesn't override any virtual methods besides Dispose, Unk_01, and GetRTTI
       //
+   };
+
+   class hkpAction : public hkReferencedObject {
+      //
+      // Online sources state that Havok "actions" are meant to serve as an interface between 
+      // user-controllable physics behavior (i.e. what a game developer is allowed to influence) 
+      // and the physics engine core.
+      //
+      // hkpAction is the base class for all Havok actions. Presumably, bhkAction is a wrapper 
+      // and its unk08 field is an hkpAction.
+      //
+      public:
+         enum { kVTBL = 0x011655C4 };
+
+         virtual ~hkpAction();
+         virtual void   Unk_03(UInt32) = 0; // 03 // pure // does a lotta stuff to a mouse spring action's rigid body...
+         virtual void   Unk_04(void*) = 0; // 04 // pure here; defined on hkpUnaryAction
+         virtual void   Unk_05(UInt32);
+         virtual void   Unk_06(UInt32) = 0; // 06 // pure here; defined on hkpUnaryAction
+         virtual void   Unk_07(void) = 0; // 07 // pure
+
+         UInt32 unk08 = 0;
+         UInt32 unk0C = 0;
+         UInt32 unk10;
+         UInt32 unk14; // actually a struct with a single dword member
+   };
+   class hkpUnaryAction : public hkpAction {
+      public:
+         enum { kVTBL = 0x011655E8 };
+         hkpRigidBody* rigidBody; // 18
+
+         MEMBER_FN_PREFIX(hkpUnaryAction);
+         DEFINE_MEMBER_FN(Constructor, hkpUnaryAction&, 0x00D46CC0, hkpRigidBody* rigidBody, UInt32 unk10);
+   };
+   class hkpMouseSpringAction : public hkpUnaryAction { // sizeof == 0x60
+      //
+      // Online sources state that this action is built into Havok and is specifically intended 
+      // to let users drag a rigid body around with the mouse.
+      //
+      // Makes sense, then, that Bethesda uses a wrapper for this, bhkMouseSpringAction, to 
+      // handle telekinesis and Z-keying.
+      //
+      // I don't see anything in here that's actually responsible for feeding the player and 
+      // camera position and angle to the object, and I KNOW from testing that all three of 
+      // those factors affect dragging. In third-person, rotating the camera influences the 
+      // dragged object (though not NEARLY enough). Perhaps I need to look for code that 
+      // loops over PlayerCharacter::Unk550, an array of bhkMouseSpringAction.
+      //
+      public:
+         enum { kVTBL = 0x0116D014 };
+
+         typedef void (*unkSubroutine)(hkpMouseSpringAction* self, UInt32, const hkVector4&); // called in a loop by Unk_03
+
+         UInt32    unk1C; // 1C
+         hkVector4 unk20; // 20
+         hkVector4 unk30; // 30
+         float  springDamping;     // 40
+         float  springElasticity;  // 44
+         float  maxForce = 250.0F; // 48 // initializes to the same value as Struct00734540::maxForce, but doesn't seem to be initialized from a Struct00734540 instance
+         float  objectDamping;     // 4C
+         UInt32 unk50 = 0xFFFFFFFF; // 50
+         hkArray<unkSubroutine> unk54; // 54
+
+         MEMBER_FN_PREFIX(hkpMouseSpringAction);
+         DEFINE_MEMBER_FN(Constructor, hkpMouseSpringAction&, 0x00D67610,
+            const hkVector4& unk20,
+            const hkVector4& unk30,
+            const float springDamping,
+            const float springElasticity,
+            const float objectDamping,
+            hkpRigidBody* rigidBody,
+            hkArray<unkSubroutine>* unk54_canBeNullptr
+         );
+         DEFINE_MEMBER_FN(Subroutine00D67200, void, 0x00D67200, const void* maybeNiPoint3);
+   };
+
+   struct Struct00734540 { // sizeof == 0x40
+      //
+      // Used to construct an hkpMouseSpringAction.
+      //
+      UInt32 unk00 = 0;
+      hkpRigidBody* unk04 = 0; // 04 // Arg6 to hkpMouseSpringAction constructor
+      void*  unk08; // 08
+      UInt32 unk0C;
+      hkVector4 unk10; // 10 // these four floats are treated as a unit, using XMM registers; gotta be an hkVector4
+      hkVector4 unk20; // 20 // these four floats are treated as a unit, using XMM registers; gotta be an hkVector4
+      float  springDamping    = 0.50F;  // 30 // Arg3 to hkpMouseSpringAction constructor // these are initialized from GMSTs for Z-keying or telekinesis
+      float  springElasticity = 0.30F;  // 34 // Arg4 to hkpMouseSpringAction constructor
+      float  maxForce         = 250.0F; // 38
+      float  objectDamping    = 0.95F;  // 3C // Arg5 to hkpMouseSpringAction constructor
+
+      MEMBER_FN_PREFIX(Struct00734540);
+      DEFINE_MEMBER_FN(Constructor, Struct00734540&, 0x00734540);
+   };
+
+   class bhkAction : public bhkRefObject { // sizeof == 0x10
+      public:
+         enum { kVTBL = 0x010A719C };
+         virtual UInt32 Unk_23(); // 23
+         virtual UInt32 Unk_24(); // 24
+         virtual bool   Unk_25(UInt32); // 25
+         virtual bool   Unk_26(); // 26
+         virtual void   Unk_27(bool); // 27
+         virtual bool   Unk_28(); // 28 // on bhkAction, always returns true
+         virtual UInt32 Unk_29(UInt32); // 29
+         virtual void   Unk_2A(Struct00734540&) = 0; // 2A // pure
+         virtual void   Unk_2B(void*) = 0; // 2B // pure // creates unk0C if it doesn't exist; returns it either way
+         virtual void   Unk_2C(); // 2C
+         virtual void   Unk_2D(UInt32); // 2D // tail call; return type unknown
+         virtual void   Unk_2E(UInt32); // 2E
+
+         void* unk0C = nullptr; // 0C // no vtbl; constructor at 00A49530
+   };
+   class bhkUnaryAction : public bhkAction { // sizeof == 0x10
+      public:
+         enum { kVTBL = 0x010A725C };
+
+         MEMBER_FN_PREFIX(bhkUnaryAction);
+         DEFINE_MEMBER_FN(AddToWorld, void, 0x00D4A070, void*); // called by Unk_25
+   };
+   class bhkMouseSpringAction : public bhkUnaryAction { // sizeof == 0x10
+      public:
+         enum { kVTBL = 0x010D1C7C };
+
+         MEMBER_FN_PREFIX(bhkMouseSpringAction);
+         DEFINE_MEMBER_FN(Constructor, bhkMouseSpringAction&, 0x00732EB0, Struct00734540&);
    };
 };
