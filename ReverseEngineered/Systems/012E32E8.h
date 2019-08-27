@@ -29,21 +29,21 @@ namespace RE {
          UInt8  unk00D;                   // 00D
          UInt8  unk00E;                   // 00E
          UInt8  unk00F;                   // 00F
-         SInt32 unk010;                   // 010 // loaded in subroutine 0050D190
+         SInt32 numActorsInHighProcess;   // 010 // returned by Console:GetActorsInHigh // reset to 0 in DoAIProcessing and then incremented for every high AI processed
          UInt32 unk014;                   // 014
          UInt32 unk018;                   // 018
          UInt32 unk01C[(0x028 - 0x01C) / sizeof(UInt32)]; // 01C
          //
          // The next four arrays track actors in various process states. The first 
-         // state is "high process;" the next three are lower process levels. I'm 
-         // not sure exactly which levels, because I've heard of "middle-high," 
-         // "middle," "middle-low," and "low" before. Hm... I could see the game 
-         // tracking low-process actors (i.e. fully unloaded ones) elsewhere...
+         // state is "high process;" the next three are lower process levels. 
+         // Skyrim only has four arrays here, and it has console commands related 
+         // to every process level except Middle, so my assumption is that Skyrim 
+         // doesn't have the "middle" process level anymore.
          //
-         tArray<UInt32>  unk028; // 028 // ref handles for Actors in high process. the TDETECT command loops over this to delete AI/detection state in actors. general AI processing loops over this as well.
-         tArray<UInt32>  unk034; // 034 // ref handles for Actors. seems to be persistent actors from all over skyrim
-         tArray<UInt32>  unk040; // 040
-         tArray<UInt32>  unk04C; // 04C
+         tArray<UInt32>  actorsHigh; // 028 // ref handles for Actors in high process. the TDETECT command loops over this to delete AI/detection state in actors. general AI processing loops over this as well.
+         tArray<UInt32>  actorsLow;  // 034 // verified by memory inspection: this had the most handles of all four arrays, so it has to be Low
+         tArray<UInt32>  unk40; // 040
+         tArray<UInt32>  unk4C; // 04C
          //
          tArray<UInt32>* unk058; // 058 // initialized to &this->unk28 // referenced by opcode at 00529EF2 // examine subroutine 00529EC0 for further information
          tArray<UInt32>* unk05C; // 05C // initialized to &this->unk40
@@ -55,7 +55,8 @@ namespace RE {
          UInt32 unk094 = 0;
          tArray<ShaderReferenceEffect*> activeEffectShaders;      // 098
          SimpleLock                     activeEffectShaderLock;   // 0A4
-         UInt32 unk0AC[(0xD4 - 0x0AC) / sizeof(UInt32)]; // 0AC
+         UInt32 unk0AC[(0xC8 - 0x0AC) / sizeof(UInt32)];
+         tArray<UInt32>  unkC8; // C8 // list of ref handles, possibly refs queued to reset
          BStList<UInt32> unkD4; // D4 // list of ref handles
          UInt32 unk0DC[(0x108 - 0x0DC) / sizeof(UInt32)]; // 0DC
          float  unk108; // 108 // related to Z-keying?
@@ -68,10 +69,17 @@ namespace RE {
          bool   enableActorAnimation; // 11E // if true, then all actor animation processing is on
          UInt8  unk11F;               // 11F // modified by opcode at 004A6BDE
          // ...
+
+         typedef void(*HandleCallback)(UInt32& handle);
+         struct HandleFunctor {
+            virtual void Execute(UInt32 handle);
+         };
+
          //
          // NOTE: Not all of the functions below should be called by mods.
          //
          MEMBER_FN_PREFIX(Unknown012E32E8);
+         DEFINE_MEMBER_FN(AddHandleToUnk0C8,         void,   0x00756940, Actor* actor); // aborts if actor is already in the array
          DEFINE_MEMBER_FN(AppendValueToArray,        void,   0x00756370, UInt32 value, UInt32 which); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
          DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, UInt32, UInt32); // no-oping this has the same effect as global TAI
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
@@ -79,8 +87,8 @@ namespace RE {
          DEFINE_MEMBER_FN(RemoveValueInArray,        void,   0x007563E0, UInt32 value, UInt32 which); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
          DEFINE_MEMBER_FN(RemoveHandleFromUnkD4,     void,   0x00756720, UInt32& refHandle);
          DEFINE_MEMBER_FN(ResetAllDetection,         void,   0x00542970, bool* unused);
-         DEFINE_MEMBER_FN(RunFunctorOnAllUnk28,      void,   0x006931E0, void* functor); // for each of this->unk028, call functor->Unk_00(item)
-         DEFINE_MEMBER_FN(RunIteratorOnAllUnk28,     void,   0x006A09E0, void* func); // for each of this->unk028, runs func(item); terminates early if func returns false
+         DEFINE_MEMBER_FN(ForEachActorInHighProcess,   void,   0x006931E0, HandleFunctor& functor); // for each of this->unk028, call functor->Unk_00(item)
+         DEFINE_MEMBER_FN(ForEachActorInHighProcess_B, void,   0x006A09E0, HandleCallback func); // for each of this->unk028, runs func(&item); terminates early if func returns false
          DEFINE_MEMBER_FN(Save,                      void,   0x007544F0, BGSSaveFormBuffer*);
          DEFINE_MEMBER_FN(SearchUnk68ListFor,        UInt32, 0x00754440, UInt32 whichList, UInt32 searchFor);
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);

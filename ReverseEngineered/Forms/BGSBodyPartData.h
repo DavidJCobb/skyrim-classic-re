@@ -27,7 +27,7 @@ namespace RE {
    class BGSBodyPartData : public TESForm { // sizeof == 0x44
       public:
          enum { kTypeID = kFormType_BodyPartData };
-         enum PartType : UInt8 {
+         enum PartType : UInt8 { // Bethesda calls this LIMB_ENUM
             kPartType_Torso = 0,
             kPartType_Head,
             kPartType_Eye,

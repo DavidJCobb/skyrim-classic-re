@@ -1,0 +1,85 @@
+void ActorWeightData::Subroutine0046E4E0(TESObjectARMO* Arg1, TESObjectARMA* Arg2, TESModelTextureSwap* Arg3, BGSTextureSet* Arg4) {
+   auto ebp = this;
+   UInt32 edi = 0;
+   refr_ptr esp18 = nullptr;
+   TESObjectREFRHandleInterface::ExchangeHandleForRef(&this->ownerHandle, esp18);
+   Actor* esi = esp18;
+   if (!esi)
+      return;
+   bool esp13 = false;
+   if (Arg3) {
+      if ((*g_thePlayer)->TESV_00736FC0(NiPointer<ActorWeightData>(this)))
+         esp13 = true;
+   }
+   auto esp10 = esi->baseForm;
+   auto esp14 = esp10->GetSex();
+   // esi = &this->bodyParts
+   // push ebx
+   do {
+      TESObjectARMO* ebx = Arg1;
+      bool al = ebx->bipedObject.TestBodyPartByIndex(edi);
+      if (!al)
+         continue;
+      auto eax = this->bodyParts[edi].item;
+      if (!eax || eax == Arg1)
+         continue;
+      auto ecx = Arg2;
+      if (eax == Arg2)
+         continue;
+      if (eax->formType != 0x1A && eax->formType != 0x1F) { // at 0x0046E584 // not weapon; not light
+         auto addon = this->bodyParts[edi].addon;
+         if (addon) {
+            bool bl = Arg2->data.priority[esp14];
+            if (bl < addon->data.priority[esp14])
+               continue;
+         }
+         //
+         // Clear the armor node/data?
+         //
+         this->TESV_0046D250(edi, 1, 0);
+      } else {
+         //
+         // Clear the weapon node/data?
+         //
+         auto edx = this->bodyParts[edi].addon; // at 0x0046E5B4
+         this->TESV_0046D700(edx);
+      }
+   } while (++edi < 0x20);
+   // TESObjectARMA* ebx = Arg2;
+   edi = 0; // loop var
+   // esi = &this->bodyParts[0].addon
+   do {
+      if (Arg2->bipedObject.TestBodyPartByIndex(edi)
+      && (!esp13 || esp10->race.race->biped.TestBodyPartByIndex(edi))) {
+         auto eax = this->bodyParts[edi].item;
+         if (eax && eax->formType == kFormType_ARMA) {
+            auto dl = esi->data.priority[esp14];
+            if (dl > esp18->data.priority[esp14])
+               continue;
+         } else
+            ebp = esp18;
+         if (auto ecx = this->bodyParts[edi].addon) {
+            if (ecx != Arg2) {
+               if (ecx->data.priority[esp14] == Arg2->data.priority[esp14]) {
+                  auto eax = ecx->TESV_004A0F70();
+                  if (!eax)
+                     continue;
+               }
+            }
+         }
+         if (edi <= 0x20 && !Arg1->bipedObject.TestBodyPartByIndex(edi)) {
+            this->bodyParts[edi].item = Arg2;
+         } else {
+            this->bodyParts[edi].item = Arg1;
+         }
+         this->bodyParts[edi].addon = Arg2;
+         this->bodyParts[edi].model = Arg3;
+         if (Arg4)
+            this->bodyParts[edi].textureSet = Arg4;
+      } else {
+         if (Arg1->bipedObject.TestBodyPartByIndex(edi))
+            if (!Arg2->bipedObject.TestBodyPartByIndex(edi))
+               this->bodyParts[edi].item = Arg1;
+      }
+   } while (++edi < 0x20);
+}

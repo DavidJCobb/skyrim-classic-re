@@ -32,6 +32,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEncounterZone.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEquipSlot.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSLightingTemplate.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\TESModel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESEffectShader.h" />
@@ -72,6 +73,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B9ED08.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ActorAI\base.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\AttackProcessing.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BGSImpactManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTaskPool.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTEvent.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ChangeForms.h" />
@@ -124,5 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="$(MSBuildThisFileDirectory)ReverseEngineered\Notes.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)ReverseEngineered\_DOCS\ActorWeightData\Subroutine0046E4E0.txt" />
+    <Text Include="$(MSBuildThisFileDirectory)ReverseEngineered\_DOCS\PlayerCharacter\Subroutine0074C590.txt" />
   </ItemGroup>
 </Project>

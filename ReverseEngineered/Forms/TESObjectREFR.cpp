@@ -564,6 +564,9 @@ namespace RE {
       }
       return true;
    };
+   void TESObjectREFR::KnockAreaEffect(float magnitude, float radius) {
+      CALL_MEMBER_FN(RE::BGSImpactManager::GetInstance(), KnockAreaEffect)(this, magnitude, radius);
+   };
    void TESObjectREFR::MoveTo(UInt32* pTargetHandle, void* parentCell, void* worldSpace, NiPoint3* position, NiPoint3* rotation) {
       MoveRefrToPosition((::TESObjectREFR*) this, pTargetHandle, parentCell, worldSpace, position, rotation);
       //

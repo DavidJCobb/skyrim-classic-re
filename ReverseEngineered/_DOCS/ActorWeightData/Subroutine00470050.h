@@ -33,7 +33,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
       esp4C = 0; // loop var; also stored in ebp
       //push ebx;
       do { // at 0x00470134
-         TESModelTextureSwap* eax = this->bodyParts[esp4C].unk08;
+         TESModelTextureSwap* eax = this->bodyParts[esp4C].model;
          //
          // TIP: "TESModelTextureSwap" is not a texture swap for a model, but 
          // rather a model that supports texture swapping.
@@ -52,7 +52,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      NiNode* edx = this->bodyParts[esp4C].renderedArmor;
                      this->TESV_0046D570(edx, esp4C, esp30); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
                      esi->Reset();
-                     if (*(byte*)(0x012E5CA4)) {
+                     if (*(bool*)(0x012E5CA4)) { // bool is only set by ActorProcessManager::UpdateEquipment
                         NiNode* eax = this->bodyParts[esp4C].renderedArmor;
                         if (eax)
                            this->TESV_0046D0B0(eax, esp4C); // performs some process on a 3D node tree
@@ -148,7 +148,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                continue;
             esi = 0;
             NiPointer<NiNode> esp20(nullptr);
-            bool al = this->TESV_0046AE90(esp4C);
+            bool al = this->BodyPartHasFacegenHeadModelFlag(esp4C);
             struct {
                UInt32 unk00 = 3;
                UInt32 unk04 = 3;
@@ -159,7 +159,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             } esp74;
             esp27 = al;
             const char* eax = this->bodyParts[esp4C].model->GetModelName();
-            auto eax = TESV_00AF5820(eax, &esp20, &esp74); // loads a node?
+            auto eax = TESV_00AF5820(eax, &esp20, &esp74); // CONFIRMED EXPERIMENTALLY: This attempts to load a NIF file, writes the root into the NiPointer argument, and returns 0 if it succeeds
             if (!eax) { // at 0x004704B7
                NiCloningProcess esp98(1.0F); // constructor at 0x0046DF40
                edi = esp60;
@@ -269,7 +269,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            // at 0x004706A7
                            esp1C = esp20; // NiPointer& NiPointer::assign(NiPointer& other);
                            espEC[ebp - 5] = '0';
-                           eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x004706D5
+                           eax = TESV_00AF5680(&espEC, &esp40, &esp68); // We already loaded the model we needed earlier, but now, we're, ah, gonna load a different one instead. // at 0x004706D5
                            if (eax) {
                               // jumped to 0x00470761
                               esp1C = edi; // smart pointer assign; inlined
@@ -439,12 +439,15 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                         jump to 0x00470BED; // "continue" statement, with smart pointer destructors in mind
                   }
                   // at 0x00470ABF
-                  esi->SetName(StringCache::Ref(&esp1F0)); // esp88 is used for the argument
+                  esi->SetName(StringCache::Ref(&esp1F0)); // the temporary StringCache::Ref is esp88
                   NiPointer<ActorWeightData> esp5C(this); // esp14 == this // at 0x00470AF0; constructor is 0x00C3DF80
                   TESV_0046F010(esp20, ebp, edi, esp18, &esp5C); // at 0x00470B06
                   if (!ebx->unk20) { // byte
                      eax = esi->GetAsNiNode();
                      if (eax && !esi->m_parent) {
+                        //
+                        // THE NEW NODE FOR THE RENDERED ARMOR IS ATTACHED HERE.
+                        //
                         this->npcRootNode->AttachChild(esi, 1);
                      }
                   }

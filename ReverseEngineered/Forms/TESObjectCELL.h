@@ -177,6 +177,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetOwner,            void*, 0x004C4DC0); // Returns TESNPC* or TESFaction*.
          DEFINE_MEMBER_FN(GetMapMarkerHandles, void,  0x004C8230, MapMarkerOperation* out);
          DEFINE_MEMBER_FN(GetRegionList,       TESRegionList*, 0x004C23E0, bool createIfMissing);
+         DEFINE_MEMBER_FN(Reset,               void, 0x004C0650, UInt32 detachTime, bool setDetachTime);
          DEFINE_MEMBER_FN(SetImageSpace,       void, 0x004C07F0, UInt32 formID);
          //
          DEFINE_MEMBER_FN(GetExteriorData, ExteriorData*, 0x004C0390); // Returns unk3C for exterior cells only.

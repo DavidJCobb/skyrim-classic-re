@@ -125,11 +125,12 @@ namespace RE {
          UInt32   unk548; // 548
          UInt32	unk54C; // 54C - Handle; PlayerCharacter::Subroutine0073D4B0 returns the actor and clears the handle
          GrabList grabSprings; // 550
-         UInt32	unk568; // 568 - Handle
+         UInt32	grabbedRefHandle; // 568
          float    unk56C; // 56C // mass of object being Z-Keyed/telekinesis'd? see PlayerCharacter::TESV_0074C590
          float    grabStartDistance; // 570 // related to Z-keying/telekinesising objects; memory inspection confirms it's set to the distance to the node we're dragging when we start dragging (it's not live-updated)
          float    unk574;
-         UInt32	unk578[(0x588 - 0x578) >> 2];
+         UInt32	unk578[(0x584 - 0x578) >> 2];
+         UInt32   unk584; // 584 // sleep hours, but I don't understand how it's stored
          void*    unk588; // 588 // pointer to something that doesn't have a vtbl
          NiNode*  firstPersonSkeleton; // 58C
          float    unk590;
@@ -221,6 +222,8 @@ namespace RE {
          DEFINE_MEMBER_FN(HandleLowHealthImagespaceModifier, void, 0x00733A60, float healthPercentage);
          DEFINE_MEMBER_FN(HandleLowStatTutorials, void, 0x00737C90, UInt32 avIndex, float avValuePercentage);
          //
+         DEFINE_MEMBER_FN(SetPCToddler, void, 0x007339D0, bool); // FO3 leftover
+         DEFINE_MEMBER_FN(SetPCYoung,   void, 0x00733A00, bool); // FO3 leftover
          DEFINE_MEMBER_FN(SetPlayerAIDriven, void, 0x0073E0C0, bool);
          DEFINE_MEMBER_FN(SetPoison, void, 0x007505E0, UInt32 whichHand, TESForm*); // whichHand should be 0 or 1 // sets 640 or 644
          //

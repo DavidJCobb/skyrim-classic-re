@@ -19,7 +19,7 @@ namespace RE {
    class TESRace : public TESForm { // sizeof == 0x2BC
       public:
          enum { kTypeID = kFormType_Race };
-         enum {
+         enum RaceFlags1 {
             kRace_Playable						= 0x00000001,
             kRace_FaceGenHead					= 0x00000002,
             kRace_Child							= 0x00000004,
@@ -47,6 +47,13 @@ namespace RE {
             kRace_AllowMultipleMembraneShaders	= 0x20000000,
             kRace_CanDualWield					= 0x40000000,
             kRace_AvoidsRoads					= 0x80000000,
+         };
+         enum RaceFlags2 {
+            kRaceFlags2_UseAdvancedAvoidance = 0x01,
+            kRaceFlags2_NonHostile = 0x02,
+            kRaceFlags2_Unknown00000004 = 0x04,
+            kRaceFlags2_Unknown00000008 = 0x08,
+            kRaceFlags2_AllowMountedCombat = 0x10,
          };
          //
          // Parents:

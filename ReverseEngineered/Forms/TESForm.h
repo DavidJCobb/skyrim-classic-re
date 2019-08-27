@@ -40,13 +40,15 @@ namespace RE {
             kFlag_0x100000    = 0x100000, // Actor: is ignoring friendly hits
             kFlagIsMarker     = 0x800000,
          };
+         enum FormFlagsACHR : UInt32 { // flags for Actors; overrides FormFlagsREFR
+            kAchrFlag_TalkedToPC = 0x00000040,
+         };
          enum FormFlagsCELL : UInt32 {
             kCellFlag_Persistent      = 0x00000400,
             kCellFlag_OffLimits       = 0x00020000,
             kCellFlag_DisallowWaiting = 0x00080000,
          };
          enum FormFlagsREFR : UInt32 {
-            //
             kRefrFlag_MarkedForDelete    = 0x00000020,
             kRefrFlag_HideFromLocalMap   = 0x00000040,
             //
@@ -171,6 +173,22 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(LoadVMAD, void, 0x00451760, BGSLoadFormBuffer*);
    };
+   class TESObject : public TESForm {
+      public:
+         virtual void  	Unk_3B(void);
+         virtual void   Unk_3C(void);
+         virtual UInt32 Unk_3D(); // 3D // if truthy, then the form is a "water object" i.e. Console:IsWaterObject
+         virtual void  	Unk_3E(void);
+         virtual void   Unk_3F(void);
+         virtual void   Unk_40(void);
+         virtual void   Unk_41(void);
+         virtual void   Unk_42(void);
+         virtual void   Unk_43(void);
+         virtual void   Unk_44(void);
+         virtual void   Unk_45(void);
+         virtual void   Unk_46(void);
+   };
+
    //static DEFINE_SUBROUTINE(::BGSDestructibleObjectForm*, GetBGSDestructibleObjectForm, 0x00448090, RE::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(::BGSKeywordForm*, GetKeywordListFor, 0x0044B2D0, ::TESForm*);
 };

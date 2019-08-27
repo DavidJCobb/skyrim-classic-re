@@ -9,6 +9,8 @@
 #include "skse/GameObjects.h"
 #include "skse/Utilities.h"
 
+#include "ReverseEngineered/Forms/BGSBodyPartData.h"
+
 //
 // Notes:
 //
@@ -260,28 +262,28 @@ namespace RE {
    //
    class ExtraDismemberedLimbs : public BSExtraData { // sizeof == 0x24 -- smaller than in FO3
       public:
-         enum DismembermentBits : UInt16 {
+         enum DismembermentBits : UInt16 { // these are (1 << BGSBodyPartData::PartType).
             kDismembermentBit_MaybeHead = 2,
          };
-         struct UnkEntry { // sizeof == 0x10
-            tArray<TESObjectARMO*> unk00; // 00 // currently-equipped armors, including DecapitateHead?
-            UInt8 unk0C; // 0C // dismemberment bit index
+         struct LimbState { // sizeof == 0x10
+            tArray<TESObjectARMO*> wornArmor; // 00 // all worn armors, at the moment the limb was severed
+            BGSBodyPartData::PartType limb; // 0C
             UInt8 unk0D; // 0D
             bool  unk0E; // 0E
             UInt8 unk0F; // 0F // maybe just padding?
          };
          
-         UInt16   unk08; // 08 // bitmask
+         UInt16   dismemberedLimbs; // 08 // bitmask
          bool     hasBeenEaten; // 0A // HasBeenEaten checks this. WerewolfFeedEffect sets it; maybe cannibalism does, too?
          UInt8    pad0B;
          SInt32   unk0C = -1; // 0C
          TESForm* unk10 = nullptr; // 10 // memory inspection shows this is the dismembered actor. why is this stored here? IsKilledObject checks whether a FormList contains this.
-         tArray<UnkEntry*> unk14; // 14
-         SInt32   unk20 = -1; // 20
+         tArray<LimbState*> unk14; // 14
+         SInt32   killingBlowLimb = -1; // 20 // BGSBodyPartData::PartType; returned by GetKillingBlowLimb
 
          MEMBER_FN_PREFIX(ExtraDismemberedLimbs);
-         DEFINE_MEMBER_FN(CheckUnk08Flag,     bool, 0x00420A10, UInt32 bitIndex);
-         DEFINE_MEMBER_FN(Subroutine004269F0, void, 0x004269F0, Actor*, UInt32 dismembermentBitIndex, UInt8);
+         DEFINE_MEMBER_FN(IsLimbSevered, bool, 0x00420A10, BGSBodyPartData::PartType limb);
+         DEFINE_MEMBER_FN(SeverLimb,     void, 0x004269F0, Actor* subject, BGSBodyPartData::PartType limb, UInt8 entryUnk0D);
    };
    class ExtraDroppedItemList : public BSExtraData {
       public:
@@ -859,8 +861,10 @@ namespace RE {
          // SETTERS / CONSTRUCTORS:
          //
          DEFINE_MEMBER_FN(AddExtraPrimitive,                void,             0x0040D560, ::BGSPrimitive*); // does not check for an existing primitive!
+         DEFINE_MEMBER_FN(RemoveExtraInfoGeneralTopic,      void,             0x00413050);
          DEFINE_MEMBER_FN(RemoveExtraSavedAnimation,        void,             0x00412E10);
          DEFINE_MEMBER_FN(RemoveExtraSavedHavokData,        void,             0x00412F40);
+         DEFINE_MEMBER_FN(RemoveExtraSayTopicInfo,          void,             0x004133A0);
          DEFINE_MEMBER_FN(SetExtraCellAcousticSpace,        void,             0x00410DD0, BGSAcousticSpace*);
          DEFINE_MEMBER_FN(SetExtraCellImageSpace,           void,             0x00410F50, TESImageSpace*);
          DEFINE_MEMBER_FN(SetExtraCellMusicType,            void,             0x00410D10, BGSMusicType*);

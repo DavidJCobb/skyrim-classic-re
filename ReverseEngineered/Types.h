@@ -24,7 +24,7 @@ namespace RE {
 
    struct BSTArrayAllocator {
       virtual bool initial(UInt32, UInt32) = 0; // 00
-      virtual bool realloc(UInt32 desiredCount, UInt32 currentCount, UInt32 zero, UInt32 zero, UInt32) = 0; // 01
+      virtual bool realloc(UInt32 desiredCount, UInt32 currentCount, UInt32 zeroA, UInt32 zeroB, UInt32) = 0; // 01
 
       // unk04 is typically a pointer to the array
    };
@@ -75,7 +75,7 @@ namespace RE {
       T& operator[](UInt32 index) { return this->items()[index]; }
       const T& operator[](UInt32 index) const { return this->items()[index]; }
 
-      MEMBER_FN_PREFIX(OptimizedArray);
+      MEMBER_FN_PREFIX(BSTSmallArray);
       DEFINE_MEMBER_FN(Destructor,   void, 0x00A4A8F0);
       DEFINE_MEMBER_FN(AddressOf,    T*,   0x006B0540, UInt32 index);
       DEFINE_MEMBER_FN(InitialAlloc, bool, 0x00A4A720, UInt32 desiredCount, UInt32 minCapacity, UInt32 elementSize);

@@ -157,7 +157,7 @@ namespace RE {
          float	unk8C;	// 8C
          NiPoint3 unk90;	// 90
          UInt32	unk9C;	// 9C
-         UInt32	unkA0;	// A0
+         UInt32	wardState;	// A0
          BSResponse<BSFixedStringCI, Actor, BSFixedStringCI, DoNothingUnhandledPolicy<BSFixedStringCI>>* unkA4; // A4
          tArray<UInt32> unkA8; // A8 // templated type unknown
          NiNode* bodyPartNodes[BGSBodyPartData::kPartType_Count]; // B4 // After init, vanilla game only ever modifies unkB4[1], for the head node during decapitation.
@@ -216,6 +216,7 @@ namespace RE {
          UInt32	unk1AC;	// 1AC
          UInt32	unk1B0;	// 1B0
          float	actorAlpha;	// 1B4
+         float actorRefraction; // 1B8
          // More?...
          //
          // float unk1C4; // killmove time remaining
@@ -341,7 +342,7 @@ namespace RE {
             NiPoint3 unk0090;
             UInt32 unk009C = 0;
             UInt32 unk00A0 = 0;
-            UInt32 unk00A4 = *g_invalidRefHandle; // refHandle
+            UInt32 lastExteriorDoorActivated = *g_invalidRefHandle; // A4 // refHandle // altered by SetLastExtDoorActivated
             float  activationHeight = 0.0F; // A8
             UInt32 unk00AC = 0;
             UInt32 unk00B0 = 0;
@@ -547,7 +548,7 @@ namespace RE {
             UInt8  unk0355 = 0;
             UInt8  unk0356 = 0;
             UInt8  unk0357 = 0;
-            UInt8  unk0358 = 0;
+            UInt8  unk0358 = 0; // altered indirectly by SetLastExtDoorActivated
             UInt8  unk0359 = 0;
             UInt8  unk035A = 0;
             UInt8  pad035B;
@@ -569,8 +570,8 @@ namespace RE {
             UInt32 unk1C = 0;
             UInt32 unk20 = 0;
             UInt32 unk24 = 0;
-            UInt32 unk28 = 0;
-            UInt32 unk2C; // 2C // flags. 0x00200000 == health changing; 0x00400000 == magicka; 0x00800000 == stamina
+            UInt32 unk28 = 0; // 28 // flags. 0x4 is related to being undead
+            UInt32 unk2C; // 2C // flags. 0x00200000 == health changing; 0x00400000 == magicka; 0x00800000 == stamina; 0x04000000 == related to being undead
             tArray<UnkAVData> flag00040000ActorValues; // 30
                //
                //   0: Aggression
@@ -662,7 +663,8 @@ namespace RE {
          SInt8  unk9B = 3; // 9B // Indicates which of Unknown012E32E8's AI-related ref handle arrays the actor is tracked in. Actor's getter defaults this to -1 if it doesn't have an ActorProcessManager.
          UInt8  unk9C; // 9C
          bool   isIgnoringCombat; // 9D
-         UInt8  unk9E[(0xA0 - 0x9E)];      // 9C
+         UInt8  unk9E;
+         UInt8  unk9F[(0xA0 - 0x9F)];
 
          MEMBER_FN_PREFIX(ActorProcessManager);
          //
@@ -683,9 +685,13 @@ namespace RE {
          DEFINE_MEMBER_FN(IsAlerted, bool, 0x006F4770); // { return this->unk9A & 8; }
          DEFINE_MEMBER_FN(SetAlert,  void, 0x006F4780, bool makeAlert);
          //
+         DEFINE_MEMBER_FN(GetWardState, UInt32, 0x0071FF30);
          DEFINE_MEMBER_FN(IsArrested,           bool,    0x006FC260);
          DEFINE_MEMBER_FN(PushActorAway,        void,    0x00723FE0, Actor* myActor, float x, float y, float z, float magnitude); // push the actor away from the specified point
+         DEFINE_MEMBER_FN(SetActorAlpha,      void, 0x0071F9B0, float alpha_unitIsNotKnown);
+         DEFINE_MEMBER_FN(SetActorRefraction, void, 0x0071FA00, float refraction_unitIsNotKnown);
          DEFINE_MEMBER_FN(SetEquipFlag,         void,    0x0071F520, UInt8 flags);
+         DEFINE_MEMBER_FN(SetLastExtDoorActivated, void, 0x006FDFE0, UInt32 doorHandle, UInt8);
          DEFINE_MEMBER_FN(UpdateEquipment,      void,    0x007031A0, Actor* actor); // reapplies ArmorAddons and the like
          DEFINE_MEMBER_FN(SetUnk08Unk170,       void,    0x006FD1A0, UInt32 flag);  // sets this->unk08->unk170 // but the value may actually be a float passed as a UInt32?
          DEFINE_MEMBER_FN(GetUnk08Unk341,       bool,    0x006FBAC0);               // returns (bool)this->unk08->unk341
@@ -693,6 +699,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetUnk80,             UInt32*, 0x006F4C50, UInt32* out);
          DEFINE_MEMBER_FN(GetUnk9AFlag00000010, bool,    0x006F47C0);
          DEFINE_MEMBER_FN(SetUnk9AFlag00000002, void,    0x006F4650, bool setBitTo);
+         DEFINE_MEMBER_FN(GetUnk9E, UInt8, 0x006F4890);
          //
          DEFINE_MEMBER_FN(GetActorValueRegenDelayTimer, float, 0x006FCC40, UInt32 avIndex); // only returns anything for health, magicka, and stamina
          DEFINE_MEMBER_FN(SetActorValueRegenDelayTimer, void,  0x006FCC90, UInt32 avIndex, float timer); // only does anything for health, magicka, and stamina
@@ -797,6 +804,7 @@ namespace RE {
          };
          enum Flags08 {
             kFlag_EnableHeadtracking = 0x8,
+            kFlag_Recoiling  = 0x0C00,
             kFlag_Staggering = 0x2000,
          };
 
@@ -806,9 +814,10 @@ namespace RE {
          inline FurnitureState GetFurnitureState() const {
             return (FurnitureState) ((this->flags04 >> 0xE) & 0xF);
          }
-         inline bool IsUnconscious() const {
-            return (this->flags04 & 0x01E00000) == 0x00600000;
-         };
+         inline bool IsRecoiling() const { return !!(this->flags08 & kFlag_Recoiling); };
+         inline bool IsStaggered() const { return !!(this->flags08 & kFlag_Staggering); };
+         inline bool IsUnconscious() const { return (this->flags04 & 0x01E00000) == 0x00600000; };
+         inline bool IsUndead()      const { return (this->flags04 & 0x01E00000) == 0x00800000; };
          bool IsWeaponDrawn() const {
             return (flags08 >> 5 & 7) >= 3;
          }
@@ -905,8 +914,8 @@ namespace RE {
             TESObjectARMA* addon; // 04
             TESModelTextureSwap* model; // 08
             BGSTextureSet* textureSet; // 0C
-            NiNode*        renderedArmor; // 10 // created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
-            void*    unk14; // refcounted pointer // TailAnimationGraphManagerHolder*
+            NiPointer<NiNode> renderedArmor; // 10 // created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
+            NiPointer<SimpleAnimationGraphManagerHolder> unk14; // seen: TailAnimationGraphManagerHolder*
             UInt8    unk18;
             UInt8    pad19[3];
             void*    unk1C; // refcounted pointer, most likely to a NiSomething
@@ -936,11 +945,12 @@ namespace RE {
          NiNode*  npcRootNode; // 04
          BodyPart bodyParts[0x2A]; // 08 // index is a body part index - 30 (i.e. the first body part in the list, body part 30, is index 0)
          BodyPart unk548[0x2A]; // 548 // could perhaps be "pending" equip data
-         UInt32   unkA88; // A88 // refHandle
+         UInt32   ownerHandle; // A88 // refHandle
 
          MEMBER_FN_PREFIX(ActorWeightData);
-         DEFINE_MEMBER_FN(Constructor, ActorWeightData&, 0x0046D9B0, UInt32, UInt32);
+         DEFINE_MEMBER_FN(Constructor, ActorWeightData&, 0x0046D9B0, Actor* owner, NiNode* ownerNode_optional);
          DEFINE_MEMBER_FN(Destructor,       void, 0x0046DAA0);
+         DEFINE_MEMBER_FN(StoreRootNodeFor, void, 0x0046BF40, NiNode* ownerNode);
          DEFINE_MEMBER_FN(UpdateWeightData, void, 0x0046D690);
          // DEFINE_MEMBER_FN(Unk_02, void, 0x004145F0);
 
@@ -954,16 +964,22 @@ namespace RE {
          DEFINE_MEMBER_FN(InstallWeapon,   void,        0x0046F870, TESForm*, UInt32);
 
          DEFINE_MEMBER_FN(Subroutine0046AE90, bool, 0x0046AE90, UInt32 bodyPartIndex);
+         DEFINE_MEMBER_FN(Subroutine0046C8A0, void, 0x0046C8A0, BodyPart* part);
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
          DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
          DEFINE_MEMBER_FN(Subroutine0046D750, bool, 0x0046D750, UInt32 bodyPartIndex, void*);
          DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* fromUnkA88);
          DEFINE_MEMBER_FN(Subroutine0046E1A0, void, 0x0046E1A0); // loops over body slots; calls 0046DC10 on any that have no unk14, passing the unkA88 ref as arg2
-         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, UInt32 arg4);
+         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, BGSTextureSet* arg4);
    };
    typedef ActorWeightData Struct0046D9B0;
    DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
+
+   enum LandRequestType { // requesting a flying actor to land
+      kLandRequestType_Hasty = 1,
+      kLandRequestType_Crash = 2,
+   };
 
    class MovementControllerNPC;
    class Actor : public TESObjectREFR {
@@ -1226,7 +1242,7 @@ namespace RE {
          virtual SInt32  GetCurrentShoutVariation(); // 111 // returns -1 if no process manager
          virtual void    SetLastRiddenHorseHandle(UInt32 horseRefHandle); // 112 // no-op for Actor
          virtual UInt32* GetLastRiddenHorseHandle(UInt32* outHandle); // 113 // no-op for Actor; sets the outHandle to *g_invalidRefHandle and returns outHandle
-         virtual void Unk_114(void);   // 114
+         virtual bool UpdateUndeadStatus(); // 114 // returns true if the actor has KYWD:ActorTypeUndead, and updates some ActorProcessManager values as well
          virtual void Unk_115(); // 115
          virtual void AdjustProjectileSpawnPosition(NiPoint3* pos); // 116 // only used for the player? // adds this->pos to the argument, but only if this->GetNiRootNode(true) has a zero position
          virtual void Unk_117();       // 117 // calls stuff related to actor values
@@ -1249,11 +1265,13 @@ namespace RE {
 
          enum Flags1 : UInt32 {
             kFlags_AIEnabled        = 0x00000002,
-            kFlags_Flag1_00000200   = 0x00000200,
+            kFlags_Flag1_00000100   = 0x00000100,
+            kFlags_Flag1_00000200   = 0x00000200, // skips most AI processing?
             kFlags_Flag1_00000800   = 0x00000800, // cleared on actors that start dead
             kFlags_Flag1_00004000   = 0x00004000,
             kFlags_Flag1_00008000   = 0x00008000,
             kFlags_Flag1_00040000   = 0x00040000, // related to the Waterbreathing magic effect. also related to the actor being in cell water, or in lava; checked by a condition meant for the latter
+            kFlags_Flag1_00200000   = 0x00200000, // skips most AI processing?
             kFlags_Flag1_01000000   = 0x01000000,
             kFlags_IsPlayerTeammate = 0x04000000, // 1 << 0x1A
             kFlags_Flag1_10000000   = 0x10000000, // related to AI
@@ -1269,6 +1287,7 @@ namespace RE {
             kFlags_AllowBleedoutDialogue  = 0x00000200,
             kFlags_Flag2_00000800         = 0x00000800, // "is in combat with player" ?
             kFlags_IsTrespassing          = 0x00001000,
+            kFlags_Flag2_00002000         = 0x00002000, // managed by subroutine at 0x006AB100
             kFlags_IsInKillMove           = 0x00004000,
             kFlags_AttackMeOnSight        = 0x00008000,
             kFlags_IsCommanded            = 0x00010000,
@@ -1373,6 +1392,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetGoldAmount,         SInt32,  0x006A8190);
          DEFINE_MEMBER_FN(GetHealthPercentage,   float,   0x006A8320); // just a convenience wrapper for GetActorValuePercentage
          DEFINE_MEMBER_FN(GetHitStruct,          Struct00797220*, 0x006E1460); // not sure if last hit or current hit
+         DEFINE_MEMBER_FN(GetLandRequestType,    LandRequestType, 0x006B4490);
          DEFINE_MEMBER_FN(GetLevel,              UInt16,  0x006A7320);
          DEFINE_MEMBER_FN(GetLightLevel,         double,  0x006AE980); // places result on the FPU stack
          DEFINE_MEMBER_FN(GetMaxCarryWeight,     float,   0x006A8600); // gets the CarryWeight actor value and then applies the GetMaxCarryWeight perk entry point
@@ -1380,6 +1400,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetThreatLevel,        float,   0x006E0DE0, float UnkModifier_LessOrEqualZeroUsesSomeDefault); // the "threat ratio" between two actors is one actor's threat level divided by the other's
          DEFINE_MEMBER_FN(GetSoulSize,           UInt32,  0x006E8BC0); // returns ExtraSoul::SoulSize enum
          DEFINE_MEMBER_FN(GetVoiceRecoveryTime,  float,   0x006E8AE0);
+         DEFINE_MEMBER_FN(GetWardState,          UInt32,  0x006E87E0);
          DEFINE_MEMBER_FN(HandleFavorTimer,      void,    0x006CA870); // called every frame; calls SetDoingFavor(false) if the favor timer runs out or the player is too far away
          DEFINE_MEMBER_FN(HasBeenEaten,          bool,    0x006A8B50);
          DEFINE_MEMBER_FN(HasPerk,               bool,    0x006AA190, BGSPerk* perk);
@@ -1402,6 +1423,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsOverencumbered,      bool,    0x006AFED0); // always false for NPCs; always false if god mode is enabled; always false if the actor has ExtraInteraction; otherwise, compare max carry weight (with perk entry points) with inventory weight
          DEFINE_MEMBER_FN(IsRunning,             bool,    0x006AB210);
          DEFINE_MEMBER_FN(IsSneaking,            bool,    0x004D9290);
+         DEFINE_MEMBER_FN(IsUndead,              bool,    0x006AA0E0);
          DEFINE_MEMBER_FN(Kill,                  void,    0x006AC3A0, Actor* killer, float, UInt32, UInt32); // not instantaneous; queues via the BSTaskPool
          DEFINE_MEMBER_FN(ModifyYaw,             void,    0x006A9A50, float); // Sets yaw to GetHeading(0) + Arg1. Uses Actor::SetYaw.
          DEFINE_MEMBER_FN(OnKillmoveDone,        void,    0x006E3CC0);
@@ -1434,6 +1456,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine006B6BA0, void, 0x006B6BA0, SInt32); // register with the garbage collector?
          DEFINE_MEMBER_FN(Subroutine006E05F0, void, 0x006E05F0, UInt32 avIndex, ActorValueState*, UInt32 unk);
          DEFINE_MEMBER_FN(Subroutine006DFEC0, void, 0x006DFEC0, UInt32 avIndex, float mod); // apparently RestoreActorValue, but the caller has to do a little bit of work themselves, too
+         DEFINE_MEMBER_FN(UpdateFlags2Flag00002000, void, 0x006AB100);
          //
          void AddToFaction(TESFaction*);
          bool IsAIEnabled();
@@ -1457,6 +1480,9 @@ namespace RE {
             if (!eax)
                return -1;
             return eax->unk9B;
+         };
+         bool GetTalkedToPC() const {
+            return this->flags & TESForm::kAchrFlag_TalkedToPC;
          };
          inline bool IsEssential() const {
             return !!(this->flags2 & kFlags_IsEssential);

@@ -3,6 +3,8 @@
 #include "ReverseEngineered/ExtraData.h"
 #include "ReverseEngineered/Types.h"
 #include "ReverseEngineered/Forms/TESForm.h"
+#include "ReverseEngineered/Forms/BGSBodyPartData.h"
+#include "ReverseEngineered/Systems/BGSImpactManager.h"
 #include "ReverseEngineered/Shared.h"
 
 #include "skse/GameObjects.h"
@@ -529,6 +531,7 @@ namespace RE {
          bool   IsDestinationTeleportMarkerInAttachedCell();
          bool   IsTeleportMarkerInAttachedCell(refr_ptr& destination); // pass destination to micro-optimize
          bool   IsValidLoadDoor(bool quick = false);
+         void   KnockAreaEffect(float magnitude, float radius);
          void   MoveTo(UInt32* pTargetHandle, void* parentCell, void* worldSpace, NiPoint3* postion, NiPoint3* rotation); // MoveRefrToPosition wrapper with some additions
          bool   MoveToMyEditorLocation(bool native = false);
          void   Reload3D();
@@ -536,7 +539,7 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(TESObjectREFR);
          DEFINE_MEMBER_FN(Activate,                void,             0x004E4230, TESObjectREFR* activatedBy, UInt32 Arg2_papyrusUses0, UInt32 Arg3_papyrusUses0, UInt32 Arg4_papyrusUses1, bool defaultOnly);
-         DEFINE_MEMBER_FN(CheckDismembermentBit,   bool,             0x004D5B90, UInt32 bitIndex);
+         DEFINE_MEMBER_FN(IsLimbSevered,           bool,             0x004D5B90, BGSBodyPartData::PartType limb);
          DEFINE_MEMBER_FN(ClearDestruction,        void,             0x00449630);
          DEFINE_MEMBER_FN(ContainsQuestItem,       bool,             0x004D6020);
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
@@ -561,6 +564,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsLocked,                bool,             0x004EB5B0); // if the reference is a teleport door, this checks the door on the other side, too
          DEFINE_MEMBER_FN(IsOffLimits,             bool,             0x004DA760);
          DEFINE_MEMBER_FN(IsPerchFurniture,        bool,             0x004E9F20);
+         DEFINE_MEMBER_FN(IsQuestObject,           bool,             0x004D5140);
          DEFINE_MEMBER_FN(ModifyPersistentFlag,    void,             0x004D50A0, bool setTo);
          DEFINE_MEMBER_FN(MoveToMyEditorLocation,  bool,             0x004E6270, TESObjectCELL*, UInt32); // both arguments are zeroes?
          DEFINE_MEMBER_FN(SetDestroyed,            void,             0x00450E30, bool);
@@ -599,7 +603,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraEnableStateChildren,      RE::ExtraEnableStateChildren::Entry*, 0x004EA870);
          DEFINE_MEMBER_FN(GetExtraEnableStateParentFlag1,   bool, 0x004EA860);
 
-         DEFINE_MEMBER_FN(Subroutine004D5B10, void, 0x004D5B10, SInt32 limbIndex, TESForm* maybeKiller, SInt32, SInt32, UInt32);
+         DEFINE_MEMBER_FN(SeverLimb, void, 0x004D5B10, SInt32 bodyPartType, TESForm* maybeKiller, SInt32, SInt32 bodyPartType_unkFallback, UInt8); // also sets the ExtraDismemberedLimbs::killingBlowLimb
    };
    
    class refr_ptr { // smart pointer for TESObjectREFRs
