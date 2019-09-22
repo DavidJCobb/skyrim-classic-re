@@ -95,14 +95,16 @@ namespace RE {
       MEMBER_FN_PREFIX(Struct00797220);
       DEFINE_MEMBER_FN(Constructor, Struct00797220*, 0x00797220);
       DEFINE_MEMBER_FN(Copy,        Struct00797220*, 0x00797540, const Struct00797220& other); // copy-constructor
+      DEFINE_MEMBER_FN(Destructor,  void, 0x00797240);
       DEFINE_MEMBER_FN(SetFlags,    void,            0x006E0B90, UInt32 flags, bool clearOrSet); // apparently only used in one place :(
       DEFINE_MEMBER_FN(Subroutine007975E0, void, 0x007975E0, UInt32); // computes armor degradation and several damage-related values
+      DEFINE_MEMBER_FN(Subroutine00797BC0, void, 0x00797BC0, Projectile*); // computes limb damage?
       DEFINE_MEMBER_FN(Subroutine00798180, void, 0x00798180); // does most damage calculations, as well as critical hit chance/result
       DEFINE_MEMBER_FN(Subroutine00798580, void, 0x00798580); // sets some flags; may handle limb explosion chance
       DEFINE_MEMBER_FN(Subroutine007987B0, void, 0x007987B0, UInt32, UInt32, UInt32, UInt32); // computes weapon degradation and some other things
       DEFINE_MEMBER_FN(Subroutine00798AC0, void, 0x00798AC0, Actor* attacker, Actor* attacked, Projectile* projectile); // one of the callers for 00798180
       DEFINE_MEMBER_FN(Subroutine00798EB0, void, 0x00798EB0, UInt32); // modifies unk34
-      DEFINE_MEMBER_FN(Subroutine00797BC0, void, 0x00797BC0, Projectile*); // computes limb damage?
+      DEFINE_MEMBER_FN(Subroutine00798F40, void, 0x00798F40, void* Arg1, Actor* attacked); // initializes from Arg1; Arg1 is of the same type as the arg to TESObjectREFR::Unk_58
 
       //
       // FUN FACTS:

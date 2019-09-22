@@ -92,6 +92,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Save,                      void,   0x007544F0, BGSSaveFormBuffer*);
          DEFINE_MEMBER_FN(SearchUnk68ListFor,        UInt32, 0x00754440, UInt32 whichList, UInt32 searchFor);
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);
+         DEFINE_MEMBER_FN(Subroutine006E7470,        void, 0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
          DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);
          DEFINE_MEMBER_FN(Subroutine00753F90,        void,   0x00753F90, float);
          DEFINE_MEMBER_FN(Subroutine00754750,        void,   0x00754750, UInt32);

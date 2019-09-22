@@ -1428,6 +1428,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ModifyYaw,             void,    0x006A9A50, float); // Sets yaw to GetHeading(0) + Arg1. Uses Actor::SetYaw.
          DEFINE_MEMBER_FN(OnKillmoveDone,        void,    0x006E3CC0);
          DEFINE_MEMBER_FN(OnKillmoveStart,       void,    0x006E3C20, Actor* killer); // for paired anims, call for both actors; killer should use nullptr as argument
+         DEFINE_MEMBER_FN(ProcessIncomingAttack, void,    0x006E4770, Struct00797220* hitData); // (this) is the victim but should already be appropriately identified as such by the struct; if called from off the main thread, defers itself and moves to main thread by queueing BSTask type 0x10
          DEFINE_MEMBER_FN(QueueNiNodeUpdate,     void,    0x00730EE0, bool updateWeight);
          DEFINE_MEMBER_FN(ResetAI,               void,    0x006BE790, UInt32 unk1, UInt32 unk2); // console passes 0, 1
          DEFINE_MEMBER_FN(ResetHealthAndLimbs,   void,    0x006B1CA0);

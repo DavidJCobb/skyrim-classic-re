@@ -9,6 +9,7 @@ namespace RE {
    class Actor;
    class NiNode;
    struct NiPoint3;
+   struct Struct00797220;
    class TESAmmo;
    class TESObjectREFR;
    class TESObjectWEAP;
@@ -16,6 +17,7 @@ namespace RE {
    class TESWorldSpace;
 
    enum TaskType : UInt32 {
+      kTaskType_10            = 0x10, // Actor::ProcessIncomingAttack
       kTaskType_34            = 0x34, // for created water ref? and three other things
       kTaskType_DispelSpell   = 0x5B,
       kTaskType_FireWeapon    = 0x1F,
@@ -56,7 +58,7 @@ namespace RE {
          DEFINE_MEMBER_FN(QueueTaskType0D,      void, 0x006A3440, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType0E,      void, 0x006A3480, TESObjectREFR*);
          DEFINE_MEMBER_FN(QueueTaskType0F,      void, 0x006A34C0, UInt32);
-         DEFINE_MEMBER_FN(QueueTaskType10,      void, 0x006A3100, UInt32, UInt32);
+         DEFINE_MEMBER_FN(QueueTaskType10,      void, 0x006A3100, Actor*, Struct00797220*);
          DEFINE_MEMBER_FN(QueueTaskType11,      void, 0x006A3190, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType12,      void, 0x006A3500, NiNode*, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType13,      void, 0x006A3560, NiNode*); // related to doors
