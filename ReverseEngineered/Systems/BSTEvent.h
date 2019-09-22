@@ -3,6 +3,7 @@
 #include "skse/GameTypes.h"
 #include "skse/Utilities.h"
 #include "ReverseEngineered/Shared.h"
+#include "ReverseEngineered/Systems/AttackProcessing.h"
 
 namespace RE {
    class refr_ptr;

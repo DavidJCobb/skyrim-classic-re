@@ -3,12 +3,15 @@
 #include "skse/Utilities.h"
 
 namespace RE {
-   class NiPoint3 : public ::NiPoint3 {
+   struct NiPoint3 : public ::NiPoint3 {
       public:
          NiPoint3() {};
          NiPoint3(float X, float Y, float Z) {
             ::NiPoint3::NiPoint3(X, Y, Z);
          };
+         NiPoint3(const ::NiPoint3& other) {
+            *this = other;
+         }
          //
          inline static NiPoint3* as(::NiPoint3& other) { return (NiPoint3*) &other; };
          //

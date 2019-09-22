@@ -1,5 +1,5 @@
 #pragma once
-#include "skse/NiTypes.h"
+#include "ReverseEngineered/NetImmerse/types.h"
 
 class BGSPrimitive;
 class BGSPrimitiveBox;
@@ -28,7 +28,7 @@ namespace RE {
          virtual ~BGSPrimitiveBox();
          operator ::BGSPrimitiveBox*() const { return (::BGSPrimitiveBox*) this; }
          //
-         static BGSPrimitiveBox* Create(NiPoint3* halfwidths);
+         static BGSPrimitiveBox* Create(const NiPoint3& halfwidths);
    };
 
    class BGSPrimitiveLine : public BGSPrimitiveBox {

@@ -1,4 +1,5 @@
 #include "BGSPrimitive.h"
+#include "skse/NiTypes.h"
 
 __declspec(naked) BGSPrimitive* _make(UInt32 type, NiPoint3* halfwidths, NiQuaternion* probablyAQuaternion) {
    __asm {
@@ -17,11 +18,11 @@ __declspec(naked) BGSPrimitive* _make(UInt32 type, NiPoint3* halfwidths, NiQuate
       retn;
    }
 };
-static NiQuaternion* defaultQuaternion = (NiQuaternion*)0x012C5C90;
+static RE::NiQuaternion* defaultQuaternion = (RE::NiQuaternion*)0x012C5C90;
 
 namespace RE {
-   BGSPrimitiveBox* BGSPrimitiveBox::Create(NiPoint3* halfwidths) {
-      NiPoint3 sizes = *halfwidths;
+   /*static*/ BGSPrimitiveBox* BGSPrimitiveBox::Create(const NiPoint3& halfwidths) {
+      NiPoint3 sizes = halfwidths;
       NiQuaternion unknown = *defaultQuaternion;
       return (BGSPrimitiveBox*) _make(kPrimitive_Box, &sizes, &unknown);
    };

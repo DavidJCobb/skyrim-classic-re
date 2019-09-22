@@ -1482,7 +1482,7 @@ namespace RE {
             return eax->unk9B;
          };
          bool GetTalkedToPC() const {
-            return this->flags & TESForm::kAchrFlag_TalkedToPC;
+            return !!(this->flags & TESForm::kAchrFlag_TalkedToPC);
          };
          inline bool IsEssential() const {
             return !!(this->flags2 & kFlags_IsEssential);

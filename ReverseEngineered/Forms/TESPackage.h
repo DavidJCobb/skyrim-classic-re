@@ -218,7 +218,7 @@ namespace RE {
             kPreferredSpeed_Run,
             kPreferredSpeed_FastWalk,
          };
-         enum ProcedureType : UInt32 {
+         enum ProcedureType : SInt32 {
             //
             // Most of these procedure types always, or conditionally, map to 
             // package types.
