@@ -11,7 +11,7 @@ namespace RE {
          UInt8    pad[3];   // 1D
          float    value;    // 20
          //
-         bool IsConstant() {
+         bool IsConstant() const {
             return (this->flags & 0x40) != 0;
          };
    };

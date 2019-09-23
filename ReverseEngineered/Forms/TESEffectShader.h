@@ -1,7 +1,20 @@
 #pragma once
 #include "skse/GameForms.h"
+#include "ReverseEngineered\Shared.h"
 
 namespace RE {
+   class TESEffectShader;
+   class TESObjectREFR;
+
+   //
+   // Before calling this, Papyrus verifies:
+   //
+   //  - That the target is not null
+   //  - That the target is in a loaded cell
+   //  - That the target has 3D
+   //
+   DEFINE_SUBROUTINE_EXTERN(void, PlayEffectShaderOn, 0x004DDE90, TESObjectREFR* target, TESEffectShader* shader, float duration, UInt32 zero4, UInt32 zero5, UInt32 zero6, UInt32 zero7);
+
    class TESEffectShader : public TESForm {
       public:
          enum { kTypeID = kFormType_EffectShader };

@@ -164,7 +164,7 @@ namespace RE {
          virtual void Unk_21(UInt32); // 21
          virtual void Unk_22(UInt32);
 
-         UInt32 unk08; // 08 // probably wrapped object i.e. decltype(bhkSomething::unk08) == hkpSomething*
+         void* wrappedHavokObject; // 08 // probably wrapped object i.e. decltype(bhkSomething::unk08) == hkpSomething*
 
          MEMBER_FN_PREFIX(bhkRefObject);
          DEFINE_MEMBER_FN(Constructor, bhkRefObject&, 0x00D39470);
@@ -332,7 +332,7 @@ namespace RE {
       // VTBL: 0x010884FC
       //
       public:
-         hkpWorldObject* myHkpObject; // 08 // mimics the owner class, e.g. hkpRigidBody* for a bhkRigidBody
+         //hkpWorldObject* myHkpObject; // 08 // mimics the owner class, e.g. hkpRigidBody* for a bhkRigidBody
          //
          // Argument signatures assumped to match bhkRigidBody, but none of these have been analyzed yet. 
          // Remember: any methods we rename in one of these classes must be renamed in all of them.
@@ -351,6 +351,8 @@ namespace RE {
          virtual void Unk_2C();
          virtual void Unk_2D(UInt32 unk);
          virtual void Unk_2E(void);
+
+         inline hkpWorldObject* asHkpWorldObject() { return (hkpWorldObject*) this->wrappedHavokObject; };
    };
    class bhkEntity : public bhkWorldObject {
       //

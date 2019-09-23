@@ -152,6 +152,8 @@ namespace RE {
          void*          unk88;			// 88 // memory inspection shows it holds portal and multibound pointers; investigate subroutine 0x004C20A0 to learn more about it
          BGSLightingTemplate* lightingTemplate;	// 8C
          //
+         bool IsLoaded();
+         //
          inline TESImageSpace* GetImageSpace() {
             auto data = (RE::ExtraCellImageSpace*) CALL_MEMBER_FN(&this->extraData, GetByType)(kExtraData_CellImageSpace);
             if (data)

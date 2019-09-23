@@ -105,7 +105,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\ActorValueInfo.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESEffectShader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESForm.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectCELL.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESPackage.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWaterForm.cpp" />

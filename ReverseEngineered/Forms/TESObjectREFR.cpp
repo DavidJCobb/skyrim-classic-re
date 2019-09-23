@@ -45,7 +45,10 @@ namespace RE {
                SInt8 result = 0;
             };
             void Iterator(RE::bhkCollisionObject* collision, State* parameters) {
-               UInt8 current = ((hkpRigidBody*) collision->unk10->myHkpObject)->unk0E0.motionSystem;
+               auto obj = ((hkpRigidBody*)collision->unk10->asHkpWorldObject());
+               if (!obj)
+                  return;
+               UInt8 current = obj->unk0E0.motionSystem;
                if (parameters->result == 0) {
                   parameters->result = current;
                } else if (parameters->result != current) {
