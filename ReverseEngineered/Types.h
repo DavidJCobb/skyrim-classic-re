@@ -76,10 +76,11 @@ namespace RE {
       const T& operator[](UInt32 index) const { return this->items()[index]; }
 
       MEMBER_FN_PREFIX(BSTSmallArray);
-      DEFINE_MEMBER_FN(Destructor,   void, 0x00A4A8F0);
-      DEFINE_MEMBER_FN(AddressOf,    T*,   0x006B0540, UInt32 index);
-      DEFINE_MEMBER_FN(InitialAlloc, bool, 0x00A4A720, UInt32 desiredCount, UInt32 minCapacity, UInt32 elementSize);
-      DEFINE_MEMBER_FN(Reallocate,   bool, 0x00A4A7A0, UInt32 desiredCount, UInt32 currentCount, UInt32 zeroA, UInt32 zeroB, UInt32 minCapacity, UInt32 elementSize);
+      DEFINE_MEMBER_FN(Destructor,   void,   0x00A4A8F0);
+      DEFINE_MEMBER_FN(AddressOf,    T*,     0x006B0540, UInt32 index);
+      DEFINE_MEMBER_FN(Increment,    SInt32, 0x00A49B80, BSTArrayAllocator*, UInt32 currentCapacity, UInt32 elementSize); // returns -1 on failure
+      DEFINE_MEMBER_FN(InitialAlloc, bool,   0x00A4A720, UInt32 desiredCount, UInt32 minCapacity, UInt32 elementSize);
+      DEFINE_MEMBER_FN(Reallocate,   bool,   0x00A4A7A0, UInt32 desiredCount, UInt32 currentCount, UInt32 zeroA, UInt32 zeroB, UInt32 minCapacity, UInt32 elementSize);
       //
       // Only valid for arrays templated on NiPointer:
       //
