@@ -29,7 +29,7 @@ namespace RE {
          // is reallocated and repopulated with the contents of the scratch array.
          //
          // TBH I'm not sure if this is meant to ensure that there's always room for one more info, or if it's 
-         // just meant to clear nullptrs from the array.
+         // just meant to clear nullptrs from the array. Actually, it may be a shrink_to_fit function.
          DEFINE_MEMBER_FN(EnsureRoomForNewInfo, void, 0x0057CA90);
 
          // Called by OnInfoLoaded.

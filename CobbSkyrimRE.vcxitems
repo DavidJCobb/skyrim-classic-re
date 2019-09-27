@@ -47,6 +47,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESPackage.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESRace.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESTopic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWaterForm.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWeather.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWorldSpace.h" />

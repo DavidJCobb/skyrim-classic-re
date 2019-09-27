@@ -19,14 +19,34 @@ namespace RE {
       public:
          enum { kTypeID = kFormType_EffectShader };
 
+         enum ShaderFlags {
+            kShaderFlag_NoMembrane = 1,
+            kShaderFlag_GreyscaleMembraneColor = 2,
+            kShaderFlag_GreyscaleMembraneAlpha = 4,
+            kShaderFlag_NoParticle = 8,
+            kShaderFlag_EdgeEffectInverse = 0x0010,
+            kShaderFlag_SkinOnly = 0x0020,
+            kShaderFlag_IgnoreAlpha = 0x0040,
+            kShaderFlag_ProjectUVs = 0x0080,
+            kShaderFlag_IgnoreBaseGeometryAlpha = 0x0100,
+            kShaderFlag_Lighting = 0x0200, // ???
+            kShaderFlag_DontAffectWeapons = 0x0400,
+            //
+            kShaderFlag_ParticleAnimated = 0x8000,
+            kShaderFlag_GreyscaleParticleColor = 0x10000,
+            kShaderFlag_GreyscaleParticleAlpha = 0x20000,
+            //
+            kShaderFlag_UseBloodGeometry = 0x1000000,
+         };
+
          struct Data { // sizeof == 0x190
             UInt8  unk000;
             UInt8  pad001; // these three padding bytes correspond to the "Unknown" entry in the DATA shown in xEdit.
             UInt8  pad002;
             UInt8  pad003;
-            UInt32 unk004 = 5;
-            UInt32 unk008 = 1;
-            UInt32 unk00C = 3;
+            UInt32 membraneSourceBlendMode = 5; // 004 // enum
+            UInt32 membraneBlendOperation  = 1; // 008 // enum
+            UInt32 membraneZTestFunction   = 3; // 00C // enum
             UInt32 fillColorKey1            = 0;   // 010 // 0xAABBGGRR, alpha unused
             float  fillAlphaTimeFadeIn      = 0;   // 014
             float  fillAlphaTimeFull        = 0;   // 018
@@ -46,11 +66,11 @@ namespace RE {
             float  edgeAlphaPulseFrequency  = 1.0; // 050
             float  fillAlphaRatioFull       = 1.0; // 054
             float  edgeAlphaRatioFull       = 1.0; // 058
-            UInt32 unk05C = 6;
-            UInt32 unk060 = 5;
-            UInt32 unk064 = 1;
-            UInt32 unk068 = 4;
-            UInt32 unk06C = 6;
+            UInt32 membraneDestinationBlendMode = 6; // 05C // enum
+            UInt32 particleSourceBlendMode = 5; // 060 // enum
+            UInt32 particleBlendOperation  = 1; // 064 // enum
+            UInt32 particleZTestFunction   = 4; // 068 // enum
+            UInt32 particleDestinationBlendMode = 6; // 06C // enum
             float  particleBirthTimeRampUp         = 0;   // 070
             float  particleBirthTimeFull           = 0;   // 074
             float  particleBirthTimeRampDown       = 0;   // 078
@@ -75,19 +95,19 @@ namespace RE {
             float  particleColorKeyTime1           = 0.0; // 0D4
             float  particleColorKeyTime2           = 0.5; // 0D8
             float  particleColorKeyTime3           = 1.0; // 0DC
-            UInt32 unk0E0 = 0;
-            UInt32 unk0E4 = 0;
-            UInt32 unk0E8 = 0;
-            UInt32 unk0EC = 0;
-            UInt32 unk0F0 = 0;
-            UInt32 unk0F4 = 0;
-            UInt32 unk0F8 = 0;
-            float  unk0FC = 10.0;
+            float  particleInitialSpeed = 0.0; // 0E0 // along normal
+            float  particleInitialRotation = 0.0; // 0E4 // degrees
+            float  particleInitialRotationVariance = 0.0; // 0E8 // degrees; random magnitude between 0 and this taken and added to a particle's initial rotation
+            float  particleRotationSpeed = 0.0; // 0EC // degrees per second
+            float  particleRotationSpeedVariance = 0.0; // 0F0 // degrees per second
+            void*  addonModel = nullptr; // 0F4 // DEBR
+            float  fileHolesTimeStart  = 0.0; // 0F8
+            float  fillHolesTimeEnd    = 10.0; // 0FC
             float  fillHolesValueStart = 255.0;     // 100
             float  fillHolesValueEnd   = 0;         // 104
             float  edgeWidthUnknown    = 0;         // 108
             UInt32 edgeColorUnknown    = 0;         // 10C // 0xAABBGGRR, alpha unused
-            UInt32 unk110              = 0;         // 110 // explosion wind speed?
+            float  explosionWindSpeed  = 0.0;       // 110
             UInt32 fillTextureCountU   = 1;         // 114
             UInt32 fillTextureCountV   = 1;         // 118
             float  particleAddonTimeFadeIn   = 1.0; // 11C
@@ -105,9 +125,9 @@ namespace RE {
             UInt32 unk14C = 0;
             UInt32 unk150 = 0;
             UInt32 unk154 = 0;
-            float  unk158 = 1.0; // (fill?) color scale
-            UInt32 unk15C = 0;
-            UInt32 unk160 = 0;
+            float  unk158 = 1.0; // 158 // (fill?) color scale
+            float  birthPositionOffset         = 0; // 15C
+            float  birthPositionOffsetVariance = 0; // 160
             UInt32 unk164 = 0;
             UInt32 unk168 = 0;
             UInt32 unk16C = 0;
@@ -115,14 +135,14 @@ namespace RE {
             UInt32 unk174 = 0;
             UInt32 unk178 = 0;
             UInt32 unk17C = 0;
-            UInt32 unk180 = 0;
-            float  unk184 = 1.0;
-            float  unk188 = 1.0;
+            UInt32 flags  = 0; // 180
+            float  fillTextureScaleU = 1.0; // 184
+            float  fillTextureScaleV = 1.0; // 188
             UInt16 unk18C = 0;
             UInt16 pad18E = 0;
          };
 
-         Data		data;                   // 014
+         Data data; // 014 // DATA subrecord, copied out of the file as one whole block
          TESTexture	textureMembraneFill;    // 1A4
          TESTexture	textureParticleShader;  // 1AC
          TESTexture	textureHoles;           // 1B4
