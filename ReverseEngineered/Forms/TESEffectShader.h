@@ -19,6 +19,36 @@ namespace RE {
       public:
          enum { kTypeID = kFormType_EffectShader };
 
+         enum BlendMode : UInt32 {
+            kBlendMode_Unused0 = 0,
+            kBlendMode_Zero,
+            kBlendMode_One,
+            kBlendMode_SourceColor,
+            kBlendMode_SourceInvertedColor,
+            kBlendMode_SourceAlpha,
+            kBlendMode_SourceInvertedAlpha,
+            kBlendMode_DestinationAlpha,
+            kBlendMode_DestinationInvertedAlpha,
+            kBlendMode_DestinationColor,
+            kBlendMode_DestinationInvertedColor,
+            kBlendMode_SourceAlphaSAT,
+         };
+         enum BlendOperation : UInt32 {
+            kBlendMOperation_Unused0 = 0,
+            kBlendOperation_Add,
+            kBlendOperation_Subtract,
+            kBlendOperation_SubtractReverse,
+            kBlendOperation_Minimum,
+            kBlendOperation_Maximum,
+         };
+         enum ZTest : UInt32 {
+            kZTestFunction_EqualTo = 3,
+            kZTestFunction_Normal  = 4,
+            kZTestFunction_Greater = 5,
+            kZTestFunction_GreaterOrEqual = 7,
+            kZTestFunction_AlwaysShow = 8,
+         };
+
          enum ShaderFlags {
             kShaderFlag_NoMembrane = 1,
             kShaderFlag_GreyscaleMembraneColor = 2,
@@ -44,9 +74,9 @@ namespace RE {
             UInt8  pad001; // these three padding bytes correspond to the "Unknown" entry in the DATA shown in xEdit.
             UInt8  pad002;
             UInt8  pad003;
-            UInt32 membraneSourceBlendMode = 5; // 004 // enum
-            UInt32 membraneBlendOperation  = 1; // 008 // enum
-            UInt32 membraneZTestFunction   = 3; // 00C // enum
+            BlendMode      membraneSourceBlendMode = (BlendMode)5; // 004 // enum
+            BlendOperation membraneBlendOperation  = (BlendOperation)1; // 008 // enum
+            ZTest          membraneZTestFunction   = (ZTest)3; // 00C // enum
             UInt32 fillColorKey1            = 0;   // 010 // 0xAABBGGRR, alpha unused
             float  fillAlphaTimeFadeIn      = 0;   // 014
             float  fillAlphaTimeFull        = 0;   // 018
@@ -66,10 +96,10 @@ namespace RE {
             float  edgeAlphaPulseFrequency  = 1.0; // 050
             float  fillAlphaRatioFull       = 1.0; // 054
             float  edgeAlphaRatioFull       = 1.0; // 058
-            UInt32 membraneDestinationBlendMode = 6; // 05C // enum
-            UInt32 particleSourceBlendMode = 5; // 060 // enum
-            UInt32 particleBlendOperation  = 1; // 064 // enum
-            UInt32 particleZTestFunction   = 4; // 068 // enum
+            BlendMode membraneDestinationBlendMode = (BlendMode)6; // 05C // enum
+            BlendMode      particleSourceBlendMode = (BlendMode)5; // 060 // enum
+            BlendOperation particleBlendOperation  = (BlendOperation)1; // 064 // enum
+            ZTest          particleZTestFunction   = (ZTest)4; // 068 // enum
             UInt32 particleDestinationBlendMode = 6; // 06C // enum
             float  particleBirthTimeRampUp         = 0;   // 070
             float  particleBirthTimeFull           = 0;   // 074
