@@ -80,7 +80,7 @@ namespace RE {
       public:
          DEFINE_MEMBER_FN(ChangeDataExistsForFormID, bool, 0x00677FA0, UInt32 formID); // calls ChangeFormManager::HasFormID
          DEFINE_MEMBER_FN(RemoveChangeFlags,         void, 0x00678280, TESForm*, UInt32 flagsToRemove);
-         DEFINE_MEMBER_FN(Subroutine00678B50, void, 0x00678B50, TESObjectREFR* formID); // destroys the reference
+         DEFINE_MEMBER_FN(DeleteForm, void, 0x00678B50, TESForm* form); // deletes the form from memory and from the savegame; ONLY called during the load process
          DEFINE_MEMBER_FN(Subroutine00678EC0, void, 0x00678EC0, UInt32 formID); // acts on a loaded form
    };
 }
