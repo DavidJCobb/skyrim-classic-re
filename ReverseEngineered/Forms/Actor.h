@@ -983,11 +983,6 @@ namespace RE {
 
    class MovementControllerNPC;
    class Actor : public TESObjectREFR {
-      //
-      // Note to self: I don't think this has a VTBL. It looks like the game 
-      // only ever creates instances of subclasses, like Character, so take 
-      // a look at Character's VTBL when looking to decode Actor methods.
-      //
       public:
          enum { kTypeID = kFormType_Character };
          operator ::Actor*() const { return (::Actor*) this; }
