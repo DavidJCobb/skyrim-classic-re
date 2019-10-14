@@ -26,6 +26,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectACTI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectARMO.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectLIGH.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectSTAT.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BaseForms\TESObjectWEAP.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSAcousticSpace.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSBodyPartData.h" />
