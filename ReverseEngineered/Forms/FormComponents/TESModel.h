@@ -1,7 +1,10 @@
 #pragma once
 #include "skse/GameFormComponents.h"
+#include "ReverseEngineered/Shared.h"
 
 namespace RE {
+   class BGSLoadFormBuffer;
+
    class TESModel : public BaseFormComponent { // sizeof == 0x14
       public:
          virtual const char*	GetModelName(void);
@@ -16,10 +19,10 @@ namespace RE {
          };
 
          StringCache::Ref name;	// 04
-         UInt32 unk08;	// 08
-         UInt32 unk0C;	// 0C
-         UInt16 unk10;	// 10
-         UInt8  unk12;	// 12
+         void*  unk08;	// 08 // array content for unk10; sizeof(item) == 4
+         void*  unk0C;	// 0C // array content for unk12; sizeof(item) == 4
+         UInt16 unk10;	// 10 // array length (unk10)
+         UInt8  unk12;	// 12 // array length (unk0C)
          UInt8  facegenModelFlags; // 13 // MODD/MOSD
    };
    class TESModelTextureSwap : public TESModel { // sizeof == 0x1C
@@ -34,4 +37,6 @@ namespace RE {
    };
    class TESModelRDT : public TESModel { // sizeof == 0x14
    };
+
+   constexpr DEFINE_SUBROUTINE(void, LoadMODTSubrecord, 0x00454AF0, TESModel*, BGSLoadFormBuffer*);
 };

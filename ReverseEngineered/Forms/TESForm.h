@@ -9,6 +9,21 @@ class BGSSaveFormBuffer;
 class BSString;
 class TESForm;
 namespace RE {
+   struct FormSignatureInfo { // sizeof == 0xC
+      const char* asString;
+      UInt32      signature;
+      UInt8       formType;
+      UInt8       pad09[3];
+   };
+   constexpr FormSignatureInfo* g_formSignatureInfo = (FormSignatureInfo*)0x0123F2C4; // array up to 0x87
+   constexpr DEFINE_SUBROUTINE(const char*, FormTypeToSignatureString, 0x00678129, SInt32 formType);
+   //
+   struct FormFactoryInfo {
+      void*       formFactoryVtbl;
+      const char* formTypeName; // friendly name, not internal name
+   };
+   constexpr FormFactoryInfo** g_formFactoryInfo = (FormFactoryInfo**)0x012E57C0; // array up to 0x87; entries can be nullptr, indicating that a form type isn't actually loaded
+
    class TESForm;
    class BaseFormComponent {
       public:
@@ -128,7 +143,7 @@ namespace RE {
          virtual UInt32       Unk_2D(); // 2D
          virtual const char*  GetFullName(UInt32 arg); // 2E
          virtual void         CopyFrom(TESForm* srcForm); // 2F // guessed
-         virtual bool         Unk_30(UInt32 arg0, UInt32 arg1, UInt32 arg2);
+         virtual bool         Unk_30(void* arg0, UInt32 arg1, UInt32 arg2);
          virtual void         Unk_31(void* dst, UInt32 unk);
          virtual const char*  GetEditorID();            // 32 // gets an actor's short name?
          virtual bool         SetEditorID(const char*); // 33 // used to set a cell's editor ID when loading/initializing it; cells store it via ExtraEditorID
@@ -176,4 +191,6 @@ namespace RE {
 
    //static DEFINE_SUBROUTINE(::BGSDestructibleObjectForm*, GetBGSDestructibleObjectForm, 0x00448090, RE::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(::BGSKeywordForm*, GetKeywordListFor, 0x0044B2D0, ::TESForm*);
+   DEFINE_SUBROUTINE_EXTERN(BGSEquipSlot*, GetEquipSlotFor, 0x0044AB00, TESForm*);
+   DEFINE_SUBROUTINE_EXTERN(BGSEquipType*, GetEquipTypeFor, 0x0044AA10, TESForm*);
 };

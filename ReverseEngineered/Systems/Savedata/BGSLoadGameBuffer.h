@@ -53,6 +53,7 @@ namespace RE {
          // ...
          // unk248 == bitmask
          // ...
+         // unk254 == form version
          // unk258 == signature of current subrecord (e.g. NAM0, DFTF)
          // unk25C == size of current subrecord?
          // ...
@@ -67,6 +68,7 @@ namespace RE {
          DEFINE_MEMBER_FN(OpenNextSubrecord,        bool,   0x00444780); // returns false if there are no more subrecords; you don't call this at the start of TESForm::LoadForm; that starts off inside the first subrecord if there is one
          DEFINE_MEMBER_FN(ReadCString,              bool,   0x00445340, char* out, UInt32 lengthIncludingNull);
          DEFINE_MEMBER_FN(ReadCStringWhole,         bool,   0x00445680, char* out); // just wraps ReadCString and passes 0 for the length
+         DEFINE_MEMBER_FN(ReadDword,                void,   0x0040EF70, void* out); // byteswaps if necessary
          DEFINE_MEMBER_FN(VerifyTopLevelRecordType, UInt32, 0x00445E30); // returns top-level record type index, e.g. 0xE for RACE or 0x0 for NONE; also synchronizes some static vars / global state, so probably not safe to skip
    };
 };
