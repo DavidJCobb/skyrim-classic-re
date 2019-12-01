@@ -62,8 +62,9 @@ namespace RE {
          //
          virtual UInt32			Unk_20(void);
          //
-         DEFINE_MEMBER_FN_LONG(NiObject, Clone,      NiObject*, 0x00AAFC00, NiCloningProcess*);
-         DEFINE_MEMBER_FN_LONG(NiObject, VerifyType, void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
+         MEMBER_FN_PREFIX(NiObject);
+         DEFINE_MEMBER_FN(Clone,       NiObject*, 0x00AAFC00, NiCloningProcess*);
+         DEFINE_MEMBER_FN(VerifyType,  void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
    };
    static_assert(sizeof(NiObject) == 0x08, "RE::NiObject is not the right size!");
 
@@ -82,6 +83,7 @@ namespace RE {
          NiExtraData* GetExtraData(BSFixedString name);
 
          MEMBER_FN_PREFIX(NiObjectNET);
+         DEFINE_MEMBER_FN(DynamicCastController, void*, 0x00AB40C0, const NiRTTI*); // dynamic-casts this->m_controller
          DEFINE_MEMBER_FN(SetName, void, 0x00AB4020, StringCache::Ref*);
    };
    static_assert(sizeof(NiObjectNET) == 0x18, "RE::NiObjectNET is not the right size!");

@@ -47,6 +47,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectLAND.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectREFR.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESPackage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESQuest.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESRace.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESTopic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESWaterForm.h" />
@@ -85,6 +86,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\GameData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\GameInput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Main.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\MiscStats.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Navmesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ReferenceEffects.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Response\BSResponse.h" />
