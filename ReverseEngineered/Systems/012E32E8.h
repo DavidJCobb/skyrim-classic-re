@@ -58,7 +58,10 @@ namespace RE {
          UInt32 unk0AC[(0xC8 - 0x0AC) / sizeof(UInt32)];
          tArray<UInt32>  unkC8; // C8 // list of ref handles, possibly refs queued to reset
          BStList<UInt32> unkD4; // D4 // list of ref handles
-         UInt32 unk0DC[(0x108 - 0x0DC) / sizeof(UInt32)]; // 0DC
+         UInt32 unk0DC[(0x0E8 - 0x0DC) / sizeof(UInt32)]; // 0DC
+         SimpleLock unkE8; // 0E8 // lock for unkF0
+         tArray<UInt32> unkF0; // 0F0 // tArray of ref handles; AI processing checks whether each actor-in-high is in here and branches
+         UInt32 unk0FC[(0x108 - 0x0FC) / sizeof(UInt32)]; // 0FC
          float  unk108; // 108 // related to Z-keying?
          UInt32 unk10C;
          UInt32 unk110;
@@ -80,23 +83,29 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(Unknown012E32E8);
          DEFINE_MEMBER_FN(AddHandleToUnk0C8,         void,   0x00756940, Actor* actor); // aborts if actor is already in the array
-         DEFINE_MEMBER_FN(AppendValueToArray,        void,   0x00756370, UInt32 value, UInt32 which); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
-         DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, UInt32, UInt32); // no-oping this has the same effect as global TAI
+         DEFINE_MEMBER_FN(AddActorToAIList,          void,   0x00756370, UInt32 value, UInt32 processLevel); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
+         DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, float time, bool isSkippingTime); // no-oping this has the same effect as global TAI
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
-         DEFINE_MEMBER_FN(RemoveValueInArray,        void,   0x007563E0, UInt32 value, UInt32 which); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
+         DEFINE_MEMBER_FN(RemoveActorFromAIList,     void,   0x007563E0, UInt32 value, UInt32 processLevel); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
          DEFINE_MEMBER_FN(RemoveHandleFromUnkD4,     void,   0x00756720, UInt32& refHandle);
          DEFINE_MEMBER_FN(ResetAllDetection,         void,   0x00542970, bool* unused);
-         DEFINE_MEMBER_FN(ForEachActorInHighProcess,   void,   0x006931E0, HandleFunctor& functor); // for each of this->unk028, call functor->Unk_00(item)
-         DEFINE_MEMBER_FN(ForEachActorInHighProcess_B, void,   0x006A09E0, HandleCallback func); // for each of this->unk028, runs func(&item); terminates early if func returns false
+         DEFINE_MEMBER_FN(ForEachActorInHighProcess,   void,   0x006931E0, HandleFunctor& functor); // for each of this->actorsHigh, call functor->Unk_00(item)
+         DEFINE_MEMBER_FN(ForEachActorInHighProcess_B, void,   0x006A09E0, HandleCallback func); // for each of this->actorsHigh, runs func(&item); terminates early if func returns false
+         DEFINE_MEMBER_FN(UnkF0InsertHandle, void, 0x0075BA50, UInt32 refHandle);
+         DEFINE_MEMBER_FN(UnkF0ContainsHandle,       SInt32, 0x0075BA10, UInt32 refHandle);
          DEFINE_MEMBER_FN(Save,                      void,   0x007544F0, BGSSaveFormBuffer*);
          DEFINE_MEMBER_FN(SearchUnk68ListFor,        UInt32, 0x00754440, UInt32 whichList, UInt32 searchFor);
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);
-         DEFINE_MEMBER_FN(Subroutine006E7470,        void, 0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
+         DEFINE_MEMBER_FN(Subroutine006E7470,        void,   0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
          DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);
          DEFINE_MEMBER_FN(Subroutine00753F90,        void,   0x00753F90, float);
          DEFINE_MEMBER_FN(Subroutine00754750,        void,   0x00754750, UInt32);
          DEFINE_MEMBER_FN(Subroutine00754900,        void,   0x00754900, TESObjectREFR*, void*); // stops a "model reference shader"?
+         DEFINE_MEMBER_FN(Subroutine007593D0,        void,   0x007593D0, UInt32 refHandle); // most likely stops all shaders on the given reference
+         DEFINE_MEMBER_FN(Subroutine0075B7B0, void, 0x0075B7B0, UInt32);
+         DEFINE_MEMBER_FN(Subroutine0075B880, void, 0x0075B880, UInt32);
+         DEFINE_MEMBER_FN(Subroutine0075B940, void, 0x0075B940, UInt32);
          DEFINE_MEMBER_FN(Subroutine0075D280,        void,   0x0075D280);
          DEFINE_MEMBER_FN(Subroutine0075D2A0,        void,   0x0075D2A0);
          DEFINE_MEMBER_FN(Subroutine0075E100,        void,   0x0075E100); // checks whether animation processing is enabled; does stuff based on that

@@ -907,6 +907,7 @@ namespace RE {
             //
             // ...
             //
+            kBodyPart_Unk26 = 0x26, // special-case in 0046D750 at 0046D7FA
             kBodyPart_MaybeAmmo = 0x29, // game has checks for this being an Ammo, and handling for creating a quiver node
          };
          struct BodyPart { // sizeof == 0x20
@@ -963,15 +964,14 @@ namespace RE {
          DEFINE_MEMBER_FN(InstallArmor,    void,        0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
          DEFINE_MEMBER_FN(InstallWeapon,   void,        0x0046F870, TESForm*, UInt32);
 
-         DEFINE_MEMBER_FN(Subroutine0046AE90, bool, 0x0046AE90, UInt32 bodyPartIndex);
          DEFINE_MEMBER_FN(Subroutine0046C8A0, void, 0x0046C8A0, BodyPart* part);
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
          DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
          DEFINE_MEMBER_FN(Subroutine0046D750, bool, 0x0046D750, UInt32 bodyPartIndex, void*);
-         DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* fromUnkA88);
+         DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* myActor);
          DEFINE_MEMBER_FN(Subroutine0046E1A0, void, 0x0046E1A0); // loops over body slots; calls 0046DC10 on any that have no unk14, passing the unkA88 ref as arg2
-         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* texSwap, BGSTextureSet* arg4);
+         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* model, BGSTextureSet* textureSwap);
    };
    typedef ActorWeightData Struct0046D9B0;
    DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
@@ -1448,6 +1448,7 @@ namespace RE {
          DEFINE_MEMBER_FN(UpdateWeaponAbility,   void,    0x006ED980, TESForm*, BaseExtraList* extraData, bool bLeftHand);
          DEFINE_MEMBER_FN(WillIntimidateSucceed, bool,    0x006AF180);
          //
+         DEFINE_MEMBER_FN(Subroutine004D8210, void, 0x004D8210, BGSOutfit*); // remove all items that came from this outfit?
          DEFINE_MEMBER_FN(Subroutine006A75F0, void, 0x006A75F0);
          DEFINE_MEMBER_FN(Subroutine006B6BA0, void, 0x006B6BA0, SInt32); // register with the garbage collector?
          DEFINE_MEMBER_FN(Subroutine006E05F0, void, 0x006E05F0, UInt32 avIndex, ActorValueState*, UInt32 unk);

@@ -61,7 +61,7 @@ void ActorWeightData::Subroutine0046E4E0(TESObjectARMO* Arg1, TESObjectARMA* Arg
          if (auto ecx = this->bodyParts[edi].addon) {
             if (ecx != Arg2) {
                if (ecx->data.priority[esp14] == Arg2->data.priority[esp14]) {
-                  auto eax = ecx->TESV_004A0F70();
+                  auto eax = ecx->GetSkinTextureSwapListCount(0);
                   if (!eax)
                      continue;
                }
