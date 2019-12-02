@@ -39,7 +39,7 @@ namespace RE {
       DEFINE_MEMBER_FN(InsertAfterMe,     void, 0x0042AFA0, T* item, void* customAllocatorFunc_orNullptr, void* customAllocatorFuncArg);
    };
 
-   struct SimpleLock {
+   struct SimpleLock { // sizeof == 8
       operator ::SimpleLock*() const { return (::SimpleLock*) this; }
 
       UInt32 owningThreadID;     // thread that has ownership of the lock

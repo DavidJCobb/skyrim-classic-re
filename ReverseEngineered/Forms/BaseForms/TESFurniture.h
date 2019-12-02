@@ -5,6 +5,8 @@
 #include "ReverseEngineered/Forms/BaseForms/TESObjectACTI.h"
 
 namespace RE {
+   class BSFurnitureMarkerNode;
+
    class TESFurniture : public TESObjectACTI {
       public:
          class ModifiedMarker {
@@ -24,12 +26,13 @@ namespace RE {
          };
          enum { kTypeID = kFormType_Furniture };
          enum {
-            kFurnitureFlag_DisablesActivation   = 0x02000000,
-            kFurnitureFlag_IsPerch              = 0x04000000,
-            kFurnitureFlag_MustExitToTalk       = 0x08000000,
-            kFurnitureFlag_CanLean              = 0x20000000,
-            kFurnitureFlag_CanSit               = 0x40000000,
-            kFurnitureFlag_CanSleep             = 0x80000000
+            kFurnitureFlag_DisablesActivation = 0x02000000,
+            kFurnitureFlag_IsPerch            = 0x04000000,
+            kFurnitureFlag_MustExitToTalk     = 0x08000000,
+            kFurnitureFlag_10000000           = 0x10000000, // tested by member function 0x00499960
+            kFurnitureFlag_CanLean            = 0x20000000,
+            kFurnitureFlag_CanSit             = 0x40000000,
+            kFurnitureFlag_CanSleep           = 0x80000000
          };
          //
          enum WorkbenchType : UInt8 {
@@ -81,7 +84,7 @@ namespace RE {
          SpellItem*              associatedSpell; // 80
          //
          bool IsMarkerEnabled(UInt8 markerIndex) {
-            if (markerIndex >= 24)
+            if (markerIndex >= 25)
                return false;
             return (1 == (this->flags & (1 << markerIndex)));
          };
@@ -93,5 +96,16 @@ namespace RE {
                   return this->markers[i].keyword;
             return NULL;
          };
+
+         MEMBER_FN_PREFIX(TESFurniture);
+         DEFINE_MEMBER_FN(CanLean,            bool, 0x00499980);
+         DEFINE_MEMBER_FN(CanSit,             bool, 0x00499920);
+         DEFINE_MEMBER_FN(CanSleep,           bool, 0x00499940);
+         DEFINE_MEMBER_FN(GetFurnitureMarkerNode, BSFurnitureMarkerNode*, 0x00499C58, NiNode* node); // technically a static method
+         DEFINE_MEMBER_FN(IsMarkerEnabled,    bool, 0x004999C0, UInt8 markerIndex); // tests (flags)
+         DEFINE_MEMBER_FN(MustExitToTalk,     bool, 0x004999A0);
+         DEFINE_MEMBER_FN(Subroutine004999E0, void, 0x004999E0, UInt32); // render furniture markers? sole caller is TESFurniture::Unk_4B
+         DEFINE_MEMBER_FN(Subroutine00499CE0, void, 0x00499CE0, UInt32, bool, UInt32, UInt32);
+         DEFINE_MEMBER_FN(Subroutine004EC4A0, void, 0x004EC4A0, void*);
    };
 };

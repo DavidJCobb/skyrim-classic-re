@@ -84,10 +84,10 @@ namespace RE {
       UInt32 unk04;
       Struct007BE6A0* unk08;
       Struct007AC960* unk0C;
-      Struct007E99C0* unk10;
+      Struct007E99C0* unk10; // GetGroupTargetCount treats this as an int... :\ 
       UInt32 unk14 = 0; // refHandle
       UInt32 unk18 = 0;
-      UInt32 unk1C = 0;
+      UInt32 groupMemberCount = 0; // 1C
       UInt8  unk20 = 0;
       UInt8  unk21 = 0;
       UInt8  pad22;
@@ -222,6 +222,8 @@ namespace RE {
          // float unk1C4; // killmove time remaining
          // float unk1C8; // stagger time remaining?
          //       ...
+         // UInt8 unk1F5; // equip flags
+         //       ...
          // bool  unk208; // checked by Actor::ShouldAttackKill (if true for attacker AND attacker isn't in combat or is ignoring combat AND target isn't dead, then SAK is false); gets forced to 0 by TESObjectWEAP::Fire
          // bool  unk209; // related to soul trapping -- may indicate whether the actor has already been soul trapped -- getter 0x71FFF0, setter-to-true 0x71FFE0
          //       ...
@@ -298,6 +300,18 @@ namespace RE {
             kFlags_DrawHead = 8,
             kFlags_Mobile = 16,
             kFlags_Reset = 32
+         };
+         enum {
+            kEquipFlags_Unk01 = 0x01, // possibly "needs update" or "re-render queued"
+            kEquipFlags_Unk02 = 0x02,
+            kEquipFlags_Unk04 = 0x04,
+            kEquipFlags_Unk10 = 0x10,
+            kEquipFlags_Unk20 = 0x20,
+            kEquipFlags_Unk40 = 0x40,
+            kEquipFlags_Unk80 = 0x80,
+            //
+            // Papyrus Actor.SetRace sets flags 1, 2, 4, and 0x10
+            // Actor::SetRace sets flags 4 and 0x20
          };
 
          struct Struct0071A8F0 { // sizeof == 0x35C
@@ -685,12 +699,16 @@ namespace RE {
          DEFINE_MEMBER_FN(IsAlerted, bool, 0x006F4770); // { return this->unk9A & 8; }
          DEFINE_MEMBER_FN(SetAlert,  void, 0x006F4780, bool makeAlert);
          //
+         DEFINE_MEMBER_FN(SetEquipFlag,    void,  0x0071F520, UInt8 flags);
+         DEFINE_MEMBER_FN(ClearEquipFlags, void,  0x0071F540);
+         DEFINE_MEMBER_FN(TestEquipFlags,  bool,  0x0071F550, UInt8 mask);
+         DEFINE_MEMBER_FN(GetEquipFlags,   UInt8, 0x0071F570);
+         //
          DEFINE_MEMBER_FN(GetWardState, UInt32, 0x0071FF30);
          DEFINE_MEMBER_FN(IsArrested,           bool,    0x006FC260);
          DEFINE_MEMBER_FN(PushActorAway,        void,    0x00723FE0, Actor* myActor, float x, float y, float z, float magnitude); // push the actor away from the specified point
          DEFINE_MEMBER_FN(SetActorAlpha,      void, 0x0071F9B0, float alpha_unitIsNotKnown);
          DEFINE_MEMBER_FN(SetActorRefraction, void, 0x0071FA00, float refraction_unitIsNotKnown);
-         DEFINE_MEMBER_FN(SetEquipFlag,         void,    0x0071F520, UInt8 flags);
          DEFINE_MEMBER_FN(SetLastExtDoorActivated, void, 0x006FDFE0, UInt32 doorHandle, UInt8);
          DEFINE_MEMBER_FN(UpdateEquipment,      void,    0x007031A0, Actor* actor); // reapplies ArmorAddons and the like
          DEFINE_MEMBER_FN(SetUnk08Unk170,       void,    0x006FD1A0, UInt32 flag);  // sets this->unk08->unk170 // but the value may actually be a float passed as a UInt32?
@@ -919,7 +937,7 @@ namespace RE {
             NiPointer<SimpleAnimationGraphManagerHolder> unk14; // seen: TailAnimationGraphManagerHolder*
             UInt8    unk18;
             UInt8    pad19[3];
-            void*    unk1C; // refcounted pointer, most likely to a NiSomething
+            void*    unk1C; // refcounted pointer, most likely to a NiSomething; gets fed to something near/on BSResource::EntryDB<BSModelDB::DBTraits>
 
             MEMBER_FN_PREFIX(BodyPart);
             DEFINE_MEMBER_FN(CopyAssign, BodyPart&, 0x0046DF90, BodyPart& other); // BodyPart& operator=(BodyPart& other);
@@ -945,7 +963,7 @@ namespace RE {
          volatile SInt32 refCount; // 00
          NiNode*  npcRootNode; // 04
          BodyPart bodyParts[0x2A]; // 08 // index is a body part index - 30 (i.e. the first body part in the list, body part 30, is index 0)
-         BodyPart unk548[0x2A]; // 548 // could perhaps be "pending" equip data
+         BodyPart unk548[0x2A]; // 548 // testing indicates that this IS NOT used for race switches or as a queue
          UInt32   ownerHandle; // A88 // refHandle
 
          MEMBER_FN_PREFIX(ActorWeightData);
@@ -966,11 +984,13 @@ namespace RE {
 
          DEFINE_MEMBER_FN(Subroutine0046C8A0, void, 0x0046C8A0, BodyPart* part);
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
+         DEFINE_MEMBER_FN(Subroutine0046D370, void, 0x0046D370, UInt32 bodyPartIndex);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
          DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
          DEFINE_MEMBER_FN(Subroutine0046D750, bool, 0x0046D750, UInt32 bodyPartIndex, void*);
          DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* myActor);
          DEFINE_MEMBER_FN(Subroutine0046E1A0, void, 0x0046E1A0); // loops over body slots; calls 0046DC10 on any that have no unk14, passing the unkA88 ref as arg2
+         DEFINE_MEMBER_FN(Subroutine0046E260, void, 0x0046E260, TESRace* race, TESObjectARMO* skin, bool isFemale); // reset body and apply skin? // if the actor has 3D, copies (bodyParts) to (unk548) and resets (bodyParts); else, resets both
          DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* model, BGSTextureSet* textureSwap);
    };
    typedef ActorWeightData Struct0046D9B0;
@@ -1427,6 +1447,12 @@ namespace RE {
          DEFINE_MEMBER_FN(QueueNiNodeUpdate,     void,    0x00730EE0, bool updateWeight);
          DEFINE_MEMBER_FN(ResetAI,               void,    0x006BE790, UInt32 unk1, UInt32 unk2); // console passes 0, 1
          DEFINE_MEMBER_FN(ResetHealthAndLimbs,   void,    0x006B1CA0);
+         DEFINE_MEMBER_FN(SendAssaultAlarm,           void, 0x006D0B50, Actor* criminal, UInt32 papyrusUsesZero); // call on the victim
+         DEFINE_MEMBER_FN(SendMurderAlarm,            void, 0x006D0FE0, TESObjectREFR*); // call on the victim, or the perp? // should verify this function first; i'm only mostly sure it does what i think it does
+         DEFINE_MEMBER_FN(SendPickpocketAlarm,        void, 0x006D0610, TESObjectREFR* victim, UInt32, UInt32); // call on the criminal // should verify this function first; i'm only mostly sure it does what i think it does
+         DEFINE_MEMBER_FN(SendStealAlarm,             void, 0x006CC0D0, TESObjectREFR* itemRef, TESForm* itemBase, UInt32 countStolen, UInt32, UInt32, UInt32); // call on the criminal
+         DEFINE_MEMBER_FN(SendTrespassAlarm,          void, 0x006C08D0, Actor* witness, TESNPC* witnessBase, SInt32 papyrusUsesMinusOne); // call on the criminal
+         DEFINE_MEMBER_FN(SendWerewolfTransformAlarm, void, 0x006C06B0, Actor* criminal); // call on the witness
          DEFINE_MEMBER_FN(SetAlert,              void,    0x006A87A0, bool makeAlert);
          DEFINE_MEMBER_FN(SetCrimeFaction,       void,    0x006CDA10, TESFaction*);
          DEFINE_MEMBER_FN(SetDoingFavor,         void,    0x006C2870, bool);

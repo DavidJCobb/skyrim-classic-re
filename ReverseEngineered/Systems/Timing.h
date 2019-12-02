@@ -26,7 +26,9 @@ namespace RE {
       DEFINE_MEMBER_FN(GetDayOfMonth,      UInt32, 0x0068CF10); // if the global is missing, returns 17
       DEFINE_MEMBER_FN(GetGameDaysPassed,  SInt32, 0x0068CF60);
       DEFINE_MEMBER_FN(GetHour,            float,  0x0068CF40);
+      DEFINE_MEMBER_FN(GetMonth,           SInt32, 0x0068CEE0);
       DEFINE_MEMBER_FN(GetTimeScale,       float,  0x0068CE90);
+      DEFINE_MEMBER_FN(GetYear,            SInt32, 0x0068CEA0);
       DEFINE_MEMBER_FN(Subroutine004B8560, UInt32, 0x004B8560);
    };
    constexpr TimeGlobals** g_timeGlobals = (TimeGlobals**)0x012E35DC;

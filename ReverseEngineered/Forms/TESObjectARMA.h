@@ -34,7 +34,7 @@ namespace RE {
 	      void* skinTextureSwapList[2]; // AC // NAM2, NAM3
 	      tArray<TESRace*> additionalRaces; // B4
 	      BGSFootstepSet* footstepSet; // C0
-	      UInt32 unkC4; // C4
+	      TESForm* artObject; // C4 // ONAM
 
          MEMBER_FN_PREFIX(TESObjectARMA);
          DEFINE_MEMBER_FN(Constructor, TESObjectARMA&, 0x004A1250);

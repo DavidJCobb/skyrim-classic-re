@@ -588,6 +588,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004D9CF0,   bool,             0x004D9CF0);
          DEFINE_MEMBER_FN(Subroutine00450F60,   void,             0x00450F60, UInt32);
          DEFINE_MEMBER_FN(Subroutine004D6140,   void,             0x004D6140, char*);      // <-- Sets non-persistent activate prompt? I've seen it used to set "Open" or "Close".
+         DEFINE_MEMBER_FN(Subroutine004EC4E0,   void,             0x004EC4E0, UInt32, UInt32); // <-- related to "used" and "reserved" furniture markers
          DEFINE_MEMBER_FN(SetFlag00000002State, void,             0x00450ED0, bool);       // <-- Setter for flag 0x02, wrapped in TLS stuff.
          DEFINE_MEMBER_FN(SetPosition,          void,             0x004DCBA0, NiPoint3*);  // <-- Does something with worldspace data, too. DOES NOT UPDATE THE REFERENCE'S LOADED 3D.
          DEFINE_MEMBER_FN(SetRotation,          void,             0x004DC8F0, NiPoint3*);  // <-- Does something with loadedState, but I'm not sure if it updates the loaded 3D. Has special handling for characters.

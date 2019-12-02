@@ -22,6 +22,25 @@ namespace RE {
             kGrabType_ZKey = 1,
             kGrabType_Telekinesis = 2,
          };
+         enum Flags6E2 : UInt16 {
+            kFlag6E2_DisableSaving  = 0x0001, // CharGen flag
+            kFlag6E2_DisableWaiting = 0x0002, // CharGen flag
+            kFlag6E2_HandsAreBound  = 0x0004, // CharGen flag
+         };
+         enum Flags726 : UInt8 {
+            kFlag726_AIDriven  = 0x08,
+            kFlag726_IsYoung   = 0x40, // FO3 leftover
+            kFlag726_IsToddler = 0x80, // FO3 leftover
+         };
+         enum Flags728 : UInt8 {
+            kFlag728_Unk02 = 0x02, // related to grabbing
+            kFlag728_CrimesAreReported = 0x04,
+            kFlag728_Unk08 = 0x08, // player has seen the low-health  tutorial
+            kFlag728_Unk10 = 0x10, // player has seen the low-magicka tutorial
+            kFlag728_Unk20 = 0x20, // player has seen the low-stamina tutorial
+            kFlag728_Unk40 = 0x40, // cleared by PlayerCharacter::ClearPrison; set by PlayerCharacter::PayBounty if removing stolen goods
+            kFlag728_Unk80 = 0x80, // GMST:bSaveOnTravel?
+         };
 
          struct Unk494 {
             float  unk00 = -1; // set to GMST:fAICommentTimeWindow when you first start Z-keying something?
@@ -139,6 +158,7 @@ namespace RE {
          UInt32   unk59C[(0x5AC - 0x59C) >> 2];
          UInt32	lastRiddenHorseHandle;			// 5AC - Handle
          UInt32	pad5B0[(0x5FC - 0x5B0) >> 2];
+            // unk5E8 - incremented when the player does a crime?
          TESObjectCELL* unk5FC; // 5FC // redundant player cell? can be an interior.
          UInt32   unk600;
          UInt32   unk604;
@@ -167,7 +187,7 @@ namespace RE {
          UInt32 unk6DC;
          UInt8	unk6E0;							// 6E0
          UInt8	numPerkPoints;					// 6E1
-         UInt16 unk6E2;							// 6E2
+         UInt16 unk6E2; // 6E2 // see: Flags6E2
          UInt32	unk6E4;							// 6E4
          tArray<TintMask*>	tintMasks;			// 6E8		// These are the actual tints
          tArray<TintMask*> overlayTintMasks;	// 6F4		// These apply when overlay head parts is enabled
@@ -179,13 +199,20 @@ namespace RE {
          UnkFormArray unk714;
          UInt32 unk720 = 0;
          UInt8  unk724; // bitmask
-         bool   unk725 = true;
-         bool   unk726 = true; // 726
+         UInt8  unk725 = 1;
+         UInt8  unk726 = 1; // 726 // see: Flags726
          UInt8  unk727; // 727 // bitmask; PlayerCharacter::Unk_71 returns unk727 & 1; value is related to flags on actor's root nodes, somehow; value is related to whether the player is AI driven, too
-         UInt8  unk728 = 4; // 728 // bitmask; 2 is related to grabbing
+         UInt8  unk728 = 4; // 728 // see: Flags728
          UInt8  unk729; // 729 // bitmask
          UInt8  unk72A; // padding?
          UInt8  unk72B; // padding?
+
+         bool IsMovingIntoNewSpace() const noexcept {
+            if (this->unk728 & 1)
+               if (this->unk724 & 2)
+                  return true;
+            return false;
+         }
 
          // Overlayed tints should be the same as original tints
          // occasionally they can have no type so index matching
@@ -229,6 +256,9 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(IncreaseTeammateCount, void, 0x0073B3C0);
          DEFINE_MEMBER_FN(DecreaseTeammateCount, void, 0x0073B3E0);
+         //
+         DEFINE_MEMBER_FN(IsAMurderer, bool, 0x00733430); // has the player ever murdered any NPC? used for IsPCAMurderer
+         DEFINE_MEMBER_FN(SetWhetherPlayerCrimesAreReported, void, 0x00733E20, bool);
 
          //
          // Functions related to Z-keying and telekinesis.

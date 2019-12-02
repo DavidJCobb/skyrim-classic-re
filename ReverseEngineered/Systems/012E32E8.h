@@ -9,6 +9,54 @@ namespace RE {
    class BGSLoadGameBuffer;
    class BGSSaveFormBuffer;
    class ShaderReferenceEffect; // see ReferenceEffects.h
+   class TESBoundObject;
+
+   struct WitnessedCrime { // sizeof == 0x48
+      enum class crime_type : UInt32 {
+         unspecified = -1, // for GetCrime condition only
+         theft = 0,
+         pickpocketing = 1,
+         trespassing = 2,
+         assault = 3,
+         murder = 4,
+         escape_jail = 5,
+         werewolf_transform = 6,
+      };
+      //
+      UInt32     unk00 = 0;
+      crime_type unk04 = crime_type::theft; // 04
+      UInt32     victimHandle   = 0; // 08 // actor refHandle
+      UInt32     criminalHandle = 0; // 0C // actor refHandle; type ID'd from loading code
+      UInt8      unk10 = 0;
+      UInt8      pad11[3];
+      TESBoundObject* unk14 = nullptr; // 14 // type ID'd from loading code
+      UInt32 unk18 = 0; // 18
+      tArray<UInt32> witnesses; // 1C // array of actor refHandles; type ID'd from loading code
+      TESForm* unk28 = nullptr; // 28 // type ID'd from loading code
+      UInt32 unk2C = 0;
+      UInt8  unk30 = 0;
+      UInt8  pad31[3];
+      UInt32 date  = 0; // 34 // Constructor_B initializes this based on time globals; see SetDate below
+      float  time  = -FLT_MAX; // 38 // Constructor_B initializes this to g_timeNow
+      UInt32 unk3C = 0;
+      TESFaction* unk40 = nullptr; // 40 // type ID'd from loading code
+      UInt8  unk44 = 0;
+      UInt8  pad45;
+      UInt16 unk46 = 0;
+      //
+      MEMBER_FN_PREFIX(WitnessedCrime);
+      DEFINE_MEMBER_FN(Constructor,   WitnessedCrime&, 0x00775F80);
+      DEFINE_MEMBER_FN(Constructor_B, WitnessedCrime&, 0x00775FE0, crime_type type, UInt32 victimHandle, UInt32 criminalHandle, TESBoundObject* unk14, UInt32 unk18, UInt32 unk28);
+      DEFINE_MEMBER_FN(Load, void, 0x00776840, BGSLoadGameBuffer*);
+      DEFINE_MEMBER_FN(WasWitnessedBy, bool, 0x007765F0, UInt32 actorHandle);
+      //
+      inline void SetDate(UInt32 year, UInt32 month, UInt32 dayOfMonth) noexcept {
+         UInt32 result = (((year << 4) | month) << 9) | dayOfMonth;
+         // bits: YYYYMMMMDDDDDDDDD
+         this->date = result;
+      }
+   };
+
    class Unknown012E32E8 {
       public:
          static Unknown012E32E8* GetInstance() {
@@ -49,13 +97,15 @@ namespace RE {
          tArray<UInt32>* unk05C; // 05C // initialized to &this->unk40
          tArray<UInt32>* unk060; // 060 // initialized to &this->unk4C
          tArray<UInt32>* unk064; // 064 // initialized to &this->unk34
-         BStList<UInt32>* unk068[7]; // 068 // templated type unknown
-         tArray<NiRefObject> unk084; // 084
-         UInt32 unk090 = 0;
-         UInt32 unk094 = 0;
+         BStList<WitnessedCrime>* witnessedCrimes[7]; // 068 // index == crime type, so seven lists, one for each crime type
+         tArray<NiRefObject> unk84; // 084
+         SimpleLock          unk90; // 090 // lock for unk84
          tArray<ShaderReferenceEffect*> activeEffectShaders;      // 098
          SimpleLock                     activeEffectShaderLock;   // 0A4
-         UInt32 unk0AC[(0xC8 - 0x0AC) / sizeof(UInt32)];
+         tArray<UInt32> unkAC; // AC
+         SimpleLock     unkB8; // B8 // lock for unkAC
+         UInt32 unkC0;
+         UInt32 unkC4;
          tArray<UInt32>  unkC8; // C8 // list of ref handles, possibly refs queued to reset
          BStList<UInt32> unkD4; // D4 // list of ref handles
          UInt32 unk0DC[(0x0E8 - 0x0DC) / sizeof(UInt32)]; // 0DC
@@ -70,7 +120,7 @@ namespace RE {
          bool   enableActorAI;        // 11C // if true, then all AI processing is on
          bool   enableActorMovement;  // 11D // if true, then all actor movement processing is on
          bool   enableActorAnimation; // 11E // if true, then all actor animation processing is on
-         UInt8  unk11F;               // 11F // modified by opcode at 004A6BDE
+         UInt8  unk11F;               // 11F // modified by opcode at 004A6BDE and opcode at 0x00754780
          // ...
 
          typedef void(*HandleCallback)(UInt32& handle);
@@ -83,7 +133,7 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(Unknown012E32E8);
          DEFINE_MEMBER_FN(AddHandleToUnk0C8,         void,   0x00756940, Actor* actor); // aborts if actor is already in the array
-         DEFINE_MEMBER_FN(AddActorToAIList,          void,   0x00756370, UInt32 value, UInt32 processLevel); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
+         DEFINE_MEMBER_FN(AddActorToAIList,          void,   0x00756370, UInt32 value, UInt32 processLevel); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which
          DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, float time, bool isSkippingTime); // no-oping this has the same effect as global TAI
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
@@ -92,18 +142,22 @@ namespace RE {
          DEFINE_MEMBER_FN(ResetAllDetection,         void,   0x00542970, bool* unused);
          DEFINE_MEMBER_FN(ForEachActorInHighProcess,   void,   0x006931E0, HandleFunctor& functor); // for each of this->actorsHigh, call functor->Unk_00(item)
          DEFINE_MEMBER_FN(ForEachActorInHighProcess_B, void,   0x006A09E0, HandleCallback func); // for each of this->actorsHigh, runs func(&item); terminates early if func returns false
+         DEFINE_MEMBER_FN(GetCrimeKnown,               bool,   0x00758640, Actor* victim, Actor* criminal, Actor* witness, WitnessedCrime::crime_type, UInt32, UInt32);
          DEFINE_MEMBER_FN(UnkF0InsertHandle, void, 0x0075BA50, UInt32 refHandle);
          DEFINE_MEMBER_FN(UnkF0ContainsHandle,       SInt32, 0x0075BA10, UInt32 refHandle);
          DEFINE_MEMBER_FN(Save,                      void,   0x007544F0, BGSSaveFormBuffer*);
-         DEFINE_MEMBER_FN(SearchUnk68ListFor,        UInt32, 0x00754440, UInt32 whichList, UInt32 searchFor);
+         DEFINE_MEMBER_FN(SearchWitnessedCrimeListForInstance, UInt32, 0x00754440, WitnessedCrime::crime_type, WitnessedCrime* searchFor);
+         DEFINE_MEMBER_FN(SendWerewolfTransformCrime, void, 0x0075B2A0); // backend for Papyrus Game.SendWereWolfTransformation; calls Actor::SendWerewolfTransformAlarm on an actor in high who is detecting the player
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);
          DEFINE_MEMBER_FN(Subroutine006E7470,        void,   0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
-         DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);
-         DEFINE_MEMBER_FN(Subroutine00753F90,        void,   0x00753F90, float);
+         DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);        // getter for float at 0x01B39E38
+         DEFINE_MEMBER_FN(Subroutine00753F90,        void,   0x00753F90, float); // setter for float at 0x01B39E38
          DEFINE_MEMBER_FN(Subroutine00754750,        void,   0x00754750, UInt32);
+         DEFINE_MEMBER_FN(Subroutine00754790, void, 0x00754790, WitnessedCrime* newlyCreated);
          DEFINE_MEMBER_FN(Subroutine00754900,        void,   0x00754900, TESObjectREFR*, void*); // stops a "model reference shader"?
+         DEFINE_MEMBER_FN(Subroutine00759070, void, 0x00759070, UInt32);
          DEFINE_MEMBER_FN(Subroutine007593D0,        void,   0x007593D0, UInt32 refHandle); // most likely stops all shaders on the given reference
-         DEFINE_MEMBER_FN(Subroutine0075B7B0, void, 0x0075B7B0, UInt32);
+         DEFINE_MEMBER_FN(Subroutine0075B7B0, void, 0x0075B7B0, void* functor); // args seen: Reset3DMobIterator; function iterates over the four list pointers beginning at unk058
          DEFINE_MEMBER_FN(Subroutine0075B880, void, 0x0075B880, UInt32);
          DEFINE_MEMBER_FN(Subroutine0075B940, void, 0x0075B940, UInt32);
          DEFINE_MEMBER_FN(Subroutine0075D280,        void,   0x0075D280);
@@ -112,10 +166,10 @@ namespace RE {
          DEFINE_MEMBER_FN(ToggleMovementProcessing,  void,   0x00754000); // toggles the value of unk11D
          DEFINE_MEMBER_FN(ToggleAnimationProcessing, void,   0x00754020); // toggles the value of unk11E
    };
-   static_assert(offsetof(Unknown012E32E8, unk068) >= 0x68, "Unknown012E32E8::unk068 is too early!");
-   static_assert(offsetof(Unknown012E32E8, unk068) <= 0x68, "Unknown012E32E8::unk068 is too late!");
-   static_assert(offsetof(Unknown012E32E8, unk084) >= 0x84, "Unknown012E32E8::unk084 is too early!");
-   static_assert(offsetof(Unknown012E32E8, unk084) <= 0x84, "Unknown012E32E8::unk084 is too late!");
+   static_assert(offsetof(Unknown012E32E8, witnessedCrimes) >= 0x68, "Unknown012E32E8::witnessedCrimes is too early!");
+   static_assert(offsetof(Unknown012E32E8, witnessedCrimes) <= 0x68, "Unknown012E32E8::witnessedCrimes is too late!");
+   static_assert(offsetof(Unknown012E32E8, unk84) >= 0x84, "Unknown012E32E8::unk84 is too early!");
+   static_assert(offsetof(Unknown012E32E8, unk84) <= 0x84, "Unknown012E32E8::unk84 is too late!");
 
    // Refernces to enableActorAI:
    // 53B1B9 (ToggleAI)

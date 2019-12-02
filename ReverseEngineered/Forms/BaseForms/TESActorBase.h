@@ -36,18 +36,20 @@ namespace RE {
             kFlag_IsInvulnerable = 0x80000000,
          };
 
+         // ACBS:
          UInt32				flags;	// 04 - init'd to 0
-         UInt16				unk08;	// 08 - init'd to 0
-         UInt16				unk0A;	// 0A - init'd to 0
+         SInt16				offsetMagicka;	// 08 - init'd to 0
+         SInt16				offsetStamina;	// 0A - init'd to 0
          UInt16				level;	// 0C - init'd to 1	(CK Multiplier * 1000 if PCLevelMult is true)
          UInt16				minLevel;	// 0E - init'd to 0
          UInt16				maxLevel;	// 10 - init'd to 0
-         UInt16				unk12;	// 12 - init'd to 0x64 (100)
-         UInt16				unk14;	// 14 - init'd to iBaseDisposition (35)
-         UInt16				unk16;	// 16 - init'd to 0
-         UInt16				unk18;	// 18 - init'd to 0
-         UInt16				unk1A;	// 1A - init'd to 0
-         UInt32				unk1C;	// 1C
+         UInt16				speedMult;	// 12 - init'd to 0x64 (100)
+         UInt16				dispositionBase;	// 14 - init'd to iBaseDisposition (35)
+         UInt16				templateFlags;	// 16 - init'd to 0
+         SInt16				offsetHealth;	// 18 - init'd to 0
+         UInt16				bleedoutOverride;	// 1A - init'd to 0
+         //
+         TESForm*				deathItem;	// 1C // INAM
          BGSVoiceType* voiceType;	// 20
          TESForm*				unk24;	// 24 // can be a LeveledCharacter
          UInt32				unk28;	// 28 - init'd to 0
@@ -58,7 +60,7 @@ namespace RE {
             UInt8 pad[3];		// 05
          };
 
-         tArray<FactionInfo>	factions;	// 2C
+         tArray<FactionInfo>	factions;	// 2C // TESActorBaseData::Subroutine0044DE30 appends?
 
          MEMBER_FN_PREFIX(TESActorBaseData);
          DEFINE_MEMBER_FN(GetLevel, UInt16, 0x0044D4D0);
@@ -73,7 +75,7 @@ namespace RE {
          TESFullName			fullName;	// 84
          ActorValueOwner				actorValueOwner;	// 8C
          BGSDestructibleObjectForm	destructible;		// 90
-         BGSSkinForm			skinForm;	// 98
+         BGSSkinForm			skinForm;	// 98 // WNAM
          BGSKeywordForm		keyword;	// A0
          BGSAttackDataForm	attackData;	// AC
          BGSPerkRankArray	perkRanks;	// B4
