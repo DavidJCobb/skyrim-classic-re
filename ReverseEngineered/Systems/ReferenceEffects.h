@@ -5,12 +5,20 @@
 #include "skse/Utilities.h"
 
 namespace RE {
-   class ShaderReferenceEffect : public NiObject {
+   class OwnedController;
+
+   // NiRefObject > BSTempEffect > ReferenceEffect > ShaderReferenceEffect
+   class ShaderReferenceEffect : public NiRefObject {
       public:
          static constexpr intptr_t vtbl = 0x010C9F14;
          // virtual methods seen up to 0x38
          //
-         UInt32 unk00[(0x1C - 0x00) / sizeof(UInt32)];
+         UInt32 unk08;
+         OwnedController* unk0C;
+         UInt32 unk10;
+         UInt32 unk14;
+         UInt32 id; // 18 // a counter is incremented for each new instance; its value gets written to the instance before increment
+         // above: BSTempEffect
          void*  unk1C; // 1C // has a VTBL
          UInt32 refHandle; // 20
          UInt32 unk24;

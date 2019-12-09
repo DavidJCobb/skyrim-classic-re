@@ -59,11 +59,11 @@ namespace RE {
 
    class Unknown012E32E8 {
       public:
-         static Unknown012E32E8* GetInstance() {
-            return *(Unknown012E32E8**)0x012E32E8; // or should it be *(ClassName*)0x012E32E8 ?
+         inline static Unknown012E32E8* GetInstance() { // game accesses the singleton through this pointer...
+            return *(Unknown012E32E8**)0x012E32E8;
          };
+         static constexpr Unknown012E32E8* instance = (Unknown012E32E8*)0x01B2ECC0; // ...but the singleton instance is always constructed here
          //
-
          UInt8  unk000;                   // 008
          bool   enableDetection;          // 001 // if true, then AI detection is enabled; see console:ToggleDetection
          bool   unk002;                   // 002 // if true, then AI detection stats should be printed to the screen; see console:ToggleDetectionStats
@@ -74,19 +74,23 @@ namespace RE {
          bool   enableMiddleHighProcess;  // 00A // if true, then AI processing for actors in middle-high is on; see console:ToggleMiddleHighProcess
          bool   enableMiddleLowProcess;   // 00B // if true, then AI processing for actors in middle-low is on; see console:ToggleMiddleLowProcess
          bool   enableAISchedules;        // 00C // if true, then AI processing for actors' editor schedules is on; see console:ToggleAISchedules
-         UInt8  unk00D;                   // 00D
+         bool   showDialogueSubtitles;    // 00D // modified by Console:ShowDialogSubtitles
          UInt8  unk00E;                   // 00E
          UInt8  unk00F;                   // 00F
          SInt32 numActorsInHighProcess;   // 010 // returned by Console:GetActorsInHigh // reset to 0 in DoAIProcessing and then incremented for every high AI processed
          UInt32 unk014;                   // 014
          UInt32 unk018;                   // 018
-         UInt32 unk01C[(0x028 - 0x01C) / sizeof(UInt32)]; // 01C
+         float  removeExcessComplexDeadTime; // 1C // GMST:fRemoveExcessComplexDeadTime
+         HANDLE unk20; // 20 // semaphore
+         UInt32 unk24;
          //
          // The next four arrays track actors in various process states. The first 
          // state is "high process;" the next three are lower process levels. 
          // Skyrim only has four arrays here, and it has console commands related 
          // to every process level except Middle, so my assumption is that Skyrim 
          // doesn't have the "middle" process level anymore.
+         //
+         // Middle-high is used for actors that were in recently-loaded cells.
          //
          tArray<UInt32>  actorsHigh; // 028 // ref handles for Actors in high process. the TDETECT command loops over this to delete AI/detection state in actors. general AI processing loops over this as well.
          tArray<UInt32>  actorsLow;  // 034 // verified by memory inspection: this had the most handles of all four arrays, so it has to be Low
@@ -98,10 +102,10 @@ namespace RE {
          tArray<UInt32>* unk060; // 060 // initialized to &this->unk4C
          tArray<UInt32>* unk064; // 064 // initialized to &this->unk34
          BStList<WitnessedCrime>* witnessedCrimes[7]; // 068 // index == crime type, so seven lists, one for each crime type
-         tArray<NiRefObject> unk84; // 084
-         SimpleLock          unk90; // 090 // lock for unk84
-         tArray<ShaderReferenceEffect*> activeEffectShaders;      // 098
-         SimpleLock                     activeEffectShaderLock;   // 0A4
+         tArray<ShaderReferenceEffect*> unk84; // 084 // VisualEffects?
+         SimpleLock                     unk90; // 090 // lock for unk84
+         tArray<ShaderReferenceEffect*> activeEffectShaders;    // 098
+         SimpleLock                     activeEffectShaderLock; // 0A4
          tArray<UInt32> unkAC; // AC
          SimpleLock     unkB8; // B8 // lock for unkAC
          UInt32 unkC0;
@@ -120,8 +124,7 @@ namespace RE {
          bool   enableActorAI;        // 11C // if true, then all AI processing is on
          bool   enableActorMovement;  // 11D // if true, then all actor movement processing is on
          bool   enableActorAnimation; // 11E // if true, then all actor animation processing is on
-         UInt8  unk11F;               // 11F // modified by opcode at 004A6BDE and opcode at 0x00754780
-         // ...
+         UInt8  unk11F;               // 11F // modified by opcode at 004A6BDE and opcode at 0x00754780; checked at 0x006D83E3
 
          typedef void(*HandleCallback)(UInt32& handle);
          struct HandleFunctor {
@@ -132,10 +135,14 @@ namespace RE {
          // NOTE: Not all of the functions below should be called by mods.
          //
          MEMBER_FN_PREFIX(Unknown012E32E8);
+         DEFINE_MEMBER_FN(Constructor, Unknown012E32E8&, 0x0075D000);
+         DEFINE_MEMBER_FN(Destructor,  void, 0x0075E430);
          DEFINE_MEMBER_FN(AddHandleToUnk0C8,         void,   0x00756940, Actor* actor); // aborts if actor is already in the array
          DEFINE_MEMBER_FN(AddActorToAIList,          void,   0x00756370, UInt32 value, UInt32 processLevel); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which
+         DEFINE_MEMBER_FN(ClearTempEffects,          void,   0x00755480); // powers Papyrus Game.ClearTempEffects()
          DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, float time, bool isSkippingTime); // no-oping this has the same effect as global TAI
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
+         DEFINE_MEMBER_FN(GetUnkD4, BStList<UInt32>*, 0x00754050);
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
          DEFINE_MEMBER_FN(RemoveActorFromAIList,     void,   0x007563E0, UInt32 value, UInt32 processLevel); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
          DEFINE_MEMBER_FN(RemoveHandleFromUnkD4,     void,   0x00756720, UInt32& refHandle);
@@ -148,6 +155,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Save,                      void,   0x007544F0, BGSSaveFormBuffer*);
          DEFINE_MEMBER_FN(SearchWitnessedCrimeListForInstance, UInt32, 0x00754440, WitnessedCrime::crime_type, WitnessedCrime* searchFor);
          DEFINE_MEMBER_FN(SendWerewolfTransformCrime, void, 0x0075B2A0); // backend for Papyrus Game.SendWereWolfTransformation; calls Actor::SendWerewolfTransformAlarm on an actor in high who is detecting the player
+         DEFINE_MEMBER_FN(StopCombatAlarmOnActor, void, 0x00758910, Actor* target, bool maybeAlsoClearArrested);
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);
          DEFINE_MEMBER_FN(Subroutine006E7470,        void,   0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
          DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);        // getter for float at 0x01B39E38
@@ -156,6 +164,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine00754790, void, 0x00754790, WitnessedCrime* newlyCreated);
          DEFINE_MEMBER_FN(Subroutine00754900,        void,   0x00754900, TESObjectREFR*, void*); // stops a "model reference shader"?
          DEFINE_MEMBER_FN(Subroutine00759070, void, 0x00759070, UInt32);
+         DEFINE_MEMBER_FN(Subroutine007591D0, void, 0x007591D0, ShaderReferenceEffect*); // tries to remove the effect from both lists?
          DEFINE_MEMBER_FN(Subroutine007593D0,        void,   0x007593D0, UInt32 refHandle); // most likely stops all shaders on the given reference
          DEFINE_MEMBER_FN(Subroutine0075B7B0, void, 0x0075B7B0, void* functor); // args seen: Reset3DMobIterator; function iterates over the four list pointers beginning at unk058
          DEFINE_MEMBER_FN(Subroutine0075B880, void, 0x0075B880, UInt32);
