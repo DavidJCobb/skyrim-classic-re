@@ -186,7 +186,7 @@ namespace RE {
          UInt32	unk134;	// 134 - FF7FFFFF
          UInt32	furnitureHandle; // 138
          UInt32	unk13C;	// 13C
-         UInt32	unk140;	// 140
+         UInt32	unk140;	// 140 // refHandle, most likely related to combat/hostility, but not combat target
          BStList<TESObjectWEAP>* unk144;	// 144 // matches unk164; one is left hand and one is right
          TESIdleForm*   currentIdle;	// 148
          UInt32	unk14C; // 14C // smart pointer/refcounted
@@ -761,6 +761,8 @@ namespace RE {
          DEFINE_MEMBER_FN(CreateOrClearHitStruct, Struct00797220*, 0x0071FC90);
          DEFINE_MEMBER_FN(GetHitStruct,           Struct00797220*, 0x0071FC10);
          DEFINE_MEMBER_FN(ImportHitStruct,        void,            0x0071FC30, Struct00797220* other); // copies the struct
+
+         DEFINE_MEMBER_FN(Subroutine00701FE0, void, 0x00701FE0, Actor* myActor); // seems to handle sending an assault alarm when you illegally feed on someone as a vampire
 
          DEFINE_MEMBER_FN(WriteSavedata, void, 0x00718F70, BGSSaveFormBuffer*);
    };

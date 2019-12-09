@@ -31,7 +31,8 @@ namespace RE {
    struct BSTArrayCount { // actual name not known
       MEMBER_FN_PREFIX(BSTArrayCount);
       DEFINE_MEMBER_FN(Constructor, BSTArrayCount&, 0x00A49B40); // literally just sets itself to zero
-      DEFINE_MEMBER_FN(Increment, SInt32, 0x00A49B83, void* allocator, UInt32 currentCapacity, UInt32 seemsToAlwaysBe4EvenWhenTheArrayElementSizeIsLarger);
+      DEFINE_MEMBER_FN(Increment,   SInt32, 0x00A49B83, void* allocator, UInt32 currentCapacity, UInt32 seemsToAlwaysBe4EvenWhenTheArrayElementSizeIsLarger);
+      DEFINE_MEMBER_FN(Remove,      void,   0x00A4A070, void* arrayData, UInt32 startIndex, UInt32 arraySizeMinusCountToRemove, UInt32 countToRemove, UInt32 sizeOfElement);
 
       UInt32 size; // 00
 
