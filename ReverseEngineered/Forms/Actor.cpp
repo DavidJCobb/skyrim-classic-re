@@ -7,7 +7,7 @@
 #include "skse/NiNodes.h"
 
 namespace RE {
-   DEFINE_SUBROUTINE(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
+   DEFINE_SUBROUTINE(NiAVObject*, CreateWeaponNode, 0x0046F530, TESModelTextureSwap*, UInt32 bodyPartIndex, Actor*, NiPointer<NiNode>& bodyPartSlotRenderedArmorPtr, NiNode* rootNode);
 
    void Struct006F0580::ClearUnk00() {
       auto player = *g_thePlayer;

@@ -927,6 +927,10 @@ namespace RE {
             //
             // ...
             //
+            kBodyPart_Unk20 = 0x20, // special-case - torches?
+            //
+            // ...
+            //
             kBodyPart_Unk26 = 0x26, // special-case in 0046D750 at 0046D7FA
             kBodyPart_MaybeAmmo = 0x29, // game has checks for this being an Ammo, and handling for creating a quiver node
          };
@@ -996,7 +1000,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* model, BGSTextureSet* textureSwap);
    };
    typedef ActorWeightData Struct0046D9B0;
-   DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, UInt32, UInt32, Actor*, UInt32**, NiNode* rootNode);
+   DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, TESModelTextureSwap*, UInt32 bodyPartIndex, Actor*, NiPointer<NiNode>& bodyPartSlotRenderedArmorPtr, NiNode* rootNode);
 
    enum LandRequestType { // requesting a flying actor to land
       kLandRequestType_Hasty = 1,

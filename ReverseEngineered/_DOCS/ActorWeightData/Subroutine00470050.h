@@ -103,11 +103,13 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             // ...
             //
          } else if (esi && esi->formType == kFormType_Light) { // at 0x00470347
-            //
-            // ...
-            //
+            if (currentRef == *(Actor**)0x01310588) { // if the player?
+               this->sub0046FD10(esi, ebp == esp38); // esp38 == shield body part index
+            } else {
+               currentRef->sub004DBDB0(esi, ebp == esp38); // esp38 == shield body part index
+            }
          } else {
-            if (esp4C == 0x29 && (eax = edi->bodyParts[0x29].item) && eax->formType == kFormType_Ammo) { // body part #47 (unnamed) // at 0x00470386
+            if (esp4C == 0x29 && (eax = this->bodyParts[0x29].item) && eax->formType == kFormType_Ammo) { // body part #47 (unnamed) // at 0x00470386
                auto ecx = esp18;
                if (ecx == *g_thePlayer) {
                   this->TESV_0046FB30(eax); // creates quiver node as necessary

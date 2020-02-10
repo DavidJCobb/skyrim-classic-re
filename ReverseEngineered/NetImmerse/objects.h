@@ -16,6 +16,9 @@ namespace RE {
       //  - NiNode->unk1C instanceof bhkCollisionObject (or anything that can cast to it)
       //
       public:
+         static constexpr uint32_t vtbl = 0x011173FC;
+         //
+      public:
          //
          // Standard NetImmerse:
          //
@@ -42,33 +45,37 @@ namespace RE {
          //
          // Back to NetImmerse:
          //
-         virtual NiObject*		CreateClone(NiCloningProcess cloner);
+         virtual NiObject*		CreateClone(NiCloningProcess cloner); // 13
          //
-         virtual void			LoadBinary(NiStream * stream);
-         virtual void			LinkObject(NiStream * stream);
-         virtual bool			RegisterStreamables(NiStream * stream);
-         virtual void			SaveBinary(NiStream * stream);
-         virtual bool			IsEqual(NiObject * object);
+         virtual void			LoadBinary(NiStream * stream); // 14
+         virtual void			LinkObject(NiStream * stream); // 15
+         virtual bool			RegisterStreamables(NiStream * stream); // 16
+         virtual void			SaveBinary(NiStream * stream); // 17
+         virtual bool			IsEqual(NiObject * object); // 18
          //
-         virtual void			ProcessClone(NiCloningProcess * cloner);
-         virtual void			PostLinkObject(NiStream * stream);
-         virtual bool			StreamCanSkip(void);
-         virtual const NiRTTI*	GetStreamableRTTI(void) const;
-         virtual UInt32         GetBlockAllocationSize(void) const;
-         virtual NiObjectGroup* GetGroup(void) const;
-         virtual void			SetGroup(NiObjectGroup * group);
+         virtual void			ProcessClone(NiCloningProcess * cloner); // 19
+         virtual void			PostLinkObject(NiStream * stream); // 1A
+         virtual bool			StreamCanSkip(void); // 1B
+         virtual const NiRTTI*	GetStreamableRTTI(void) const; // 1C
+         virtual UInt32         GetBlockAllocationSize(void) const; // 1D
+         virtual NiObjectGroup* GetGroup(void) const; // 1E
+         virtual void			SetGroup(NiObjectGroup * group); // 1F
          //
          // Begin bethesda extensions?
          //
-         virtual UInt32			Unk_20(void);
+         virtual UInt32			Unk_20(void); // 20
          //
          MEMBER_FN_PREFIX(NiObject);
+         DEFINE_MEMBER_FN(Constructor, NiObject&, 0x00AAFD30);
          DEFINE_MEMBER_FN(Clone,       NiObject*, 0x00AAFC00, NiCloningProcess*);
          DEFINE_MEMBER_FN(VerifyType,  void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
    };
    static_assert(sizeof(NiObject) == 0x08, "RE::NiObject is not the right size!");
 
    class NiObjectNET : public NiObject { // sizeof == 0x18
+      public:
+         static constexpr uint32_t vtbl = 0x01117824;
+         //
       public:
          const char*       m_name;
          NiTimeController* m_controller; // 0C next pointer at +0x30
@@ -83,6 +90,7 @@ namespace RE {
          NiExtraData* GetExtraData(BSFixedString name);
 
          MEMBER_FN_PREFIX(NiObjectNET);
+         DEFINE_MEMBER_FN(Constructor, NiObjectNET&, 0x00AB4180);
          DEFINE_MEMBER_FN(DynamicCastController, void*, 0x00AB40C0, const NiRTTI*); // dynamic-casts this->m_controller
          DEFINE_MEMBER_FN(SetName, void, 0x00AB4020, StringCache::Ref*);
    };
@@ -106,7 +114,7 @@ namespace RE {
             UInt32 flags;
          };
          //
-         virtual void UpdateControllers(ControllerUpdateContext * ctx);	// calls controller vtbl+0x8C
+         virtual void UpdateControllers(ControllerUpdateContext * ctx); // 21	// calls controller vtbl+0x8C
          virtual void UpdateNodeBound(ControllerUpdateContext * ctx);
          virtual void ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform);
          virtual void SetPropertyState(NiProperty * prop);

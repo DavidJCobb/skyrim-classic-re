@@ -33,6 +33,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEncounterZone.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEquipSlot.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSLightingTemplate.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSListForm.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\TESModel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESFaction.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESForm.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESGlobal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESGrass.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESImageSpace.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESNPC.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\TESObjectARMA.h" />
