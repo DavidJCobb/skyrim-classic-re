@@ -503,14 +503,14 @@ namespace RE {
          IAnimationGraphManagerHolder        animGraphHolder;     // 20
          //
          // Members:
-         TESForm* baseForm;         // 24
-         NiPoint3 rot;              // 28
-         NiPoint3 pos;              // 34
-         TESObjectCELL* parentCell; // 40
-         LoadedState*   loadedState;// 44
-         ::BaseExtraList extraData; // 48
-         UInt16 scale;              // 50 // scale * 100
-         UInt16 referenceFlags;     // 52 // flags, or possibly two UInt8s; if the latter, then unk53 = bool unloading
+         TESForm* baseForm;          // 24
+         NiPoint3 rot;               // 28
+         NiPoint3 pos;               // 34
+         TESObjectCELL* parentCell;  // 40
+         LoadedState*   loadedState; // 44
+         ::BaseExtraList extraData;  // 48
+         UInt16 scale;               // 50 // scale * 100
+         UInt16 referenceFlags;      // 52 // flags, or possibly two UInt8s; if the latter, then unk53 = bool unloading
          //
          bool   AttachScript(const char* scriptName);
          void   CreateDetectionEvent(Actor* owner, SInt32 soundLevel);

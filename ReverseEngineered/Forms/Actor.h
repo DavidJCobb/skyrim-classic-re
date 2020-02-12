@@ -1389,6 +1389,7 @@ namespace RE {
          DEFINE_MEMBER_FN(CreateActorValueStateObj, ActorValueState*, 0x006DE8D0, UInt32 avIndex); // don't call this; use GetActorValueStateObj
          DEFINE_MEMBER_FN(Decapitate,            void,    0x006AA560); // refuses if the actor is already decapped, but not if they're alive
          DEFINE_MEMBER_FN(Dismount,              void,    0x006C2EA0);
+         DEFINE_MEMBER_FN(DoCombatSpellApply,    void,    0x006E4560, SpellItem* spell, TESObjectREFR* target); // handles disease infection logic and applies the spell; notifies the player when they're infected. Papyrus offers a wrapper for this
          DEFINE_MEMBER_FN(EnableAI,              void,    0x006AA690, bool); // argument determines whether we enable (true) or disable (false)
          DEFINE_MEMBER_FN(ExecuteDoNothingPackage, void,        0x006AC890);
          DEFINE_MEMBER_FN(FindBodyPartTypeMatchingNode, BGSBodyPartData::PartType, 0x006A9020, NiNode*);

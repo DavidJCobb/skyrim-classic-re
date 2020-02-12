@@ -1,8 +1,10 @@
 #pragma once
 #include "skse/Utilities.h"
 
+class BSShaderAccumulator;
 namespace RE {
    class BGSLoadGameBuffer;
+   class NiCamera;
    class TESObjectCELL;
 
    struct Struct0045CDB0;
@@ -90,12 +92,41 @@ namespace RE {
          }
          static constexpr Singleton012E5B8C* instance = (Singleton012E5B8C*)0x01B37B20;
          //
+         UInt32 unk00;
+         UInt32 unk04 = 0;
+         UInt32 unk08 = 0;
+         UInt32 unk0C = 0;
+         UInt32 unk10 = 0;
+         UInt32 unk14 = 0;
+         UInt32 unk18 = 0;
+         UInt32 unk1C;
+         tArray<NiPointer<NiRefObject>> unk20; // BSTempEffectSimpleDecal* ?
+         tArray<UInt32> unk2C;
+         tArray<NiPointer<NiAVObject>> unk38; // this is the only thing that's actually serialized to the savegame; these are likely the rendered decals given that we use NiNode::RemoveChild to discard them
+         BSShaderAccumulator* unk44;
+         NiCamera* unk48;
+         UInt32 unk4C = 0; // integer
+         //
          MEMBER_FN_PREFIX(Singleton012E5B8C);
-         DEFINE_MEMBER_FN(Load, void, 0x0045F310, BGSLoadGameBuffer*); // called by member function on the AI singleton 0x012E32E8
+         DEFINE_MEMBER_FN(Constructor, Singleton012E5B8C&, 0x0045E190);
+         DEFINE_MEMBER_FN(Destructor, void, 0x0045ED30);
+         DEFINE_MEMBER_FN(Save,  void, 0x0045D530, BGSSaveFormBuffer*);
+         DEFINE_MEMBER_FN(Load,  void, 0x0045F310, BGSLoadGameBuffer*); // called by member function on the AI singleton 0x012E32E8
+         DEFINE_MEMBER_FN(Clear, void, 0x0045EC00, bool isNotDestructor); // BSTask type 0x43; called by ClearTempEffects; clears all decals
+         DEFINE_MEMBER_FN(Subroutine0045CC50, void, 0x0045CC50, UInt32, UInt8);
          DEFINE_MEMBER_FN(Subroutine0045D000, UInt32, 0x0045D000, BSFadeNode*, UInt32 one);
+         DEFINE_MEMBER_FN(Subroutine0045D090, void, 0x0045D090, UInt32);
+         DEFINE_MEMBER_FN(Subroutine0045D280, void, 0x0045D280); // prunes unk38 somehow
+         DEFINE_MEMBER_FN(Subroutine0045D370, void, 0x0045D370, UInt32); // searches unk38 and calls 0045CC50 on elements that match some criteria related to the argument
+         DEFINE_MEMBER_FN(Subroutine0045D480, void, 0x0045D480);
          DEFINE_MEMBER_FN(MakeBGSDecalNodeFor, UInt32, 0x0045D7F0, BSFadeNode*, UInt32 one);
+         DEFINE_MEMBER_FN(Subroutine0045D870, UInt32, 0x0045D870, UInt32, UInt32);
          DEFINE_MEMBER_FN(Subroutine0045DB00, void, 0x0045DB00, Struct0045CDB0*, BSFadeNode* shaderPropFadeNode, NiTriBasedGeom* niNodeAsGeom);
+         DEFINE_MEMBER_FN(Subroutine0045DCD0, void, 0x0045DCD0);
+         DEFINE_MEMBER_FN(Subroutine0045E340, void, 0x0045E340);
          DEFINE_MEMBER_FN(Subroutine0045E520, bool, 0x0045E520, Struct0045CFA0*);
+         DEFINE_MEMBER_FN(Subroutine0045EE80, void, 0x0045EE80);
+         DEFINE_MEMBER_FN(Subroutine0045F1A0, void, 0x0045F1A0);
          DEFINE_MEMBER_FN(Subroutine0045F1C0, void, 0x0045F1C0, Struct0045CDB0*, bool, DecalGroup* group); // group is optional; it's not used when loading decals from the save
 
          //

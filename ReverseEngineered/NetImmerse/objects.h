@@ -115,9 +115,9 @@ namespace RE {
          };
          //
          virtual void UpdateControllers(ControllerUpdateContext * ctx); // 21	// calls controller vtbl+0x8C
-         virtual void UpdateNodeBound(ControllerUpdateContext * ctx);
-         virtual void ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform);
-         virtual void SetPropertyState(NiProperty * prop);
+         virtual void UpdateNodeBound(ControllerUpdateContext * ctx); // 22
+         virtual void ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform); // 23
+         virtual void SetNiProperty(NiProperty * prop); // 24
          virtual void Unk_25(UInt32 arg0);
          virtual void Unk_26(UInt32 arg0);
          virtual NiAVObject* GetObjectByName(const char ** name);	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type

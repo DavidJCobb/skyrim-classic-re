@@ -39,11 +39,7 @@ namespace RE {
 
          // ... materials
 
-         //MEMBER_FN_PREFIX(NiGeometry);
-         //DEFINE_MEMBER_FN(SetEffectState, void, 0x004614A0, NiProperty * effectState);
-         //DEFINE_MEMBER_FN(SetSkinInstance, void, 0x0046AD10, NiSkinInstance * skinInstance);
-         void SetEffectState(NiProperty * effectState);
-         void SetSkinInstance(NiSkinInstance * skinInstance);
-         void SetModelData(NiGeometryData * modelData);
+         MEMBER_FN_PREFIX(NiGeometry);
+         DEFINE_MEMBER_FN(SetBSShaderProperty, void, 0x004614A0, BSShaderProperty*);
    };
 };

@@ -109,14 +109,16 @@ namespace RE {
          UInt32 unk2C = 0;
          BSFadeNode* esp30; // set by the constructor to some unknown node at a static pointer
          UInt32 unk34 = 0;
-         UInt32 unk38 = 0;
-         void*  unk3C = nullptr;
+         tArray<UInt32>* unk38 = nullptr; // BSLightingShaderProperty sets this to its own unk98; BSGrassShaderProperty sets this to its own unkC0
+         BSLightingShaderMaterial* unk3C = nullptr;
          UInt32 unk40 = 0;
          UInt32 unk44;
          //
          MEMBER_FN_PREFIX(BSShaderProperty);
          DEFINE_MEMBER_FN(Constructor, BSShaderProperty&, 0x00C6F9F0);
          DEFINE_MEMBER_FN(HasShaderFlag, bool, 0x0045C640, UInt8 flagIndex); // tests for flag (1 << flagIndex); if flagIndex < 32 then it's in shaderFlags1; else, tests for (1 << (flagIndex - 32)) in shaderFlags2
+         DEFINE_MEMBER_FN(SetShaderFlag, void, 0x00C6EEA0, UInt8 flagIndex, bool);
+         DEFINE_MEMBER_FN(Subroutine00C6F920, void, 0x00C6F920, BSLightingShaderMaterial*, UInt32); // called by BSGrassShaderProperty constructor with args (this->unk3C, 1)
    };
    //
    class BSLightingShaderProperty : public BSShaderProperty { // sizeof == 0xB0
@@ -135,7 +137,7 @@ namespace RE {
          UInt32 unk50 = 0;
          UInt32 unk54 = 0;
          UInt32 unk58 = 0;
-         UInt32 unk5C;
+         void*  unk5C; // three floats; possibly RGB
          float  unk60 = 1.0F;
          UInt32 unk64 = 0;
          float  unk68 = 1.0F;
@@ -192,4 +194,19 @@ namespace RE {
    };
    static_assert(sizeof(BSGrassShaderProperty) >= 0xE0, "RE::BSGrassShaderProperty is too small!");
    static_assert(sizeof(BSGrassShaderProperty) <= 0xE0, "RE::BSGrassShaderProperty is too large!");
+   //
+   class BSDistantTreeShaderProperty : public BSShaderProperty { // sizeof == 0x58
+      public:
+         static constexpr uint32_t vtbl = 0x011561A8;
+         static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA8824;
+         //
+      public:
+         UInt32 unk48 = 0x4B;
+         NiPointer<NiRefObject> unk4C = nullptr;
+         UInt32 unk50 = 0;
+         UInt32 unk54;
+         //
+         MEMBER_FN_PREFIX(BSDistantTreeShaderProperty);
+         DEFINE_MEMBER_FN(Constructor, BSDistantTreeShaderProperty&, 0x00CAE810);
+   };
 }

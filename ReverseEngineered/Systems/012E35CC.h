@@ -30,8 +30,20 @@ namespace RE {
    // effects.
    //
    // I found the constructor call for BSGrassShaderProperty; however, if I blindly replace that with a call 
-   // to the BSLightingShaderProperty constructor, then the game CTDs. There must be some additional config-
-   // uration happening after the constructor that leads to grass-specific behavior.
+   // to the BSLightingShaderProperty constructor, then the game CTDs. This happens even when I remember to 
+   // get rid of the SetUnkB4 call after the constructor, which uses a virtual function that exists only on 
+   // the grass shader property class. Perhaps there are other parts of the grass code which assume that 
+   // there's a grass shader property?
+   //
+   //  - BSGrassShaderProperty::unkB8 is accessed without checking the shader property type, at 00465412
+   //
+   //     - If we fix this, then we stop crashing, but grass doesn't render in-game at all.
+   //
+   //        - BSGrassShaderProperty's constructor calls this->sub00C6F920(this->unk3C, 1). Adding that 
+   //          after the tampered-with constructor call has no visible effect.
+   //
+   //     - If we try using BSDistantTreeShaderProperty instead of BSLightingShaderProperty, then we get the 
+   //       obvious result: a crash the very instant any grass 3D is set up.
    //
 
    class Singleton012E35CC {
@@ -53,7 +65,7 @@ namespace RE {
       DEFINE_MEMBER_FN(Subroutine00463510, void, 0x00463510, UInt32); // runs when ToggleGrass disables grass, among other places
       DEFINE_MEMBER_FN(Subroutine004644F0, bool, 0x004644F0, TESObjectCELL*); // checks for stuff related to a cell's "GID buffer"
       DEFINE_MEMBER_FN(Subroutine00464990, bool, 0x00464990, TESObjectCELL*); // only called if Subroutine004644F0 returns true
-      DEFINE_MEMBER_FN(Subroutine00464D40, void, 0x00464D40, UInt32, UInt32); // called by AddCellGrassTask::Unk_01
+      DEFINE_MEMBER_FN(Subroutine00464D40, void, 0x00464D40, UInt32, UInt32); // called by AddCellGrassTask::Unk_01; worth noting that ToggleGrass to enabled will trigger the creation of AddCellGrassTasks
       //
          //
          // Computed as:
