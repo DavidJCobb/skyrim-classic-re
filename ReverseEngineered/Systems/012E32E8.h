@@ -144,6 +144,7 @@ namespace RE {
          DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
          DEFINE_MEMBER_FN(GetUnkD4, BStList<UInt32>*, 0x00754050);
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
+         DEFINE_MEMBER_FN(Load_2,                    void,   0x00759600, BGSLoadGameBuffer*); // triggers load process for decals; not sure what else it does; seems to be called separately from the main load method
          DEFINE_MEMBER_FN(RemoveActorFromAIList,     void,   0x007563E0, UInt32 value, UInt32 processLevel); // finds and removes from one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which)
          DEFINE_MEMBER_FN(RemoveHandleFromUnkD4,     void,   0x00756720, UInt32& refHandle);
          DEFINE_MEMBER_FN(ResetAllDetection,         void,   0x00542970, bool* unused);

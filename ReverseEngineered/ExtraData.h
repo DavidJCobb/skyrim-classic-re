@@ -29,6 +29,7 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
+   class DecalGroup;
    class TESNPC;
    class TESObjectREFR;
    //
@@ -755,6 +756,8 @@ namespace RE {
          DEFINE_MEMBER_FN(HasExtraFromAlias,  bool, 0x0040DEA0);
          //
          DEFINE_MEMBER_FN(GetActivateRefEntryFor, ExtraActivateRef::Entry*, 0x00417990, TESObjectREFR* ref); // if it returns NULL, then ref isn't an activate parent of the thing we're calling on
+         DEFINE_MEMBER_FN(GetDecalGroup, DecalGroup*, 0x0040D3B0);
+         DEFINE_MEMBER_FN(SetDecalGroup, void, 0x004178A0, DecalGroup*);
          //
          // Many or most of the void* return types are unverified. The values returned are four bytes, but they could be pointers 
          // to data structures or just single values (i.e. UInt32, SInt32, or a float returned without relying on the FPU stack).

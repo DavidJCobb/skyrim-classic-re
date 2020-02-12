@@ -34,6 +34,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEquipSlot.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSLightingTemplate.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSListForm.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\FormDecalData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\TESModel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\Projectile.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\havok.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\NiExtraData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\objects.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\shaders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\NetImmerse\types.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\ActiveEffect.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Objects\Alias.h" />
@@ -72,6 +74,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Player\PlayerCharacter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Player\PlayerSkills.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\012E32E8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\012E35CC.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\012E59D4.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B115D8.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\01B2E724.h" />
@@ -82,6 +85,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTaskPool.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\BSTEvent.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ChangeForms.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\Decals.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\DefaultObjects.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\EquipManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Systems\ExteriorCellLoaderTask.h" />

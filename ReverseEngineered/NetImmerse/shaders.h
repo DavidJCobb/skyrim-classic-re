@@ -8,6 +8,76 @@ namespace RE {
          static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA743C;
          //
       public:
+	      enum ShaderFlags1 {
+		      kSLSF1_Specular						= 1 << 0,
+		      kSLSF1_Skinned						= 1 << 1,
+		      kSLSF1_Temp_Refraction				= 1 << 2,
+		      kSLSF1_Vertex_Alpha					= 1 << 3,
+		      kSLSF1_Greyscale_To_PaletteColor	= 1 << 4,
+		      kSLSF1_Greyscale_To_PaletteAlpha	= 1 << 5,
+		      kSLSF1_Use_Falloff					= 1 << 6,
+		      kSLSF1_Environment_Mapping			= 1 << 7,
+		      kSLSF1_Recieve_Shadows				= 1 << 8,
+		      kSLSF1_Cast_Shadows					= 1 << 9,
+		      kSLSF1_Facegen_Detail_Map			= 1 << 10,
+		      kSLSF1_Parallax						= 1 << 11,
+		      kSLSF1_Model_Space_Normals			= 1 << 12,
+		      kSLSF1_Non_Projective_Shadows		= 1 << 13,
+		      kSLSF1_Landscape					= 1 << 14,
+		      kSLSF1_Refraction					= 1 << 15,
+		      kSLSF1_Fire_Refraction				= 1 << 16,
+		      kSLSF1_Eye_Environment_Mapping		= 1 << 17,
+		      kSLSF1_Hair_Soft_Lighting			= 1 << 18,
+		      kSLSF1_Screendoor_Alpha_Fade		= 1 << 19,
+		      kSLSF1_Localmap_Hide_Secret			= 1 << 20,
+		      kSLSF1_FaceGen_RGB_Tint				= 1 << 21,
+		      kSLSF1_Own_Emit						= 1 << 22,
+		      kSLSF1_Projected_UV					= 1 << 23,
+		      kSLSF1_Multiple_Textures			= 1 << 24,
+		      kSLSF1_Remappable_Textures			= 1 << 25,
+		      kSLSF1_Decal						= 1 << 26,
+		      kSLSF1_Dynamic_Decal				= 1 << 27,
+		      kSLSF1_Parallax_Occlusion			= 1 << 28,
+		      kSLSF1_External_Emittance			= 1 << 29,
+		      kSLSF1_Soft_Effect					= 1 << 30,
+		      kSLSF1_ZBuffer_Test					= 1 << 31
+	      };
+	      enum ShaderFlags2 {
+		      kSLSF2_ZBuffer_Write					= 1 << 0,
+		      kSLSF2_LOD_Landscape					= 1 << 1,
+		      kSLSF2_LOD_Objects						= 1 << 2,
+		      kSLSF2_No_Fade							= 1 << 3,
+		      kSLSF2_Double_Sided						= 1 << 4,
+		      kSLSF2_Vertex_Colors					= 1 << 5,
+		      kSLSF2_Glow_Map							= 1 << 6,
+		      kSLSF2_Assume_Shadowmask				= 1 << 7,
+		      kSLSF2_Packed_Tangent					= 1 << 8,
+		      kSLSF2_Multi_Index_Snow					= 1 << 9,
+		      kSLSF2_Vertex_Lighting					= 1 << 10,
+		      kSLSF2_Uniform_Scale					= 1 << 11,
+		      kSLSF2_Fit_Slope						= 1 << 12,
+		      kSLSF2_Billboard						= 1 << 13,
+		      kSLSF2_No_LOD_Land_Blend				= 1 << 14,
+		      kSLSF2_EnvMap_Light_Fade				= 1 << 15,
+		      kSLSF2_Wireframe						= 1 << 16,
+		      kSLSF2_Weapon_Blood						= 1 << 17,
+		      kSLSF2_Hide_On_Local_Map				= 1 << 18,
+		      kSLSF2_Premult_Alpha					= 1 << 19,
+		      kSLSF2_Cloud_LOD						= 1 << 20,
+		      kSLSF2_Anisotropic_Lighting				= 1 << 21,
+		      kSLSF2_No_Transparency_Multisampling	= 1 << 22,
+		      kSLSF2_Unused01							= 1 << 23,
+		      kSLSF2_Multi_Layer_Parallax				= 1 << 24,
+		      kSLSF2_Soft_Lighting					= 1 << 25,
+		      kSLSF2_Rim_Lighting						= 1 << 26,
+		      kSLSF2_Back_Lighting					= 1 << 27,
+		      kSLSF2_Unused02							= 1 << 28,
+		      kSLSF2_Tree_Anim						= 1 << 29,
+		      kSLSF2_Effect_Lighting					= 1 << 30,
+		      kSLSF2_HD_LOD_Objects					= 1 << 31
+	      };
+         //
+      public:
          virtual UInt32 Unk_21(); // always returns 1 // not overridden by BSLightingShaderProperty
          virtual void   Unk_22(UInt32);
          virtual bool   Unk_23(UInt32); // always returns true
@@ -33,8 +103,8 @@ namespace RE {
          //
          float  unk18 = 1.0F;
          UInt32 unk1C = 0x7FFFFFFF;
-         UInt32 unk20 = 0;
-         UInt32 unk24 = 0;
+         UInt32 shaderFlags1 = 0; // 20
+         UInt32 shaderFlags2 = 0; // 24
          UInt32 unk28 = 0;
          UInt32 unk2C = 0;
          BSFadeNode* esp30; // set by the constructor to some unknown node at a static pointer
@@ -46,6 +116,7 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(BSShaderProperty);
          DEFINE_MEMBER_FN(Constructor, BSShaderProperty&, 0x00C6F9F0);
+         DEFINE_MEMBER_FN(HasShaderFlag, bool, 0x0045C640, UInt8 flagIndex); // tests for flag (1 << flagIndex); if flagIndex < 32 then it's in shaderFlags1; else, tests for (1 << (flagIndex - 32)) in shaderFlags2
    };
    //
    class BSLightingShaderProperty : public BSShaderProperty { // sizeof == 0xB0
@@ -54,7 +125,10 @@ namespace RE {
          static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA82E0;
          //
       public:
+         //
          // This class does not define new virtual member functions, but does override some of them.
+         //
+         virtual void Unk_24(UInt32, UInt32, UInt32) override;
          //
          UInt32 unk48 = 0;
          UInt32 unk4C = 0;

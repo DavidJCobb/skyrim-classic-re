@@ -5,6 +5,7 @@
 #include "ReverseEngineered/Forms/TESForm.h"
 #include "ReverseEngineered/Forms/BGSBodyPartData.h"
 #include "ReverseEngineered/Systems/BGSImpactManager.h"
+#include "ReverseEngineered/Systems/Decals.h"
 #include "ReverseEngineered/Shared.h"
 
 #include "skse/GameObjects.h"
@@ -477,22 +478,23 @@ namespace RE {
          virtual bool	Unk_9C(void* arg1, float waterHeight_notSureIfHavokUnits, float);  // 9C // new function? // related to underwater ambience
          virtual bool	Unk_9D(UInt32 arg1, UInt32 arg2, UInt32 arg3); // 9D // new function? // no-op (returns false) for TESObjectREFR
          virtual TESAmmo* Unk_9E(); // 9E // new function? // no-op for TESObjectREFR // pulls from the actor's process manager
-         virtual void*	Unk_9F(); // 9F // new function? // getter related to "DecalGroup" extra data
+         virtual DecalGroup* GetDecalGroup(); // 9F // new function? // getter related to "DecalGroup" extra data
          virtual void	AdjustProjectileFireTrajectory(NiNode* firingFromNode, float* pitch, float* yaw, NiPoint3* firingFromPos); // A0 // new function? // allows a reference to modify the initial angle and position of a projectile it is about to fire
          virtual void	Unk_A1(UInt32 arg1, UInt32 arg2, UInt32 arg3, UInt32 arg4); // A1 // new function? // no-op for TESObjectREFR
 
-         struct LoadedState {
-            UInt32   unk00;	// 00
-            float    unk04;	// 04
-            UInt32   unk08;	// 08
+         struct LoadedState { // sizeof == 0x28
+            //
+            // For layout, look at TESObjectREFR::CreateLoadedStateIfMissing
+            //
+            tArray<UInt32> unk00; // 00
             UInt32   unk0C;	// 0C
             float    unk10;	// 10 // related to cell water levels; see subroutine 004D9FE0 // can be FLT_MIN
             float    unk14;	// 14
-            UInt32   unk18;	// 18 // bitmask
+            UInt16   unk18;   // 18 // bitmask
+            UInt16   pad1A;
             void*    unk1C;	// 1C
-            NiNode*  node;	// 20 // This is what is returned by TESObjectREFR::GetNiNode.
-            // ... probably more
-            // if there's a 28, it would be a BGSAIWorldLocationPointRadius -- not a pointer
+            NiNode*  node;    // 20 // This is what is returned by TESObjectREFR::GetNiNode.
+            UInt32   unk24;   // 24
          };
          //
          // Parents:
@@ -542,6 +544,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsLimbSevered,           bool,             0x004D5B90, BGSBodyPartData::PartType limb);
          DEFINE_MEMBER_FN(ClearDestruction,        void,             0x00449630);
          DEFINE_MEMBER_FN(ContainsQuestItem,       bool,             0x004D6020);
+         DEFINE_MEMBER_FN(CreateLoadedStateIfMissing, void, 0x004E5AA0);
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
          DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30);
          DEFINE_MEMBER_FN(GetBaseContainerData,    TESContainer*,    0x004D4A30); // returns &(this->baseForm.container) for NPCs and container references
@@ -565,6 +568,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsOffLimits,             bool,             0x004DA760);
          DEFINE_MEMBER_FN(IsPerchFurniture,        bool,             0x004E9F20);
          DEFINE_MEMBER_FN(IsQuestObject,           bool,             0x004D5140);
+         DEFINE_MEMBER_FN(ModifyLoadedStateFlagsUnk18, void, 0x004D48F0, UInt16 flags, bool clearOrSet);
          DEFINE_MEMBER_FN(ModifyPersistentFlag,    void,             0x004D50A0, bool setTo);
          DEFINE_MEMBER_FN(MoveToMyEditorLocation,  bool,             0x004E6270, TESObjectCELL*, UInt32); // both arguments are zeroes?
          DEFINE_MEMBER_FN(SetDestroyed,            void,             0x00450E30, bool);
