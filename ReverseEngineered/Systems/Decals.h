@@ -4,6 +4,7 @@
 class BSShaderAccumulator;
 namespace RE {
    class BGSLoadGameBuffer;
+   class BSFadeNode;
    class NiCamera;
    class TESObjectCELL;
 
