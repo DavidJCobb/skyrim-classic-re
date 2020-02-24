@@ -988,7 +988,7 @@ namespace RE {
          DEFINE_MEMBER_FN(InstallArmor,    void,        0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
          DEFINE_MEMBER_FN(InstallWeapon,   void,        0x0046F870, TESForm*, UInt32);
 
-         DEFINE_MEMBER_FN(Subroutine0046C8A0, void, 0x0046C8A0, BodyPart* part);
+         DEFINE_MEMBER_FN(RemoveBodyPart3D, void, 0x0046C8A0, BodyPart* part, bool alsoClearItemAndAddon, TESModelTextureSwap* alwaysNullptr);
          DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
          DEFINE_MEMBER_FN(Subroutine0046D370, void, 0x0046D370, UInt32 bodyPartIndex);
          DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry

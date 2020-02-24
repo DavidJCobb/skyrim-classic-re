@@ -35,6 +35,26 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
       //push ebx;
       // - esp34 from above is now esp38
       // - esp30 (totalWeaponAdjust) from above is now esp34
+
+      //
+      // NOTE: IF WE WANT TO ADD ADDITIONAL 3D TO THE PLAYER BESIDES WHAT THEIR EQUIPPED ITEMS WOULD REQUIRE, 
+      // THEN THIS IS THE PLACE WHERE WE'D WANT TO REMOVE ANY PRE-EXISTING "EXTRA" 3D THAT WE HAVE PREVIOUSLY 
+      // ADDED.
+      //
+      // WE'D WANT TO GO AND ACTUALLY ADD THE NEW 3D AFTER THE NEXT LOOP.
+      //
+      // THE LOOP UNDERTAKES THE FOLLOWING TASKS:
+      //
+      //  - Unknown handling involving the unk548 array.
+      //
+      //  - If the current unk548 slot has rendered-armor, remove it. Otherwise, check whether 
+      //    it has an unk14 (tail animation handler) and if so, remove that.
+      //
+      //  - Update and create 3D for the current bodyParts slot.
+      //
+      //     - Is "unk548" a list of body part data that is pending teardown, then?
+      //
+
       do { // at 0x00470134
          TESModelTextureSwap* eax = this->bodyParts[esp4C].model;
          //
@@ -73,10 +93,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
             }
          }
          if (this->unk548[esp4C].renderedArmor) { // if it has a NiNode // at 0x00470206
-            this->TESV_0046C8A0(&this->unk548[esp4C], 1, 0); // call includes garbage collection
+            this->RemoveBodyPart3D(&this->unk548[esp4C], true, nullptr);
          } else {
             if (eax) { // at 0x0047021E
-               edx = this->unk548[esp4C].unk14;
+               edx = this->unk548[esp4C].unk14; // unk14 is related to tail anims
                ecx = &this->unk548[esp4C].unk14;
                if (edx is not a valid NiPointer) // at 0x00470236
                   jump to 0x0047025E;
@@ -86,7 +106,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                esi = &this->unk548[esp4C];
                if (eax != this->unk548[esp4C].item) // at 0x0047024F
                   jump to 0x0047025E;
-               this->bodyParts[esp4C].unk14.TESV_0060DEE0(ecx); // NiPointer assign
+               this->bodyParts[esp4C].unk14.TESV_0060DEE0(ecx); // NiPointer assign // unk14 is related to tail anims
                esi->Reset();
             } else {
                this->unk548[esp4C].Reset(); // at 0x0047025E
