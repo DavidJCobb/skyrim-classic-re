@@ -41,6 +41,8 @@ namespace RE {
          DEFINE_MEMBER_FN(SetNiGeometryTexture, UInt32, 0x006A4590, NiAVObject* geometry, BGSTextureSet* textureSet);
          DEFINE_MEMBER_FN(ProcessTaskQueue_HookTarget, void, 0x006A0B30);
          //
+         // The subroutine 006A12A0 contains a switch-case on task type numbers: this is where tasks are executed.
+         //
          DEFINE_MEMBER_FN(QueueBSTask,            void, 0x006A2B30, BSTask*);
          DEFINE_MEMBER_FN(QueueDispelSpellTask,   void, 0x006A3ED0, UInt32, UInt32); // used by Papyrus
          DEFINE_MEMBER_FN(QueueFireWeaponTask,    void, 0x006A2E20, TESObjectWEAP*, TESObjectREFR* shooter, TESAmmo*); // used by Papyrus and the console
@@ -67,7 +69,7 @@ namespace RE {
          DEFINE_MEMBER_FN(QueueTaskType16,      void, 0x006A39E0, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType17,      void, 0x006A3940, UInt32, UInt32, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType18,      void, 0x006A3A30, UInt32); // used by Papyrus ObjectReference.Delete
-         DEFINE_MEMBER_FN(QueueTaskType19,      void, 0x006A3A70, TESObjectREFR*); // related to actor decapitations
+         DEFINE_MEMBER_FN(QueueTaskType19,      void, 0x006A3A70, TESObjectREFR* victim); // related to actor decapitations; just calls Actor::Subroutine006DA980 with argument false
          DEFINE_MEMBER_FN(QueueTaskType1A,      void, 0x006A3AB0, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType1B,      void, 0x006A3AF0, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType1C,      void, 0x006A3B30, Actor*);
@@ -137,5 +139,5 @@ namespace RE {
       SpellItem* spell; // 08
    };
 
-   DEFINE_SUBROUTINE_EXTERN(bool, ShouldUseBSTaskPoolForWhatYoureAboutToDo, 0x006F3590); // several places in the game just perform a task themselves if this returns false, instead of queueing it
+   DEFINE_SUBROUTINE_EXTERN(bool, ShouldUseBSTaskPoolForTask, 0x006F3590); // several places in the game just perform a task themselves if this returns false, instead of queueing it
 };

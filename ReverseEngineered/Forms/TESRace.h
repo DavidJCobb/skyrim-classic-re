@@ -151,7 +151,7 @@ namespace RE {
          UInt32 unk1AC;
          UInt32 unk1B0;
          UInt32 unk1B4;
-         UInt32 unk1B8;
+         UInt32 unk1B8; // 1B8 - 1C0 is an array of two eight-byte items, with the index being the actor sex; accessed by TESRace::Subroutine005775E0
          UInt32 unk1BC;
          UInt32 unk1C0; // 1C0
          UInt32 unk1C4; // 1C4

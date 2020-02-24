@@ -22,6 +22,32 @@ namespace RE {
    class TESObjectARMO;
    class TESPackageData;
 
+   struct HeadNodeListForDecapitation {
+      //
+      // A singleton: a static array that is used when handling decapitation graphics to hold the actor's 
+      // head node and all descendants of that node. Multiple subroutines refer to the contents of this 
+      // array during the decapitation process, and it is only cleared just before being filled for the 
+      // next decapitation.
+      //
+      uint32_t count = 0;
+      uint32_t unk04;
+      NiNode*  nodes[0x100];
+      //
+      static HeadNodeListForDecapitation& get() noexcept {
+         return *(HeadNodeListForDecapitation*)0x01B383F0;
+      }
+      inline void clear() {
+         this->count = 0;
+         memset(&this->nodes, 0, sizeof(this->nodes));
+      }
+      inline void push_back(NiNode* a) {
+         if (this->count >= 0x100)
+            return;
+         this->nodes[this->count] = a;
+         ++this->count;
+      }
+   };
+
    enum ActorValueModifier {
       //
       // Actor values (hereafter "AVs") can have three modifiers: permanent, temporary, and damage. An AV's 
@@ -1480,6 +1506,9 @@ namespace RE {
          DEFINE_MEMBER_FN(UpdateArmorAbility,    void,    0x006E8650, TESForm*, BaseExtraList* extraData);
          DEFINE_MEMBER_FN(UpdateWeaponAbility,   void,    0x006ED980, TESForm*, BaseExtraList* extraData, bool bLeftHand);
          DEFINE_MEMBER_FN(WillIntimidateSucceed, bool,    0x006AF180);
+         //
+         DEFINE_MEMBER_FN(PrepareHeadNodeListForDecapitation, void, 0x006ADB10, NiNode* head, bool isRecursing);
+         DEFINE_MEMBER_FN(NodeBoneListOverlapsWithHeadNodeListForDecapitation, bool, 0x006ADA30, NiNode* node, UInt32 unused);
          //
          DEFINE_MEMBER_FN(Subroutine004D8210, void, 0x004D8210, BGSOutfit*); // remove all items that came from this outfit?
          DEFINE_MEMBER_FN(Subroutine006A75F0, void, 0x006A75F0);
