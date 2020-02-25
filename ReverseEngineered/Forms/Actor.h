@@ -110,7 +110,7 @@ namespace RE {
       UInt32 unk04;
       Struct007BE6A0* unk08;
       Struct007AC960* unk0C;
-      Struct007E99C0* unk10; // GetGroupTargetCount treats this as an int... :\ 
+      Struct007E99C0* unk10; // GetGroupTargetCount treats this as an int? :\ 
       UInt32 unk14 = 0; // refHandle
       UInt32 unk18 = 0;
       UInt32 groupMemberCount = 0; // 1C
@@ -266,7 +266,7 @@ namespace RE {
    class DetectionState : public NiRefObject { // sizeof == 0x40
       // constructor at 0x0077EF90
       public:
-         SInt32 detectionAmount = -1000; // 08 // detection amount
+         SInt32 detectionAmount = -1000; // 08 // detection amount; negative or zero = not detected
          bool   unk0C = false;
          bool   unk0D = false; // target's current position is known?
          bool   unk0E = false;
@@ -279,6 +279,7 @@ namespace RE {
          NiPoint3 unk34; // set by Subroutine0077F030 if detectionAmount <= 0; "last detected position?"
 
          MEMBER_FN_PREFIX(DetectionState);
+         DEFINE_MEMBER_FN(Constructor, DetectionState&, 0x0077EF90);
          DEFINE_MEMBER_FN(CopyAssign, void, 0x0077F130, DetectionState*);
          DEFINE_MEMBER_FN(Load,  void, 0x0077EEF0, BGSLoadGameBuffer*);
          DEFINE_MEMBER_FN(Reset, void, 0x0077F0C0);
@@ -289,8 +290,8 @@ namespace RE {
       public:
          //ActorKnowledge(RE::Actor* a, RE::Actor* b);
          //
-         UInt32 unk08 = 0; // refHandle
-         UInt32 unk0C = 0; // refHandle
+         UInt32 unk08 = 0; // refHandle: actor who knows
+         UInt32 unk0C = 0; // refHandle: actor who is known
          UInt32 unk10 = 4;
          float  unk14 = FLT_MIN;
          DetectionState* detectionState = nullptr; // 18
@@ -299,6 +300,7 @@ namespace RE {
          float  unk2C = FLT_MIN; // a maximum for something; not used if == FLT_MIN
 
          MEMBER_FN_PREFIX(ActorKnowledge);
+         DEFINE_MEMBER_FN(Constructor, ActorKnowledge&, 0x0077D930, Actor* whoKnows, Actor* whoIsKnown);
          DEFINE_MEMBER_FN(DestroyUnk18, void, 0x0077D570);
          DEFINE_MEMBER_FN(Load,         void, 0x0077D770, BGSLoadGameBuffer*);
          DEFINE_MEMBER_FN(ReplaceDetectionState, void, 0x0077DF10, DetectionState*);
