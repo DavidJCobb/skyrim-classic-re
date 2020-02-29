@@ -848,12 +848,19 @@ namespace RE {
             //
             kState_Bleedout            = 0x01000000,
             //
-            kState_MaybeAttacking_All = 0xF0000000, // checked by EquipManager; swapping weapon/spell/scroll/etc. when any of these are set interrupts your attack
+            kState_MaybeAttacking_All = 0xF0000000, // checked by EquipManager; swapping weapon/spell/scroll/etc. when any of these are set interrupts your attack // combat state enum?
+               // found a setter circa 0x006F1829
+               // 1 = performing killmove
+               // 8 = bow or crossbow attack start
+               // A = ?
+               // B = attack release?
          };
          enum Flags08 {
             kFlag_EnableHeadtracking = 0x8,
-            kFlag_Recoiling  = 0x0C00,
-            kFlag_Staggering = 0x2000,
+            kFlag_WantBlocking = 0x0100, // GetWantBlocking
+            kFlag_RecoilNormal = 0x0400,
+            kFlag_RecoilLarge  = 0x0800,
+            kFlag_Staggering   = 0x2000,
          };
 
          UInt32	flags04;
@@ -862,7 +869,7 @@ namespace RE {
          inline FurnitureState GetFurnitureState() const {
             return (FurnitureState) ((this->flags04 >> 0xE) & 0xF);
          }
-         inline bool IsRecoiling() const { return !!(this->flags08 & kFlag_Recoiling); };
+         inline bool IsRecoiling() const { return !!(this->flags08 & (kFlag_RecoilNormal | kFlag_RecoilLarge)); };
          inline bool IsStaggered() const { return !!(this->flags08 & kFlag_Staggering); };
          inline bool IsUnconscious() const { return (this->flags04 & 0x01E00000) == 0x00600000; };
          inline bool IsUndead()      const { return (this->flags04 & 0x01E00000) == 0x00800000; };
@@ -1459,7 +1466,7 @@ namespace RE {
          DEFINE_MEMBER_FN(InterruptCast,         void,    0x006E8F60, UInt32 unk_usuallyZero);
          DEFINE_MEMBER_FN(IsAlerted,             bool,    0x006A87C0); // Calls this->processManager->TESV_006F4770();
          DEFINE_MEMBER_FN(IsArrestingTarget,     bool,    0x006B4650);
-         DEFINE_MEMBER_FN(IsBlocking,            bool,    0x006BBE60);
+         DEFINE_MEMBER_FN(IsBlocking,            bool,    0x006BBE60); // checks animation state
          DEFINE_MEMBER_FN(IsBribed,              bool,    0x006AA490);
          DEFINE_MEMBER_FN(IsEssentialOrProtected, bool,    0x006AAD20, bool alsoCheckProtected); // if the argument is false, then only checks for the "essential" flag
          DEFINE_MEMBER_FN(IsFollowing,           bool,    0x006B2FF0, Actor* other); // returns true if AI is directing this actor to follow/accompany the other
@@ -1500,7 +1507,8 @@ namespace RE {
          DEFINE_MEMBER_FN(SetPlayerControls,     void,    0x008DC790, bool);
          DEFINE_MEMBER_FN(SetPlayerResistingArrest, void, 0x006AEF40, bool isResisting, TESFaction*); // literally doesn't matter what actor you call this on; hell, you can call it on nullptr
          DEFINE_MEMBER_FN(SetRace,               void,    0x006AF590, TESRace*, bool isPlayer);
-         DEFINE_MEMBER_FN(SetSwimming,           bool,    0x006B9670, bool); // returns previous state?
+         DEFINE_MEMBER_FN(SetSneaking,           bool,    0x006ABAE0, bool);
+         DEFINE_MEMBER_FN(SetSwimming,           bool,    0x006B9670, bool); // returns previous state? // game seems to update this per-frame...
          DEFINE_MEMBER_FN(SetVoiceRecoveryTime,  void,    0x006E8B10, float);
          DEFINE_MEMBER_FN(SetYaw,                void,    0x006A8910, float); // Honors actor-specific settings, like the race "immobile" flag. Uses underlying SetYaw method on TESObjectREFR.
          DEFINE_MEMBER_FN(ShouldAttackKill,      bool,    0x006E1770, Actor* target);
@@ -1561,6 +1569,9 @@ namespace RE {
             uint8_t flags = (this->actorState.flags04 >> 5) & 7;
             return flags >= 3;
          };
+         inline bool GetWantBlocking() const {
+            return (this->actorState.flags08 & ActorState::kFlag_WantBlocking);
+         }
    };
 
    STATIC_ASSERT(offsetof(Actor, magicTarget) == 0x54);

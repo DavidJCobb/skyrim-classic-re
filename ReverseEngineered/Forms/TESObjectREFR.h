@@ -410,7 +410,7 @@ namespace RE {
          virtual void	GetMarkerPosition(NiPoint3* pos); // 5B
          virtual ActorMagicCaster*  GetOrCreateMagicCaster(UInt32 index); // index must be between 0 and 3 inclusive; specifying 4 returns index 0; otherwise, undefined behavior
          virtual MagicTarget* GetSelfAsMagicTarget(); // 5D // Creates and attaches a NonActorMagicTarget for the reference if it is not an actor
-         virtual UInt8  Unk_5E(); // probable bool
+         virtual bool   IsChild(); // 5E // used for Actor; is this also used for things that are flagged as child-suitable/child-only?
          virtual UInt32 Unk_5F();
          virtual void	Unk_60(UInt32);
          virtual BSFaceGenNiNode* GetFaceGenNiNode();
