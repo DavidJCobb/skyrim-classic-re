@@ -199,7 +199,7 @@ namespace RE {
          UnkFormArray unk714;
          UInt32 unk720 = 0;
          UInt8  unk724; // bitmask
-         UInt8  unk725 = 1;
+         UInt8  unk725 = 1; // 725
          UInt8  unk726 = 1; // 726 // see: Flags726
          UInt8  unk727; // 727 // bitmask; PlayerCharacter::Unk_71 returns unk727 & 1; value is related to flags on actor's root nodes, somehow; value is related to whether the player is AI driven, too
          UInt8  unk728 = 4; // 728 // see: Flags728

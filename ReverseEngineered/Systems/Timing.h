@@ -15,7 +15,7 @@ namespace RE {
       TESGlobal* daysPassed; // 14 // [GLOB:00000039]GameDaysPassed
       TESGlobal* timeScale;  // 18 // [GLOB:0000003A]TimeScale
       UInt32 unk1C = 0; // 1C
-      UInt32 unk20 = 0; // 20
+      float  unk20 = 0.0F; // 20
 
       static TimeGlobals* GetInstance() {
          return *(TimeGlobals**)0x012E35DC;
@@ -30,6 +30,8 @@ namespace RE {
       DEFINE_MEMBER_FN(GetTimeScale,       float,  0x0068CE90);
       DEFINE_MEMBER_FN(GetYear,            SInt32, 0x0068CEA0);
       DEFINE_MEMBER_FN(Subroutine004B8560, UInt32, 0x004B8560);
+      //
+      DEFINE_MEMBER_FN(PassRealSeconds, void, 0x0068DB40, float seconds); // advances in-game time by (seconds * timescale); used by the main thread and by some places that skip in-game time e.g. fast-travel
    };
    constexpr TimeGlobals** g_timeGlobals = (TimeGlobals**)0x012E35DC;
 };

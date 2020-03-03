@@ -6,6 +6,7 @@
 #include "ReverseEngineered/Forms/BGSBodyPartData.h"
 #include "ReverseEngineered/Systems/BGSImpactManager.h"
 #include "ReverseEngineered/Systems/Decals.h"
+#include "ReverseEngineered/Systems/Magic.h"
 #include "ReverseEngineered/Shared.h"
 
 #include "skse/GameObjects.h"
@@ -315,49 +316,6 @@ namespace RE {
          virtual UInt32 Unk_11(); // 11 // return value unknown
          virtual bool   Unk_12(); // 12
          virtual bool   Unk_13(); // 13 // checks flags in the actor's race
-   };
-
-   class MagicCaster { // sizeof == 0x30
-      public:
-         virtual void   Dispose(bool free);
-         virtual void   Unk_01(UInt32, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32);
-         virtual UInt32 Unk_02();
-         virtual void   Unk_03();
-         virtual bool   Unk_04();
-         virtual void   Unk_05(void); // signature unknown
-         virtual void   Unk_06();
-         virtual void   Unk_07(); // no-op on base class
-         virtual void   Unk_08(UInt32); // no-op on base class
-         virtual void   Unk_09(UInt32, UInt32, UInt32); // no-op on base class
-         virtual bool   Unk_0A(UInt32, UInt32, UInt32, UInt32, UInt32);
-         virtual UInt32 Unk_0B(); // no-op (returns zero) on base class
-         virtual Actor* Unk_0C(); // no-op (returns nullptr) on base class // ActorMagicCaster: returns unk68
-         virtual UInt32 Unk_0D(UInt32);
-         virtual NiAVObject* Unk_0E(); // no-op (returns zero) on base class; defined on ActorMagicCaster // may be NiNode instead
-         virtual void   Unk_0F(); // no-op on base class
-         virtual void   Unk_10(UInt32); // no-op on base class
-         virtual void   Unk_11(); // no-op on base class
-         virtual void   Unk_12(); // no-op on base class
-         virtual void   Unk_13(); // no-op on base class
-         virtual void   Unk_14();
-         virtual UInt32 Unk_15(); // no-op (returns zero) on base class
-         virtual bool   Unk_16(); // no-op (returns false) on base class
-         virtual void   Unk_17(UInt32); // no-op on base class
-         virtual void   WriteSavedata(BGSSaveFormBuffer*);
-         virtual void   LoadSavedata(BGSLoadGameBuffer*);
-         virtual void   Unk_1A(UInt32);
-         virtual void   Unk_1B(UInt32, UInt32); // related to sounds
-         virtual bool   Unk_1C(UInt32, UInt32, UInt32);
-         //
-         tArray<UInt32> unk04;
-         UInt32 unk10 = 0;
-         UInt32 unk14 = 0;
-         UInt32 unk18 = 0;
-         UInt32 unk1C = 0;
-         float  unk20 = 1.0F;
-         UInt32 unk24 = 0;
-         UInt32 unk28 = 0;
-         UInt32 unk2C = 0;
    };
 
    class TESObjectREFR : public TESForm {

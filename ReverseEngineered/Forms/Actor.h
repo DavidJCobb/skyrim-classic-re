@@ -5,6 +5,7 @@
 #include "ReverseEngineered/NetImmerse/objects.h"
 #include "ReverseEngineered/NetImmerse/types.h"
 #include "ReverseEngineered/Systems/AttackProcessing.h"
+#include "ReverseEngineered/Systems/Magic.h"
 #include "ReverseEngineered/Miscellaneous.h"
 #include "ReverseEngineered/Types.h"
 #include "skse/NiObjects.h"
@@ -1265,7 +1266,7 @@ namespace RE {
          // Every virtual method after this point was missing from the SKSE definitions, likely because 
          // Bethesda added them after the SKSE team last checked the VTBL.
          //
-         virtual void Unk_FC(UInt32); // FC // no-op for Actor
+         virtual void Unk_FC(UInt32); // FC // no-op for Actor; defined on PlayerCharacter; related to perks. function below it in the disassembly uses the ApplyPerksVisitor
          virtual void Unk_FD(UInt32); // FC // no-op for Actor
          virtual bool Unk_FE(UInt32); // FC
          virtual UInt32 Unk_FF(); // FF
@@ -1410,7 +1411,7 @@ namespace RE {
          MEMBER_FN_PREFIX(Actor);
          DEFINE_MEMBER_FN(AddSpell,              bool,    0x006EC120, SpellItem* spell);
          //
-         DEFINE_MEMBER_FN(AdvanceTime,                      void, 0x006EC290, float time); // advances all other timers as appropriate. the argument can be zero, and often is; I don't understand what the effect of that is
+         DEFINE_MEMBER_FN(AdvanceTime,                      void, 0x006EC290, float realTimeSeconds); // advances all other timers as appropriate. the argument can be zero, and often is; I don't understand what the effect of that is
          DEFINE_MEMBER_FN(AdvanceActorValueRegenDelayTimer, bool, 0x006DE9D0, UInt32 avIndex, float time); // ticks the delay timer down by (time) units (seconds?). returns true if there's still time left before regen should begin
          DEFINE_MEMBER_FN(AdvanceRegenTimerForHealth,       void, 0x006E0A50, float time); // if the timer falls to zero or is already there, regens the stat
          DEFINE_MEMBER_FN(AdvanceRegenTimerForMagicka,      void, 0x006E0B30, float time); // if the timer falls to zero or is already there, regens the stat
@@ -1475,7 +1476,7 @@ namespace RE {
          DEFINE_MEMBER_FN(IsHostileToActor,      bool,    0x006D4360, Actor* actor);
          DEFINE_MEMBER_FN(IsInCombatAndNotIgnoringCombat, bool, 0x006E1360);
          DEFINE_MEMBER_FN(IsInKillMove,          bool,    0x006E16F0);
-         DEFINE_MEMBER_FN(IsInMidAir,            bool,    0x006A6EB0); // used to disallow waiting/sleeping in midair; not necessarily the best check for other use cases
+         DEFINE_MEMBER_FN(IsInMidAir,            bool,    0x006A6EB0); // used to disallow waiting/sleeping in midair; not necessarily the best check for other use cases. reads as true if you're mounted on a dragon and flying?
          DEFINE_MEMBER_FN(IsIntimidated,         bool,    0x006AA3E0);
          DEFINE_MEMBER_FN(IsOverencumbered,      bool,    0x006AFED0); // always false for NPCs; always false if god mode is enabled; always false if the actor has ExtraInteraction; otherwise, compare max carry weight (with perk entry points) with inventory weight
          DEFINE_MEMBER_FN(IsRunning,             bool,    0x006AB210);

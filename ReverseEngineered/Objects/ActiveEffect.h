@@ -1,25 +1,61 @@
 #pragma once
+#include <cstdint>
+#include <type_traits>
 #include "skse/GameObjects.h"
 #include "skse/Utilities.h"
+#include "ReverseEngineered/Forms/MagicItem.h"
+#include "ReverseEngineered/Systems/Magic.h"
+#include "ReverseEngineered/Types.h"
 
-class Actor;
-class BGSLoadGameBuffer;
-class NiNode;
 namespace RE {
+   class Actor;
+   class BGSLoadGameBuffer;
+   class ModelReferenceEffect;
+   class NiNode;
+   class TESObjectREFR;
+
+   class ActiveEffectReferenceEffectController {
+      public:
+         virtual ~ActiveEffectReferenceEffectController();
+         // ...
+
+         ActiveEffect* effect; // 04
+         UInt32 refHandle; // 08
+         //
+         MEMBER_FN_PREFIX(ActiveEffectReferenceEffectController);
+         DEFINE_MEMBER_FN(SetHandle, void, 0x00668F70, TESObjectREFR*);
+   };
+
    class ActiveEffect {
       public:
+         static constexpr uint8_t form_type = kFormType_ActiveMagicEffect;
          enum { kTypeID = kFormType_ActiveMagicEffect };
 
-         enum {
-            kFlag_Inactive = 0x8000
+         enum class Flags : UInt32 {
+            none = 0,
+            //
+            unk_05   = 0x00000020, // 1 << 0x05
+            unk_06   = 0x00000040, // 1 << 0x06
+            unk_07   = 0x00000080, // 1 << 0x07
+            unk_08   = 0x00000100, // 1 << 0x08
+            //
+            unk_0D   = 0x00002000, // 1 << 0x0D
+            unk_0E   = 0x00004000, // 1 << 0x0E
+            inactive = 0x00008000, // 1 << 0x0F
+            unk_10   = 0x00010000, // 1 << 0x10
+            unk_11   = 0x00020000, // 1 << 0x11
+            unk_12   = 0x00040000, // 1 << 0x12
+            //
+            unk_1F   = 0x80000000, // 1 << 0x1F // if set, prevents a call to Unk_05 and consequently the updating of conditions
          };
+         using flags_t = std::underlying_type_t<Flags>;
 
          virtual void ApplyPerkEffects(UInt32 arg1, MagicTarget* arg2); // 00 // modifies duration and magnitude based on the following perk entry points: mod spell duration; mod spell magnitude; mod incoming spell duration; mod incoming spell magnitude
          virtual void Unk_01(UInt32 arg1); // 01 // conditionally modifies flags at this->item->unk54
          virtual void Unk_02();   // 02 // no-op on base class
-         virtual Actor* Unk_03(); // 03 // returns this->actorTarget->Unk_02(); -- most likely the target
+         virtual Actor* GetTargetActor(); // 03 // returns this->actorTarget->GetTargetActor(); -- most likely the target
          virtual void Unk_04(UInt32 arg1); // 04 // no-op on base class
-         virtual void Unk_05(float arg1, UInt32 arg2); // 05 // related to GMST:fActiveEffectConditionUpdateInterval and StopHitEffectsVisitor; arg1 type assumed
+         virtual void Unk_05(float realTimeSeconds, bool); // 05 // calls DoConditionUpdate and, when needed, TurnOff; arg1 type assumed
          virtual bool Unk_06(); // 06 // no-op on base class; returns false
          virtual void Unk_07(UInt32 arg1); // 07 // no-op on base class
          virtual void Unk_08(void* arg1); // 08 // related to saving data
@@ -42,27 +78,62 @@ namespace RE {
 
          //	void** _vtbl; // 00
          ActiveEffectReferenceEffectController controller; // 04
-         UInt32   unk0C[7];    // 0C
-         UInt32   actorCasterHandle; // 28
+         UInt32 unk10;
+         UInt32 unk14;
+         UInt32 unk18;
+         UInt32 unk1C;
+         UInt32 unk20;
+         UInt32 unk24;
+         UInt32 actorCasterHandle; // 28
          NiNode*  niNode;      // 2C
          MagicItem* item;      // 30
          MagicItem::EffectItem* effect; // 34
          MagicTarget* actorTarget; // 38
          TESForm* sourceItem;  // 3C
-         void*    unk40;       // 40 // pointer to struct UnkLinkedList { void* data; UnkLinkedList* next }
-         UInt32   unk44;       // 44
-         float    elapsed;     // 48
-         float    duration;    // 4C
+         BStList<ModelReferenceEffect>* unk40; // 40 // or NiPointers?
+         MagicItem*   unk44;       // 44 // type confirmed by inspecting AnonymousNamespace0x6426b6db::FindAppropriateDisplaceEffect::Visit
+         float    elapsed;     // 48 // real-world time
+         float    duration;    // 4C // real-world time
          float    magnitude;   // 50
-         UInt32   flags;			// 54
+         flags_t  flags;			// 54
          UInt32   unk58;			// 58
-         UInt32   effectNum;		// 5C - Somekind of counter used to determine whether the ActiveMagicEffect handle is valid
+         UInt32   effectNum;		// 5C // SKSE: somekind of counter used to determine whether the ActiveMagicEffect handle is valid // 0x00656E7E writes to this as a UInt16
          UInt32   unk60;			// 60 // This is the highest field accessed in the ActiveEffect constructor.
 
+         class ForEachHitEffectVisitor {
+            // Subclasses seen: AttachLightHitEffectVisitor; StopHitEffectsVisitor
+            public:
+               virtual ~ForEachHitEffectVisitor();
+               virtual void Visit(void*);
+         };
+
          MEMBER_FN_PREFIX(ActiveEffect);
+         DEFINE_MEMBER_FN(DoConditionUpdate, void, 0x00655BA0, float unused, bool force); // Tests whether the condition update interval has passed (unless (force) is true), and if so, runs conditions and turns off if needed.
+         DEFINE_MEMBER_FN(ForEachHitEffect, void, 0x00654E20, ForEachHitEffectVisitor*);
          DEFINE_MEMBER_FN(GetBaseObject, EffectSetting*, 0x00654A70); // returns this->effect->mgef; no nullptr checks
          DEFINE_MEMBER_FN(GetMagnitude,  float,          0x00654D80);
+         DEFINE_MEMBER_FN(Subroutine00654A40, void, 0x00654A40, TESForm* sourceItem, bool flag00000100); // sets the respective members
+         DEFINE_MEMBER_FN(Subroutine00654C40, bool, 0x00654C40); // related to potions and addictions?
+         DEFINE_MEMBER_FN(Subroutine00655080, void, 0x00655080); // related to sound
+         DEFINE_MEMBER_FN(Subroutine00655550, bool, 0x00655550); // possibly a "should advance time" getter
+         DEFINE_MEMBER_FN(Subroutine006560E0, bool, 0x006560E0, TESObjectREFR* optionalCaster); // returns true if the target is within (effect area) feet of the caster; used for self-cast range checks?
+         DEFINE_MEMBER_FN(AdvanceTime, void, 0x00656CB0, float realTimeSeconds); // calls Unk_05 and increments elapsed time; argument can be 0.0F to trigger a basic update
+         //
+         DEFINE_MEMBER_FN(TurnOff, void, 0x006554F0); // called by Unk_05 after the "inactive" flag is set
    };
+   static_assert(sizeof(ActiveEffect) >= 0x64, "ActiveEffect is too small!");
+   static_assert(sizeof(ActiveEffect) <= 0x64, "ActiveEffect is too large!");
+   /*// offsetof is broken, at least in Intellisense pre-2019
+   static_assert(offsetof(ActiveEffect, controller) >= 0x04, "ActiveEffect::controller is too early!");
+   static_assert(offsetof(ActiveEffect, controller) <= 0x04, "ActiveEffect::controller is too late!");
+   static_assert(offsetof(ActiveEffect, item) >= 0x30, "ActiveEffect::item is too early!");
+   static_assert(offsetof(ActiveEffect, item) <= 0x30, "ActiveEffect::item is too late!");
+   static_assert(offsetof(ActiveEffect, elapsed) >= 0x48, "ActiveEffect::elapsed is too early!");
+   static_assert(offsetof(ActiveEffect, elapsed) <= 0x48, "ActiveEffect::elapsed is too late!");
+   static_assert(offsetof(ActiveEffect, unk60) >= 0x60, "ActiveEffect::unk60 is too early!");
+   static_assert(offsetof(ActiveEffect, unk60) <= 0x60, "ActiveEffect::unk60 is too late!");
+   //*/
+
    class BoundItemEffect : public ActiveEffect {
       public:
          enum { kVTBL = 0x010C8D74 };

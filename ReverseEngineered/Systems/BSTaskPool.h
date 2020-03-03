@@ -6,6 +6,7 @@ class BGSTextureSet;
 class NiAVObject;
 class SpellItem;
 namespace RE {
+   class ActiveEffect;
    class Actor;
    class NiNode;
    struct NiPoint3;
@@ -19,6 +20,7 @@ namespace RE {
    enum TaskType : UInt32 {
       kTaskType_10            = 0x10, // Actor::ProcessIncomingAttack
       kTaskType_34            = 0x34, // for created water ref? and three other things
+      kTaskType_35            = 0x35, // related to magic; acts on a single ActiveEffect; possibly dispels an individual effect
       kTaskType_DispelSpell   = 0x5B,
       kTaskType_FireWeapon    = 0x1F,
       kTaskType_KillActor     = 0x0A,
@@ -91,7 +93,7 @@ namespace RE {
          DEFINE_MEMBER_FN(QueueTaskType32,      void, 0x006A35E0, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType33,      void, 0x006A3620, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType34,      void, 0x006A37C0, TESObjectREFR*);
-         DEFINE_MEMBER_FN(QueueTaskType35,      void, 0x006A3E70, UInt32);
+         DEFINE_MEMBER_FN(QueueTaskType35,      void, 0x006A3E70, ActiveEffect*);
          DEFINE_MEMBER_FN(QueueTaskType36,      void, 0x006A2F90, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType37,      void, 0x006A2FD0, UInt32, UInt32);
          DEFINE_MEMBER_FN(QueueTaskType38,      void, 0x006A3010, TESObjectREFR* light, UInt32, UInt32);

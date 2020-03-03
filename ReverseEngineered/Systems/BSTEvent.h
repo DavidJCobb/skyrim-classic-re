@@ -36,20 +36,20 @@ namespace RE {
    template <typename EventStruct> class BSTEventSource { // sizeof == 0x30
       typedef BSTEventSink<EventStruct>* pSink;
       public:
-      SimpleLock lock; // 00
-      tArray<pSink> activeSinks; // tArray<BSTEventSink*> ? // 08
-      tArray<pSink> sinksToAdd;
-      tArray<pSink> sinksToRemove;
-      UInt8  unk2C = 0; // actually an int
-      UInt8  pad2D[3];
+         SimpleLock lock; // 00
+         tArray<pSink> activeSinks; // tArray<BSTEventSink*> ? // 08
+         tArray<pSink> sinksToAdd;
+         tArray<pSink> sinksToRemove;
+         UInt8  unk2C = 0; // actually an int
+         UInt8  pad2D[3];
 
-      MEMBER_FN_PREFIX(BSTEventSource);
-      DEFINE_MEMBER_FN(Constructor, void, 0x0073E790);
-      DEFINE_MEMBER_FN(Destructor,  void, 0x00695990);
-      //
-      DEFINE_MEMBER_FN(AddEventSink,    void, 0x006E3E30, pSink sink);
-      DEFINE_MEMBER_FN(RemoveEventSink, void, 0x008CE0C0, pSink eventSink);
-      DEFINE_MEMBER_FN(SendEvent,       void, 0x006EBC10, void* eventObj);
+         MEMBER_FN_PREFIX(BSTEventSource);
+         DEFINE_MEMBER_FN(Constructor, void, 0x0073E790);
+         DEFINE_MEMBER_FN(Destructor,  void, 0x00695990);
+         //
+         DEFINE_MEMBER_FN(AddEventSink,    void, 0x006E3E30, pSink sink);
+         DEFINE_MEMBER_FN(RemoveEventSink, void, 0x008CE0C0, pSink eventSink);
+         DEFINE_MEMBER_FN(SendEvent,       void, 0x006EBC10, void* eventObj);
    };
    static_assert(sizeof(BSTEventSource<UInt32>) >= 0x30, "BSTEventSource is too small!");
    static_assert(sizeof(BSTEventSource<UInt32>) <= 0x30, "BSTEventSource is too large!");
@@ -449,7 +449,8 @@ namespace RE {
       bool   interrupted;
    };
 
-   extern BSTEventSource<UInt32>* g_menuModeChangeEventSource; // 0x01271CE8
+   extern constexpr BSTEventSource<UInt32>* g_dayPassedEventSource      = (BSTEventSource<UInt32>*)0x01B2E728; // 0x01B2E728
+   extern constexpr BSTEventSource<UInt32>* g_menuModeChangeEventSource = (BSTEventSource<UInt32>*)0x01271CE8; // 0x01271CE8
 
    class BSTEventSourceHolder { // sizeof >= 0x9F0
       public:
