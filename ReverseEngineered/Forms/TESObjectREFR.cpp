@@ -7,6 +7,7 @@
 
 #include "ReverseEngineered/Miscellaneous.h"
 #include "ReverseEngineered/Types.h"
+#include "ReverseEngineered/Forms/Actor.h"
 #include "ReverseEngineered/Forms/TESObjectCELL.h"
 #include "ReverseEngineered/Forms/TESWorldSpace.h"
 #include "ReverseEngineered/NetImmerse/havok.h"

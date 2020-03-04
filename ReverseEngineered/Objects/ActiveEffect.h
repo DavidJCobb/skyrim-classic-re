@@ -91,13 +91,13 @@ namespace RE {
          MagicTarget* actorTarget; // 38
          TESForm* sourceItem;  // 3C
          BStList<ModelReferenceEffect>* unk40; // 40 // or NiPointers?
-         MagicItem*   unk44;       // 44 // type confirmed by inspecting AnonymousNamespace0x6426b6db::FindAppropriateDisplaceEffect::Visit
+         MagicItem* sourceChem; // 44 // if this effect is an addiction, this is the chem you need to take to temporarily disable that addiction. checked by PlayerHasTakenMyChem
          float    elapsed;     // 48 // real-world time
          float    duration;    // 4C // real-world time
          float    magnitude;   // 50
          flags_t  flags;			// 54
-         UInt32   unk58;			// 58
-         UInt32   effectNum;		// 5C // SKSE: somekind of counter used to determine whether the ActiveMagicEffect handle is valid // 0x00656E7E writes to this as a UInt16
+         UInt32   unk58;			// 58 // state enum; negative values are defined; 0 = stop effect? 1 = continue effect? -1 = ???
+         UInt32   effectNum;		// 5C // SKSE team says: "somekind of counter used to determine whether the ActiveMagicEffect handle is valid" // 0x00656E7E writes to this as a UInt16
          UInt32   unk60;			// 60 // This is the highest field accessed in the ActiveEffect constructor.
 
          class ForEachHitEffectVisitor {
@@ -112,6 +112,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ForEachHitEffect, void, 0x00654E20, ForEachHitEffectVisitor*);
          DEFINE_MEMBER_FN(GetBaseObject, EffectSetting*, 0x00654A70); // returns this->effect->mgef; no nullptr checks
          DEFINE_MEMBER_FN(GetMagnitude,  float,          0x00654D80);
+         DEFINE_MEMBER_FN(PlayerHasTakenMyChem, bool, 0x00654C40); // called by DoConditionUpdate; causes the effect to switch off even if its conditions match, if it's an addiction and the player is affected by the corresponding chem
          DEFINE_MEMBER_FN(Subroutine00654A40, void, 0x00654A40, TESForm* sourceItem, bool flag00000100); // sets the respective members
          DEFINE_MEMBER_FN(Subroutine00654C40, bool, 0x00654C40); // related to potions and addictions?
          DEFINE_MEMBER_FN(Subroutine00655080, void, 0x00655080); // related to sound

@@ -57,6 +57,8 @@ namespace RE {
       }
    };
 
+   extern constexpr float* g_globalActorTimer = (float*)0x01B39E38;
+
    class Unknown012E32E8 {
       public:
          inline static Unknown012E32E8* GetInstance() { // game accesses the singleton through this pointer...
@@ -64,22 +66,22 @@ namespace RE {
          };
          static constexpr Unknown012E32E8* instance = (Unknown012E32E8*)0x01B2ECC0; // ...but the singleton instance is always constructed here
          //
-         UInt8  unk000;                   // 008
+         UInt8  unk00;                    // 008
          bool   enableDetection;          // 001 // if true, then AI detection is enabled; see console:ToggleDetection
-         bool   unk002;                   // 002 // if true, then AI detection stats should be printed to the screen; see console:ToggleDetectionStats
-         UInt8  unk003;                   // 003
-         UInt32 unk004;                   // 004
+         bool   unk02;                    // 002 // if true, then AI detection stats should be printed to the screen; see console:ToggleDetectionStats
+         UInt8  unk03;                    // 003
+         UInt32 unk04;                    // 004
          bool   enableHighProcess;        // 008 // if true, then AI processing for actors in high is on; see console:ToggleHighProcess
          bool   enableLowProcess;         // 009 // if true, then AI processing for actors in low is on; see console:ToggleLowProcess
          bool   enableMiddleHighProcess;  // 00A // if true, then AI processing for actors in middle-high is on; see console:ToggleMiddleHighProcess
          bool   enableMiddleLowProcess;   // 00B // if true, then AI processing for actors in middle-low is on; see console:ToggleMiddleLowProcess
          bool   enableAISchedules;        // 00C // if true, then AI processing for actors' editor schedules is on; see console:ToggleAISchedules
          bool   showDialogueSubtitles;    // 00D // modified by Console:ShowDialogSubtitles
-         UInt8  unk00E;                   // 00E
-         UInt8  unk00F;                   // 00F
+         UInt8  unk0E;                    // 00E
+         UInt8  unk0F;                    // 00F
          SInt32 numActorsInHighProcess;   // 010 // returned by Console:GetActorsInHigh // reset to 0 in DoAIProcessing and then incremented for every high AI processed
-         UInt32 unk014;                   // 014
-         UInt32 unk018;                   // 018
+         float  unk14;                    // 014 // countdown timer of some kind?
+         UInt32 unk18;                    // 018
          float  removeExcessComplexDeadTime; // 1C // GMST:fRemoveExcessComplexDeadTime
          HANDLE unk20; // 20 // semaphore
          UInt32 unk24;
@@ -117,7 +119,7 @@ namespace RE {
          tArray<UInt32> unkF0; // 0F0 // tArray of ref handles; AI processing checks whether each actor-in-high is in here and branches
          UInt32 unk0FC[(0x108 - 0x0FC) / sizeof(UInt32)]; // 0FC
          float  unk108; // 108 // related to Z-keying?
-         UInt32 unk10C;
+         float  unk10C; // 10C
          UInt32 unk110;
          UInt32 unk114;
          UInt32 unk118;
@@ -139,9 +141,10 @@ namespace RE {
          DEFINE_MEMBER_FN(Destructor,  void, 0x0075E430);
          DEFINE_MEMBER_FN(AddHandleToUnk0C8,         void,   0x00756940, Actor* actor); // aborts if actor is already in the array
          DEFINE_MEMBER_FN(AddActorToAIList,          void,   0x00756370, UInt32 value, UInt32 processLevel); // appends to one of unk028, unk034, unk040, or unk04C; no bounds-checking on (which
+         DEFINE_MEMBER_FN(AdvanceHighProcessActorTime, void, 0x0075B5D0); // calls Actor::AdvanceTime(0) for all actors in high process; most likely triggered by the AI linear task threads
          DEFINE_MEMBER_FN(ClearTempEffects,          void,   0x00755480); // powers Papyrus Game.ClearTempEffects()
          DEFINE_MEMBER_FN(DoAIProcessing,            void,   0x0075CBB0, float time, bool isSkippingTime); // no-oping this has the same effect as global TAI
-         DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, UInt32, UInt32); // no-oping this has the same effect as TMOVE
+         DEFINE_MEMBER_FN(DoMovementProcessing,      void,   0x00756460, float realSecondsPassed, UInt32); // no-oping this has the same effect as TMOVE
          DEFINE_MEMBER_FN(GetUnkD4, BStList<UInt32>*, 0x00754050);
          DEFINE_MEMBER_FN(Load,                      void,   0x007549B0, BGSLoadGameBuffer*);
          DEFINE_MEMBER_FN(Load_2,                    void,   0x00759600, BGSLoadGameBuffer*); // triggers load process for decals; not sure what else it does; seems to be called separately from the main load method
@@ -159,8 +162,6 @@ namespace RE {
          DEFINE_MEMBER_FN(StopCombatAlarmOnActor, void, 0x00758910, Actor* target, bool maybeAlsoClearArrested);
          DEFINE_MEMBER_FN(StopEffectShader,          void,   0x00754840, TESObjectREFR*, TESEffectShader*);
          DEFINE_MEMBER_FN(Subroutine006E7470,        void,   0x006E7470, void*); // loops over actors in high process; seems related to melee attacks, and can generate hit structs
-         DEFINE_MEMBER_FN(Subroutine00753F80,        float,  0x00753F80);        // getter for float at 0x01B39E38
-         DEFINE_MEMBER_FN(Subroutine00753F90,        void,   0x00753F90, float); // setter for float at 0x01B39E38
          DEFINE_MEMBER_FN(Subroutine00754750,        void,   0x00754750, UInt32);
          DEFINE_MEMBER_FN(Subroutine00754790, void, 0x00754790, WitnessedCrime* newlyCreated);
          DEFINE_MEMBER_FN(Subroutine00754900,        void,   0x00754900, TESObjectREFR*, void*); // stops a "model reference shader"?
@@ -175,6 +176,19 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine0075E100,        void,   0x0075E100); // checks whether animation processing is enabled; does stuff based on that
          DEFINE_MEMBER_FN(ToggleMovementProcessing,  void,   0x00754000); // toggles the value of unk11D
          DEFINE_MEMBER_FN(ToggleAnimationProcessing, void,   0x00754020); // toggles the value of unk11E
+         
+         //
+         // A global timer that is used when you pass a zero delta to Actor::AdvanceTime. The Actor remembers 
+         // the last time it checked the timer and stores that in Actor::unk180, to compute a delta on the 
+         // next call.
+         //
+         // The timer loops to zero when it hits 100000.0F. Actors are able to handle it looping around. It's 
+         // updated by the main thread / AI linear task threads; don't call the setter yourself.
+         //
+         // The timer itself is g_globalActorTimer.
+         //
+         DEFINE_MEMBER_FN(GetActorGlobalTimer, float, 0x00753F80);        // getter for float at 0x01B39E38; it's a timer measured in seconds, seemingly related to actor time management
+         DEFINE_MEMBER_FN(SetActorGlobalTimer, void,  0x00753F90, float); // setter for float at 0x01B39E38
    };
    static_assert(offsetof(Unknown012E32E8, witnessedCrimes) >= 0x68, "Unknown012E32E8::witnessedCrimes is too early!");
    static_assert(offsetof(Unknown012E32E8, witnessedCrimes) <= 0x68, "Unknown012E32E8::witnessedCrimes is too late!");

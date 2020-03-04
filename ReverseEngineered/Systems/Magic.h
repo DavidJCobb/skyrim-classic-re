@@ -89,9 +89,23 @@ namespace RE {
    // Functors:
    //
    class FindAppropriateDisplaceEffect : public MagicTarget::ForEachActiveEffectVisitor {
+      //
+      // Contained in anonymous namespace AnonymousNamespace0x6426b6db in the compiled 
+      // executable.
+      //
+      // Given an alchemy effect and an addiction, this searches the magic-target's active 
+      // effects for any ongoing effect that has the same addiction. It returns true if a 
+      // match is found.
+      //
+      // ActiveEffect::PlayerHasTakenMyChem runs this functor and returns its result. It 
+      // supplies its source spell as the addiction and its unk44 field as the alchemy 
+      // effect. It is only called by ActiveEffect::DoConditionUpdate, and only in the 
+      // event that the effect's conditions fail to match; if the functor returns true, 
+      // then the effect doesn't turn off despite its conditions not matching.
+      //
       public:
-         MagicItem* unk04; // alchemical effect?
-         MagicItem* unk08; // addiction?
+         MagicItem* alchEffect; // 04
+         MagicItem* addiction;  // 08
          bool       result = false; // 0C
    };
 }

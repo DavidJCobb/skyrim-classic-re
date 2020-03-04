@@ -1397,7 +1397,7 @@ namespace RE {
          ActorValueState avStateMagicka;     // 15C
          ActorValueState avStateStamina;     // 168
          ActorValueState avStateVoicePoints; // 174
-         float  unk180; // 180 // see code circa 0x006EC46E // related to timers?
+         float  lastCheckedGlobalTimer; // 180 // used by Actor::AdvanceTime to figure out the delta to use when called with no delta
          SInt32 unk184; // 184
          ActorWeightData* actorWeightData; // 188
          float  unk18C; // 18C // set to -1 when HeavyArmor or LightArmor values change

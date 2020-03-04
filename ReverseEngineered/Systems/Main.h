@@ -72,7 +72,7 @@ namespace RE {
          bool   unk07 = false; // 07
          UInt8  unk08 = 0;
          UInt8  unk09 = 0;
-         bool   unk0A = false; // 0A // related to ToggleFlyCam
+         bool   freezeWorldForFlycam = false; // 0A // related to ToggleFlyCam
          UInt8  unk0B;
          UInt32 unk0C;
          UInt32 unk10;
