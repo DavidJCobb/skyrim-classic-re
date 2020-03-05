@@ -34,6 +34,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSEquipSlot.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSLightingTemplate.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSListForm.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\BGSMessage.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\FormDecalData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\FormComponents\TESModel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ReverseEngineered\Forms\HardcodedForms.h" />
