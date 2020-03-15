@@ -4,6 +4,7 @@
 
 namespace RE {
    class BGSLoadFormBuffer;
+   class NiNode;
 
    class TESModel : public BaseFormComponent { // sizeof == 0x14
       public:
@@ -34,6 +35,9 @@ namespace RE {
          };
          SwapInfo* swaps;	// 14
          UInt32 count;		// 18
+
+         MEMBER_FN_PREFIX(TESModelTextureSwap);
+         DEFINE_MEMBER_FN(Subroutine004557B0, void, 0x004557B0, NiNode*); // apply the texture swaps to a model?
    };
    class TESModelRDT : public TESModel { // sizeof == 0x14
    };

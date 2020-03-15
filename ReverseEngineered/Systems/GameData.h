@@ -315,6 +315,7 @@ namespace RE {
          UInt32 moreunks[100];                            // 0A9C
          //
          MEMBER_FN_PREFIX(TESDataHandler);
+         DEFINE_MEMBER_FN(GetAvailableLoadingScreens, void, 0x0086F510, UInt8 formTypeForLoadingScreens_WeWillCrashOtherwise, void* list);
          DEFINE_MEMBER_FN(GetFormByTypeAndIndex, TESForm*, 0x0043BCB0, UInt8 formType, UInt32 index);
          DEFINE_MEMBER_FN(GetNextID,   UInt32, 0x0043B6D0); // Name comes from a debug logging command.
          DEFINE_MEMBER_FN(IsFormIDNotTemporary, bool, 0x0043B790, UInt32 formID); // true if formID < 0xFF000000

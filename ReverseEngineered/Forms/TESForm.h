@@ -175,7 +175,7 @@ namespace RE {
          void*    unk04;    // 04
          UInt32   flags;    // 08
          UInt32   formID;   // 0C
-         UInt16   unk10;    // 10 // more flags
+         UInt16   unk10;    // 10 // more flags // TESLoadScreen treats this as a counter, though?
          UInt8    formType;	// 12
          UInt8    pad13;    // 13
 
