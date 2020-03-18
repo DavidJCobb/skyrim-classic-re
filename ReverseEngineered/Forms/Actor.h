@@ -453,7 +453,7 @@ namespace RE {
             UInt32 unk0198 = 0;
             Unk019C actorsWeDetect; // 019C
             tArray<UInt32> unk01A8;
-            void*  unk01B4 = nullptr; // 1B4
+            void*  unk01B4 = nullptr; // 1B4 // start of a sub-struct; getter for that sub-struct is ActorProcessManager::Subroutine006FCE10; sizeof >= 0x28
             NiPoint3 unk01B8;
             UInt32 unk01C4 = 0;
             float  unk01C8 = -1.0F; // 1C8 // distance from the actor to the player
@@ -1256,7 +1256,7 @@ namespace RE {
          virtual void Unk_F3(void);
          virtual void Unk_F4(void);
          virtual void Unk_F5(UInt32);
-         virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2); // F6
+         virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2); // F6 // Papyrus uses zeroes for the unknown args
          virtual void Unk_F7(void);
          virtual bool IsInFaction(TESFaction*); // F8
          virtual void VisitPerks(void); // F9 // BGSPerk::FindPerkInRanksVisitor
@@ -1438,6 +1438,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetAimYaw,             float,   0x006C3420); // actor look direction? // Similar to GetHeading(0), but it accounts for the "AimHeadingCurrent" animation graph variable
          DEFINE_MEMBER_FN(GetBodyPartData,       BGSBodyPartData*, 0x006AA020); // for the player, always returns PlayerBodyPartData; for other actors, returns BPD on the race or, if none set, DefaultBodyPartData
          DEFINE_MEMBER_FN(GetBribeAmount,        SInt32,  0x006AF030);
+         DEFINE_MEMBER_FN(GetClass,              TESClass*, 0x006AB090);
          DEFINE_MEMBER_FN(GetCombatState,        UInt32,  0x006E10F0); // same as Papyrus: 0, 1, 2 == not in combat; in combat; searching
          DEFINE_MEMBER_FN(GetComputedHeight,     float,   0x006AB410);
          DEFINE_MEMBER_FN(GetComputedHeightMult, float,   0x004D5230); // ActorBase height mult * Race height mult
@@ -1459,6 +1460,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetSoulSize,           UInt32,  0x006E8BC0); // returns ExtraSoul::SoulSize enum
          DEFINE_MEMBER_FN(GetVoiceRecoveryTime,  float,   0x006E8AE0);
          DEFINE_MEMBER_FN(GetWardState,          UInt32,  0x006E87E0);
+         DEFINE_MEMBER_FN(GiveGoldTo, void, 0x006A81F0, Actor* target, UInt32 goldAmount); // paying a bounty uses (nullptr) as the target
          DEFINE_MEMBER_FN(HandleFavorTimer,      void,    0x006CA870); // called every frame; calls SetDoingFavor(false) if the favor timer runs out or the player is too far away
          DEFINE_MEMBER_FN(HasBeenEaten,          bool,    0x006A8B50);
          DEFINE_MEMBER_FN(HasPerk,               bool,    0x006AA190, BGSPerk* perk);

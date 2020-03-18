@@ -17,6 +17,7 @@ namespace RE {
 
    DEFINE_SUBROUTINE(bool,  IsCellOrWorldspace, 0x00472D10, void* thingToTest, ::TESObjectCELL** outCell, ::TESWorldSpace** outWorld);
    DEFINE_SUBROUTINE(void,  FillBufferWithByte, 0x00F52240, void* buffer, UInt8 byte, UInt32 length);
+   DEFINE_SUBROUTINE(const char*, GetActorValueName, 0x005AD370, UInt32 avIndex);
    DEFINE_SUBROUTINE(float, GetRandomFloat,     0x00448A90, float minVal, float maxVal);
 
    DEFINE_SUBROUTINE(void, TriggerScreenBlood, 0x0048A850, UInt32 papyrusAmountArg, float zeroA, UInt32 zeroB);

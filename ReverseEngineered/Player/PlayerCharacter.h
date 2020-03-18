@@ -157,7 +157,13 @@ namespace RE {
          float    unk598;
          UInt32   unk59C[(0x5AC - 0x59C) >> 2];
          UInt32	lastRiddenHorseHandle;			// 5AC - Handle
-         UInt32	pad5B0[(0x5FC - 0x5B0) >> 2];
+         UInt32	unk5B0;
+         UInt32   unk5B4;
+         UInt32   unk5B8;
+         UInt32   unk5BC;
+         UInt32   unk5C0;
+         UInt32 timesTrainedThisLevel; // 5C4
+         UInt32 unk5C8[(0x5FC - 0x5C8) / 4];
             // unk5E8 - incremented when the player does a crime?
          TESObjectCELL* unk5FC; // 5FC // redundant player cell? can be an interior.
          UInt32   unk600;
@@ -233,6 +239,7 @@ namespace RE {
          };*/
 
          MEMBER_FN_PREFIX(PlayerCharacter);
+         DEFINE_MEMBER_FN(IncrementSkill, void, 0x00733270, UInt32 avIndex, UInt32 levels); // same underlying mechanism as Papyrus IncrementSkill and IncrementSkillBy
          DEFINE_MEMBER_FN(GetTintList, tArray<TintMask*>*, 0x0055FF90);
          DEFINE_MEMBER_FN(GetNumTints, UInt32, 0x00735F40, UInt32 tintType);
          DEFINE_MEMBER_FN(GetTintMask, TintMask*, 0x00735F00, UInt32 tintType, UInt32 index);

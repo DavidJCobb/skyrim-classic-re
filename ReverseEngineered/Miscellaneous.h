@@ -117,8 +117,10 @@ namespace RE {
 
    DEFINE_SUBROUTINE_EXTERN(bool,   IsCellOrWorldspace,  0x00472D10, void* thingToTest, ::TESObjectCELL** outCell, ::TESWorldSpace** outWorld);
    DEFINE_SUBROUTINE_EXTERN(void,   FillBufferWithByte,  0x00F52240, void* buffer, UInt8 byte, UInt32 length); // TODO: this is just memset, above, so rename it to memset in my disassembler and then remove it from here
+   DEFINE_SUBROUTINE_EXTERN(const char*, GetActorValueName, 0x005AD370, UInt32 avIndex);
    DEFINE_SUBROUTINE_EXTERN(float,  GetRandomFloat,      0x00448A90, float minVal, float maxVal);
    DEFINE_SUBROUTINE_EXTERN(UInt32, GetRandomIntBetween, 0x0045CEF0, UInt32 minVal, UInt32 maxVal);
+   DEFINE_SUBROUTINE_EXTERN(float, GetTrainingCost, 0x0059B570, UInt32 playerSkill);
 
    DEFINE_SUBROUTINE_EXTERN(void, TriggerScreenBlood, 0x0048A850, UInt32 papyrusAmountArg, float zeroA, UInt32 zeroB);
 };
