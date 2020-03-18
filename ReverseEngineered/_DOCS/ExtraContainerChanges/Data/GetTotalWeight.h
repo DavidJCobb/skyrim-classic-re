@@ -28,12 +28,12 @@ float ExtraContainerChanges::Data::GetTotalWeight() {
             if (-1.0F == item_weight)
                item_weight = 0.0F;
             if (!esi) {
-               total_weight += ebx[edi]->count;
+               total_weight += item_weight * ebx[edi]->count;
             } else {
                edx = ebx[edi]->count;
                esp28 = eax = esi->countDelta + edx; // at 0x0047B6CE
                if (eax) {
-                  total_weight += item_weight;
+                  total_weight += item_weight * esp28;
                }
             }
             esi = this;
