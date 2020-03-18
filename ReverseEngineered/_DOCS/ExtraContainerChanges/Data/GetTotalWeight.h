@@ -2,17 +2,17 @@ float ExtraContainerChanges::Data::GetTotalWeight() {
    auto esi   = this;
    auto esp0C = this;
    if (-1 == this->totalWeight) {
-      auto   ecx = this->owner;
-      Actor* esp24;
-      if (ecx) {
-         esp24 = ecx->formType == 0x3E ? ecx : nullptr;
-      } else
-         esp24 = nullptr;
-      TESContainer* eax;
+      float total_weight = 0.0F; // esp10
+      float item_weight; // esp14
+      //
+      auto   ecx   = this->owner;
+      Actor* owner = nullptr; // esp24
       if (ecx)
-         eax = ecx->GetBaseContainer();
-      else
-         eax = nullptr;
+         owner = ecx->formType == 0x3E ? ecx : nullptr;
+      //
+      // First, count the items that are in the base container.
+      //
+      TESContainer* eax = ecx ? ecx->GetBaseContainer() : nullptr;
       UInt32 esp20 = eax->numEntries;
       auto   ebx   = eax->entries;
       if (ecx > 0) {
@@ -24,68 +24,109 @@ float ExtraContainerChanges::Data::GetTotalWeight() {
                if (esi->IsQuestObject())
                   continue;
             }
-            float esp14 = GetFormWeight(ebp);
-            if (-1.0F == esp14)
-               esp14 = 0.0F;
+            float item_weight = GetFormWeight(ebp);
+            if (-1.0F == item_weight)
+               item_weight = 0.0F;
             if (!esi) {
-               esp10 += ebx[edi]->count;
+               total_weight += ebx[edi]->count;
             } else {
                edx = ebx[edi]->count;
                esp28 = eax = esi->countDelta + edx; // at 0x0047B6CE
                if (eax) {
-                  esp10 += esp14;
+                  total_weight += item_weight;
                }
             }
             esi = this;
             ++edi;
          } while (edi < esp20);
       }
-      esp20 = 0;
+      //
+      // Next, count the items that are in the container-changes.
+      //
+      float worn_armor_weight = 0.0F; // esp20
       esp1C = ebx = this->objList;
-      if (ebx) {
+      if (esp1C) {
          do {
-            ebx = esp1C;
-            edi = ebx->unk00;
+            InventoryEntryData* edi = esp1C->unk00;
             if (!edi)
                break;
-            ebp = edi->unk00;
+            ebp = edi->type;
             if (!ebp)
                continue;
-            if (ecx = esi->unk04) { // at 0x0047B72D
-               // ...
-            }
-            esi = edi->extendDataList;
-            bl = 0;
-            if (esi) { // at 0x0047B75F
-               // ...
-            }
-            esp14 = GetFormWeight(ebp);
-            if (0.0F ?? esp14)
-               continue;
-            ebx = esp24; // the Actor* from above
-            esi = edi->countDelta;
-            esp28 = esi;
-            if (ebx && ebp->formType == 0x1A) { // at 0x0047B7BD
-               if (edi->IsWorn()) {
-                  if (esi <= 0)
+            if (ecx = this->owner) { // at 0x0047B72D
+               //
+               // If the item in question exists in the base container, skip it, since we 
+               // counted it in the loop above. Note that the loop above handles all items 
+               // in the TESContainer but ALSO the countDeltas on any items of the same 
+               // type in the container-changes data.
+               //
+               // Note that this means that if you spawn with a piece of armor in your 
+               // inventory (i.e. the ActorBase's initial items), that piece of armor (and 
+               // any armor of that type) will be exempt from the Mod Armor Weight perk 
+               // applied below. I think. I need to test that before I feel comfortable 
+               // asserting it as fact.
+               //
+               if (auto eax = ecx->GetBaseContainer()) {
+                  // and then we redundantly check this->owner and get the container again...
+                  bool al = eax->Contains(ebp);
+                  if (al)
                      continue;
-                  ecx = edi->type;
-                  float esp14;
-                  CalculatePerkData(kEntryPoint_Mod_Armor_Weight, ebx, ecx, &esp14); // at 0x0047B7D9
-                  --esi;
-                  esp28 = esi;
-                  esp20 += esp14;
                }
             }
-            if (esi > 0) {
-               esp10 += esp28 * esp14; // count * form weight
+            esi = edi->extendDataList;
+            bool bl = false;
+            if (esi) { // at 0x0047B75F
+               //
+               // Skip this item if it's a quest object.
+               //
+               if (esi->next || esi->data) {
+                  do {
+                     if (bl)
+                        continue;
+                     if (esi->data->IsQuestObject())
+                        bl = true;
+                  } while (esi = esi->next); // at 0x0047B788
+               }
+               if (bl)
+                  continue;
             }
-            
-            
-         } while (
+            item_weight = GetFormWeight(ebp); // esp14
+            if (0.0F >= item_weight)
+               continue;
+            auto ebx   = owner;
+            auto count = edi->countDelta; // esp28
+            if (ebx && ebp->formType == 0x1A) { // at 0x0047B7BD
+               if (edi->IsWorn()) {
+                  if (count <= 0)
+                     continue;
+                  ecx = edi->type;
+                  CalculatePerkData(kEntryPoint_Mod_Armor_Weight, ebx, ecx, &item_weight); // at 0x0047B7D9
+                  --count;
+                  worn_armor_weight += item_weight;
+                  //
+                  // And here, we have a bug. Bethesda clearly intended for Mod Armor Weight to only 
+                  // apply to the one piece of armor that you're wearing. However, we modified the 
+                  // same (item_weight) float that will be used outside of this branch, so in effect 
+                  // we have changed the weight of all armor of this type. This is what breaks the 
+                  // Steed Stone and makes it so that if you have, say, ten Glass Armors and you 
+                  // equip one, none of them add to your carry weight anymore.
+                  //
+                  // The solution would be to patch this branch to use a separate float, which we 
+                  // initialize as a copy of (item_weight).
+                  //
+               }
+            }
+            if (count > 0) {
+               total_weight += count * item_weight; // count * form weight
+            }
+         } while (esp1C = esp1C->next);
       }
-      esp04 += esp14;
-      this->totalWeight = esp04;
+      // esp += 0xC
+      total_weight += worn_armor_weight;
+      //
+      // And now we're done! :)
+      //
+      this->totalWeight = total_weight;
       if (ecx) {
          ecx->OnActorValueChanged(0x1F, esi->armorWeight, esp04 - this->armorWeight, 0);
       }
