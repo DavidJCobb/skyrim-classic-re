@@ -60,11 +60,13 @@ float ExtraContainerChanges::Data::GetTotalWeight() {
                // in the TESContainer but ALSO the countDeltas on any items of the same 
                // type in the container-changes data.
                //
-               // Note that this means that if you spawn with a piece of armor in your 
-               // inventory (i.e. the ActorBase's initial items), that piece of armor (and 
-               // any armor of that type) will be exempt from the Mod Armor Weight perk 
-               // applied below. I think. I need to test that before I feel comfortable 
-               // asserting it as fact.
+               // This implies that if you spawn with a piece of armor in your inventory 
+               // (i.e. the ActorBase's initial items), that piece of armor (and any armor 
+               // of that type) will be exempt from the Mod Armor Weight perk applied below. 
+               // Testing confirms that this is indeed a problem affecting the Iron Shield, 
+               // as that item is applied to the player's inventory via [NPC:00000007] and 
+               // removed during the game's intro (the other Iron Armor is applied via a 
+               // Default Outfit on the ActorBase and so is not affected by this issue).
                //
                if (auto eax = ecx->GetBaseContainer()) {
                   // and then we redundantly check this->owner and get the container again...
