@@ -170,6 +170,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetValue,      SInt32, 0x00475450);
          DEFINE_MEMBER_FN(IsQuestObject, bool,   0x00475B90);
          DEFINE_MEMBER_FN(IsOwnedBy,     bool,   0x00477010, TESForm* actor, bool unk1);
+         DEFINE_MEMBER_FN(IsWorn,        bool,   0x004758C0); // checks extra data
 
          UInt8 GetSoulSize() const;
    };
@@ -213,15 +214,17 @@ namespace RE {
          };
          class Data {
             public:
-               tList<InventoryEntryData>* objList;
-               TESObjectREFR* owner;
-               float totalWeight;
-               float armorWeight;
+               tList<InventoryEntryData>* objList; // 00
+               TESObjectREFR* owner; // 04
+               float totalWeight; // 08 // -1.0F means "needs to be recomputed"
+               float armorWeight; // 0C
 
                MEMBER_FN_PREFIX(Data);
                DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
                DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
                DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
+               DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x00476160, Actor* owner); // actor ref needed for perk checks
+               DEFINE_MEMBER_FN(GetTotalWeight, float, 0x0047B5F0);
                DEFINE_MEMBER_FN(RemoveAllLeveledItems, void, 0x0047B990);
                DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
                DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);

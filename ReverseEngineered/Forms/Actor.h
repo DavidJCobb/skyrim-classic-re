@@ -1389,7 +1389,7 @@ namespace RE {
          TESForm* equippedShout; // 128 // not validated by the game after being loaded from the savegame; if the player were to equip a shout, upgrade the mod it came from, and the upgrade removed the shout and put something else in that form ID, you'd run into problems
          UInt32	unk12C; // 12C
          TESRace* race;   // 130
-         float 	unk134; // 134
+         float 	unk134; // 134 // total weight of all equipped items; a two-handed weapon is counted twice; armor has a perk entry point taken into account; computed by Actor::Subroutine006A8630
          UInt32	flags2; // 138
          ActorValueStateList avState; // 13C
          BGSDialogueBranch* unk14C; // 14C // found the code that loads its form ID from a save file
@@ -1446,6 +1446,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetDamageResist,       float,   0x006E0D10); // literally just returns the DamageResist AV's current value
          DEFINE_MEMBER_FN(GetDetected,           SInt32,  0x006AE830, Actor* canWeSeeThisActor, UInt32 oftenIs3_mustNotExceed5); // GetDetected condition uses 3 for the enum and checks if the result > 0
          DEFINE_MEMBER_FN(GetDominantArmorSkill, SInt32,  0x006E1B70); // if you take a giant's club to the face, this is the armor skill that should level. can be -1 if no skill
+         DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x006BABD0);
          DEFINE_MEMBER_FN(GetEquippedShield,     TESObjectARMO*, 0x006E1BE0);
          DEFINE_MEMBER_FN(GetEquippedWeapon,     TESObjectWEAP*, 0x006E0D20, bool whichHand);
          DEFINE_MEMBER_FN(GetGoldAmount,         SInt32,  0x006A8190);
@@ -1517,6 +1518,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ShouldAttackKill,      bool,    0x006E1770, Actor* target);
          DEFINE_MEMBER_FN(TrapSoul,              bool,    0x006EC950, Actor* target); // (this) traps the soul of (target)
          DEFINE_MEMBER_FN(UpdateArmorAbility,    void,    0x006E8650, TESForm*, BaseExtraList* extraData);
+         DEFINE_MEMBER_FN(UpdateCachedEquippedItemsWeight, float, 0x006A8630);
          DEFINE_MEMBER_FN(UpdateWeaponAbility,   void,    0x006ED980, TESForm*, BaseExtraList* extraData, bool bLeftHand);
          DEFINE_MEMBER_FN(WillIntimidateSucceed, bool,    0x006AF180);
          //
