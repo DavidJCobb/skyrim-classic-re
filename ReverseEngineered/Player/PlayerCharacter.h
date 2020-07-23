@@ -8,7 +8,7 @@
 namespace RE {
    class  bhkMouseSpringAction;
    class  PlayerCharacter;
-   extern constexpr PlayerCharacter** const g_thePlayer = (PlayerCharacter**) 0x01B2E8E4;
+   extern PlayerCharacter** const g_thePlayer;
 
    class PlayerCharacter : public Character { // sizeof == 0x72C
       public:

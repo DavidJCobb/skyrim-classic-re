@@ -15,14 +15,14 @@ namespace RE {
       UInt8       formType;
       UInt8       pad09[3];
    };
-   constexpr FormSignatureInfo* g_formSignatureInfo = (FormSignatureInfo*)0x0123F2C4; // array up to 0x87
-   constexpr DEFINE_SUBROUTINE(const char*, FormTypeToSignatureString, 0x00678129, SInt32 formType);
+   extern FormSignatureInfo* g_formSignatureInfo; // array up to 0x87
+   DEFINE_SUBROUTINE_EXTERN(const char*, FormTypeToSignatureString, 0x00678129, SInt32 formType);
    //
    struct FormFactoryInfo {
       void*       formFactoryVtbl;
       const char* formTypeName; // friendly name, not internal name
    };
-   constexpr FormFactoryInfo** g_formFactoryInfo = (FormFactoryInfo**)0x012E57C0; // array up to 0x87; entries can be nullptr, indicating that a form type isn't actually loaded
+   extern FormFactoryInfo** g_formFactoryInfo; // array up to 0x87; entries can be nullptr, indicating that a form type isn't actually loaded
 
    class TESForm;
    class BaseFormComponent {

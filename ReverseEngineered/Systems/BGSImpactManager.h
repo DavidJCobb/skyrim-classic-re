@@ -2,9 +2,9 @@
 #include "skse/Utilities.h"
 
 namespace RE {
-   class BGSImpactManager;
-   class TESObjectREFR;
-   constexpr BGSImpactManager* ptrBGSImpactManager = (BGSImpactManager*)0x01B10D60;
+   class  BGSImpactManager;
+   class  TESObjectREFR;
+   extern BGSImpactManager* ptrBGSImpactManager;
    //
    class BGSImpactManager {
       public:

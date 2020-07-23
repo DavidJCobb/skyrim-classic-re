@@ -33,5 +33,5 @@ namespace RE {
       //
       DEFINE_MEMBER_FN(PassRealSeconds, void, 0x0068DB40, float seconds); // advances in-game time by (seconds * timescale); used by the main thread and by some places that skip in-game time e.g. fast-travel
    };
-   constexpr TimeGlobals** g_timeGlobals = (TimeGlobals**)0x012E35DC;
+   extern TimeGlobals** g_timeGlobals;
 };

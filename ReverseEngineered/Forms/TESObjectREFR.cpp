@@ -155,7 +155,7 @@ namespace RE {
       // Technically, all branches that return do it as: return (out != nullptr).
    };
    BSUntypedPointerHandle* RefHandleSystem::CreateRefHandleByREFR(BSUntypedPointerHandle* refHandlePtr, TESObjectREFR* ref) {
-      constexpr SInt32* const unk = (SInt32*)0x0131050C;
+      SInt32* const unk = (SInt32*)0x0131050C;
       //
       *refHandlePtr = 0;
       if (!ref)
