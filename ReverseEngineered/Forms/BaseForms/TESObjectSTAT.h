@@ -1,6 +1,5 @@
 #pragma once
 #include "ReverseEngineered\Forms\TESForm.h"
-#include "ReverseEngineered\Forms\BaseForms\base.h"
 
 namespace RE {
    class TESObjectSTAT : public TESBoundObject { // sizeof == 0x44

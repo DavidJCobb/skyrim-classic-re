@@ -10,6 +10,7 @@ namespace RE {
    class BSGeometryListCullingProcess;
    class BSPortalGraphEntry;
    class BSShaderAccumulator;
+   class SceneGraph;
 
    struct BSTCommonScrapHeapMessageQueue {
       virtual void Dispose(bool free); // 00
@@ -152,4 +153,6 @@ namespace RE {
    extern BStList<TESObjectREFR>* const g_pendingRefEnables;
    extern BStList<TESObjectREFR>* const g_pendingRefDisables;
    extern BStList<TESObjectREFR>* const g_pendingRefGarbageCollects;
+
+   extern NiPointer<SceneGraph>* const g_worldSceneGraphPtr;
 }

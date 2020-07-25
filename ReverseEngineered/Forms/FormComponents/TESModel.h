@@ -2,9 +2,9 @@
 #include "skse/GameFormComponents.h"
 #include "ReverseEngineered/Shared.h"
 
+class NiNode;
 namespace RE {
    class BGSLoadFormBuffer;
-   class NiNode;
 
    class TESModel : public BaseFormComponent { // sizeof == 0x14
       public:
@@ -42,5 +42,5 @@ namespace RE {
    class TESModelRDT : public TESModel { // sizeof == 0x14
    };
 
-   constexpr DEFINE_SUBROUTINE(void, LoadMODTSubrecord, 0x00454AF0, TESModel*, BGSLoadFormBuffer*);
+   DEFINE_SUBROUTINE_EXTERN(void, LoadMODTSubrecord, 0x00454AF0, TESModel*, BGSLoadFormBuffer*);
 };

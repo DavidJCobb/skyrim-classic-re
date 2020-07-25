@@ -4,6 +4,7 @@
 #include "ReverseEngineered/Forms/TESPackage.h"
 #include "ReverseEngineered/NetImmerse/objects.h"
 #include "ReverseEngineered/NetImmerse/types.h"
+#include "ReverseEngineered/Objects/SimpleAnimationGraphManagerHolder.h"
 #include "ReverseEngineered/Systems/AttackProcessing.h"
 #include "ReverseEngineered/Systems/Magic.h"
 #include "ReverseEngineered/Miscellaneous.h"
@@ -887,12 +888,6 @@ namespace RE {
          DEFINE_MEMBER_FN(LoadSavedata,       void, 0x006F11D0, BGSLoadGameBuffer*); // for documentation; do not call
    };
 
-   struct SimpleAnimationGraphManagerHolder {
-      virtual void Unk_00(void);
-      //
-      UInt32 unk04;
-      UInt32 unk08;
-   };
    class ActorMagicCaster : public MagicCaster { // sizeof == 0x90
       public:
          virtual void Unk_1D(UInt32); // related to player killmoves
@@ -943,100 +938,7 @@ namespace RE {
          // void** _vtbl; // 00
    };
 
-   class ActorWeightData { // sizeof >= 0xA8C
-      public:
-         enum BodyPartIndex {
-            kBodyPart_Head = 0x00,
-            kBodyPart_Hair,
-            kBodyPart_Body,
-            kBodyPart_Hands,
-            kBodyPart_Forearms,
-            kBodyPart_Amulet,
-            kBodyPart_Ring,
-            kBodyPart_Feet,
-            kBodyPart_Calves,
-            kBodyPart_Shield,
-            kBodyPart_Tail = 0x0A, // confirmed: game has specific handling for the tail
-            kBodyPart_LongHair,
-            kBodyPart_Circlet,
-            kBodyPart_Ears,
-            //
-            // ...
-            //
-            kBodyPart_Unk20 = 0x20, // special-case - torches?
-            //
-            // ...
-            //
-            kBodyPart_Unk26 = 0x26, // special-case in 0046D750 at 0046D7FA
-            kBodyPart_MaybeAmmo = 0x29, // game has checks for this being an Ammo, and handling for creating a quiver node
-         };
-         struct BodyPart { // sizeof == 0x20
-            TESForm*       item;  // 00
-            TESObjectARMA* addon; // 04
-            TESModelTextureSwap* model; // 08
-            BGSTextureSet* textureSet; // 0C
-            NiPointer<NiNode> renderedArmor; // 10 // created at run-time for the armor; node name format is " (%08X)[%d]/ (%08X)[%d] [%d%]" given: form ID; unknown; form ID; unknown; weight from 0 to 100
-            NiPointer<SimpleAnimationGraphManagerHolder> unk14; // seen: TailAnimationGraphManagerHolder*
-            UInt8    unk18;
-            UInt8    pad19[3];
-            void*    unk1C; // refcounted pointer, most likely to a NiSomething; gets fed to something near/on BSResource::EntryDB<BSModelDB::DBTraits>
-
-            MEMBER_FN_PREFIX(BodyPart);
-            DEFINE_MEMBER_FN(CopyAssign, BodyPart&, 0x0046DF90, BodyPart& other); // BodyPart& operator=(BodyPart& other);
-            DEFINE_MEMBER_FN(Reset,      void,      0x0046D930);
-
-            inline BodyPart& operator=(BodyPart& other) {
-               CALL_MEMBER_FN(this, CopyAssign)(other);
-               return *this;
-            };
-         };
-
-         struct IdentifyDominantArmorTypeVisitor {
-            BodyPart* shield     = nullptr; // 00
-            BodyPart* body       = nullptr; // 04
-            UInt32    foundLight = 0;       // 08
-            UInt32    foundHeavy = 0;       // 0C
-
-            MEMBER_FN_PREFIX(IdentifyDominantArmorTypeVisitor);
-            DEFINE_MEMBER_FN(Visit,            bool,   0x006E12C0, BodyPart*); // return true to keep looping; false to break out of the loop early
-            DEFINE_MEMBER_FN(GetResultAVIndex, SInt32, 0x006E1B00); // call after the visitor has run
-         };
-
-         volatile SInt32 refCount; // 00
-         NiNode*  npcRootNode; // 04
-         BodyPart bodyParts[0x2A]; // 08 // index is a body part index - 30 (i.e. the first body part in the list, body part 30, is index 0)
-         BodyPart unk548[0x2A]; // 548 // testing indicates that this IS NOT used for race switches or as a queue
-         UInt32   ownerHandle; // A88 // refHandle
-
-         MEMBER_FN_PREFIX(ActorWeightData);
-         DEFINE_MEMBER_FN(Constructor, ActorWeightData&, 0x0046D9B0, Actor* owner, NiNode* ownerNode_optional);
-         DEFINE_MEMBER_FN(Destructor,       void, 0x0046DAA0);
-         DEFINE_MEMBER_FN(StoreRootNodeFor, void, 0x0046BF40, NiNode* ownerNode);
-         DEFINE_MEMBER_FN(UpdateWeightData, void, 0x0046D690);
-         // DEFINE_MEMBER_FN(Unk_02, void, 0x004145F0);
-
-         DEFINE_MEMBER_FN(BodyPartHasFacegenHeadModelFlag, bool, 0x0046AE90, UInt32 bodyPartIndex);
-         DEFINE_MEMBER_FN(GetBodyByWhichIMeanTorso,  BodyPart*, 0x0046C1D0);
-         DEFINE_MEMBER_FN(GetShield,                 BodyPart*, 0x0046C130);
-         DEFINE_MEMBER_FN(IdentifyDominantArmorType, void,      0x006E1930, IdentifyDominantArmorTypeVisitor*);
-
-         DEFINE_MEMBER_FN(CreateArmorNode, NiAVObject*, 0x0046F0B0, NiNode* maybeParent, UInt32 bodyPartIndex, UInt8 arg3, UInt32 arg4_zero, UInt32 arg5_zero);
-         DEFINE_MEMBER_FN(InstallArmor,    void,        0x00470050, float negativeOrPositiveOne, UInt32 zero); // seems responsible for updating visuals
-         DEFINE_MEMBER_FN(InstallWeapon,   void,        0x0046F870, TESForm*, UInt32);
-
-         DEFINE_MEMBER_FN(RemoveBodyPart3D, void, 0x0046C8A0, BodyPart* part, bool alsoClearItemAndAddon, TESModelTextureSwap* alwaysNullptr);
-         DEFINE_MEMBER_FN(Subroutine0046D250, void, 0x0046D250, UInt32 bodyPartIndex, bool, bool);
-         DEFINE_MEMBER_FN(Subroutine0046D370, void, 0x0046D370, UInt32 bodyPartIndex);
-         DEFINE_MEMBER_FN(Subroutine0046D570, void, 0x0046D570, NiNode* bodyPartNode, UInt32 bodyPartIndex, float); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
-         DEFINE_MEMBER_FN(Subroutine0046D700, void, 0x0046D700, TESObjectARMA* addon);
-         DEFINE_MEMBER_FN(Subroutine0046D750, bool, 0x0046D750, UInt32 bodyPartIndex, void*);
-         DEFINE_MEMBER_FN(Subroutine0046DC10, bool, 0x0046DC10, UInt32 bodyPartIndex, TESObjectREFR* myActor);
-         DEFINE_MEMBER_FN(Subroutine0046E1A0, void, 0x0046E1A0); // loops over body slots; calls 0046DC10 on any that have no unk14, passing the unkA88 ref as arg2
-         DEFINE_MEMBER_FN(Subroutine0046E260, void, 0x0046E260, TESRace* race, TESObjectARMO* skin, bool isFemale); // reset body and apply skin? // if the actor has 3D, copies (bodyParts) to (unk548) and resets (bodyParts); else, resets both
-         DEFINE_MEMBER_FN(Subroutine0046E4E0, void, 0x0046E4E0, TESObjectARMO* armor, TESObjectARMA* addon, TESModelTextureSwap* model, BGSTextureSet* textureSwap);
-   };
-   typedef ActorWeightData Struct0046D9B0;
-   DEFINE_SUBROUTINE_EXTERN(NiAVObject*, CreateWeaponNode, 0x0046F530, TESModelTextureSwap*, UInt32 bodyPartIndex, Actor*, NiPointer<NiNode>& bodyPartSlotRenderedArmorPtr, NiNode* rootNode);
+   class ActorWeightData;
 
    enum LandRequestType { // requesting a flying actor to land
       kLandRequestType_Hasty = 1,

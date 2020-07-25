@@ -4,17 +4,20 @@
 #include "skse/NiNodes.h"
 
 typedef void(*BhkCollisionIteratorFunction)(RE::bhkCollisionObject* collision, void* parameters);
-static DEFINE_SUBROUTINE(void, IterateOverBhkCollisionObjects,        0x00D0E520, NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
+static DEFINE_SUBROUTINE(void, IterateOverBhkCollisionObjects,        0x00D0E520, RE::NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
 //
 // Alternate name:
 //
-static DEFINE_SUBROUTINE(void, RecurseOverCollisionObjectsInNodeTree, 0x00D0E520, NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
+static DEFINE_SUBROUTINE(void, RecurseOverCollisionObjectsInNodeTree, 0x00D0E520, RE::NiNode* root, void* parameters, BhkCollisionIteratorFunction* iterator);
 
 //
 // It would appear that hk_____ classes are native Havok, while bhk_____ are Bethesda wrappers and extensions.
 //
 class hkpAllRayHitTempCollector;
 namespace RE {
+   class NiNode;
+   //
+   class bhkWorld;
    //
    // TODO: Virtual methods for hkp_____ classes.
    // TODO: Virtual methods for bhk_____ classes.
@@ -40,8 +43,94 @@ namespace RE {
       DEFINE_MEMBER_FN(Subroutine004D4520, void, 0x004D4520, void*);
       DEFINE_MEMBER_FN(Subroutine006FB4F0, void, 0x006FB4F0, void*);
       DEFINE_MEMBER_FN(Subroutine00D5C490, void, 0x00D5C490, void*, void*);
+
+      static void ConstructFromNiPoint3(hkVector4& out, const NiPoint3& position) {
+         DEFINE_SUBROUTINE(void, f, 0x0045C770, hkVector4 & out, const NiPoint3& position);
+         f(out, position);
+      }
    };
 
+   struct Struct00DC50C0 { // sizeof == 0xC4
+      uint32_t unk00;
+      uint32_t unk04;
+      uint32_t unk08;
+      uint8_t  unk0C = 1;
+      uint8_t  unk0D;
+      uint16_t unk0E = 0xFFFF;
+      uint32_t unk10 = 0;
+      uint32_t unk14 = 0;
+      uint32_t unk18 = 0;
+      uint32_t unk1C = 0;
+      float    unk20 = 1.0F;
+      uint32_t unk24 = 0;
+      uint32_t unk28 = 0;
+      uint32_t unk2C = 0;
+      uint32_t unk30 = 0;
+      uint32_t unk34 = 0;
+      uint32_t unk38 = 0;
+      uint32_t unk3C = 0;
+      uint32_t unk40 = 0;
+      uint32_t unk44 = 0;
+      uint32_t unk48 = 0;
+      uint32_t unk4C = 0;
+      float    unk50 = 1.0F;
+      uint32_t unk54 = 0;
+      uint32_t unk58 = 0;
+      uint32_t unk5C = 0;
+      uint32_t unk60 = 0;
+      float    unk64 = 1.0F;
+      uint32_t unk68 = 0;
+      uint32_t unk6C = 0;
+      uint32_t unk70 = 0;
+      uint32_t unk74 = 0;
+      float    unk78 = 1.0F;
+      uint32_t unk7C = 0;
+      uint32_t unk80;
+      float    unk84;
+      uint32_t unk88;
+      uint32_t unk8C;
+      float    unk90 = 1.0F;
+      float    unk94 = 0.0F;
+      float    unk98 = 0.05F;
+      float    unk9C = 1.0F;
+      uint32_t unkA0;
+      float    unkA4 = 0.5F;
+      float    unkA8 = 1.0F;
+      float    unkAC = 0.4F;
+      float    unkB0 = 200.0F;
+      float    unkB4 = 200.0F;
+      float    unkB8 = -1.0F;
+      uint8_t  unkBC;
+      uint8_t  unkBD = 1;
+      uint8_t  unkBE = 2;
+      uint8_t  unkBF = 0xFF;
+      uint8_t  unkC0 = 0;
+      uint8_t  unkC1 = 0;
+      uint8_t  unkC2 = 0;
+      uint8_t  unkC3 = 0;
+      //
+      MEMBER_FN_PREFIX(Struct00DC50C0);
+      DEFINE_MEMBER_FN(Constructor, Struct00DC50C0&, 0x00DC50C0);
+   };
+   struct Struct00D378B0 {
+      uint32_t unk00 = 0;
+      float    unk04 = 0;
+      uint8_t  unk08 = 1;
+      uint8_t  pad09[3];
+      uint32_t unk0C = 0;
+      uint32_t unk10 = 0;
+      uint32_t unk14;
+      uint16_t unk18;
+      uint16_t unk1A = 0xFFFF;
+      uint32_t unk1C;
+      Struct00DC50C0 unk20;
+      //
+      MEMBER_FN_PREFIX(Struct00D378B0);
+      DEFINE_MEMBER_FN(Constructor, Struct00D378B0&, 0x00D378B0);
+      DEFINE_MEMBER_FN(Destructor, void, 0x004E28C0);
+      //
+      ~Struct00D378B0() { CALL_MEMBER_FN(this, Destructor)(); }
+   };
    struct Struct00D69170 { // sizeof == 0x2C
       UInt32 unk00 = 1;
       UInt32 unk04;
@@ -170,6 +259,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Constructor, bhkRefObject&, 0x00D39470);
    };
 
+   #pragma region Motion
    class hkpMotion { // sizeof == 0x120
       public:
          enum MotionSystem : UInt8 {
@@ -227,6 +317,7 @@ namespace RE {
       public:
          virtual ~hkpFixedRigidMotion();
    };
+   #pragma endregion
 
    class hkpWorldObject { // sizeof == 0x8C
       public:
@@ -378,7 +469,7 @@ namespace RE {
          virtual void Unk_22(void);
          virtual UInt32 Unk_23(); // returns this->unk08 ? this->unk08->unk08 : NULL;
          virtual UInt32 Unk_24(); // same as Unk_23, but it checks if this exists first
-         virtual bool Unk_25(void);
+         virtual bool Unk_25(bhkWorld*);
          virtual void Unk_26(); // does stuff (not sure what) and then recursively executes self on all unk18 elements
          virtual void Unk_27(bool);
          virtual UInt32 Unk_28(); // returns 0xF0
@@ -389,7 +480,16 @@ namespace RE {
          virtual void Unk_2D(UInt32 unk); // returns Unk_27(1);
          virtual void Unk_2E(void);
          virtual void Unk_2F(void);
+         virtual void Unk_30(void);
+         virtual void Unk_31(const hkVector4& position); // fourth vector component is zero
+         virtual void Unk_32(const hkVector4& rotation); // quaternion
          // ...?
+
+         MEMBER_FN_PREFIX(bhkRigidBody);
+         DEFINE_MEMBER_FN(Constructor, bhkRigidBody&, 0x004E06D0, Struct00D378B0& params);
+         DEFINE_MEMBER_FN(Subroutine00D0D3C0, void, 0x00D0D3C0, NiNode*, UInt32 zero);
+
+         static bhkRigidBody* make(Struct00D378B0&);
    };
 
    class NiCollisionObject : public NiObject { // sizeof == 0x14
@@ -411,13 +511,22 @@ namespace RE {
          bhkRigidBody* unk10;     // 10
    };
    class bhkNiCollisionObject : public NiCollisionObject { // sizeof == 0x14
+      public:
+         static constexpr uint32_t vtbl = 0x01162170;
+         //
+         MEMBER_FN_PREFIX(bhkNiCollisionObject);
+         DEFINE_MEMBER_FN(Constructor, bhkNiCollisionObject&, 0x00D16D00, NiNode*);
+         DEFINE_MEMBER_FN(SetRigidBody, void, 0x00D16D30, bhkRigidBody*);
+         //
+         static bhkNiCollisionObject* make(NiNode*);
    };
    class bhkCollisionObject : public bhkNiCollisionObject { // sizeof == 0x14
       //
-      // VTBL: 0x010881F4
       // Could have as many as 0x89 virtual methods.
       //
       public:
+         static constexpr uint32_t vtbl = 0x010881F4;
+         //
          virtual ~bhkCollisionObject();
          //
          virtual void Unk_21(void);
@@ -430,13 +539,15 @@ namespace RE {
          virtual void Unk_28(void);
          virtual void Unk_29(void);
          virtual void SetMotionSystem(UInt32 motionSystemToSet, UInt32 unkInt, UInt32 unkBool);
+         //
+         static bhkCollisionObject* make(NiNode*);
    };
 
    class hkCharacterProxy {
       // bhkRigidBody* unk2A8;
    };
 
-   class bhkBoxShape : public NiRefObject {
+   class bhkBoxShape : public NiRefObject { // sizeof == 0x14
       //
       // Multiple inheritance? from bhkSphereRepShape and bhkConvexShape?
       //
@@ -445,7 +556,10 @@ namespace RE {
          UInt32 unk0C = 0;
          UInt32 unk10 = 0;
          //
-         // ...?
+         MEMBER_FN_PREFIX(bhkBoxShape);
+         DEFINE_MEMBER_FN(Constructor, bhkBoxShape&, 0x004D9110, const hkVector4&);
+         //
+         static bhkBoxShape* make(const hkVector4&);
    };
    class bhkSphereShape : public NiRefObject {
       //
@@ -486,6 +600,7 @@ namespace RE {
       // doesn't override any virtual methods besides Dispose, Unk_01, and GetRTTI
       //
    };
+   extern bhkWorldM* GetDefaultHavokWorld();
 
    class hkpAction : public hkReferencedObject {
       //

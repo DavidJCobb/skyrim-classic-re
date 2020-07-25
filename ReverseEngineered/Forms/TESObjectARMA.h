@@ -1,10 +1,11 @@
 #pragma once
 #include "ReverseEngineered/Forms/TESForm.h"
+#include "ReverseEngineered/Forms/FormComponents/TESModel.h"
 #include "skse/GameObjects.h"
 
 namespace RE {
    class TESRace;
-   class TESObjectARMA : public ::TESObject {
+   class TESObjectARMA : public TESObject {
       public:
 	      enum { kTypeID = kFormType_ARMA };
          static constexpr intptr_t vtbl = 0x0108450C;
@@ -18,9 +19,8 @@ namespace RE {
          //
 	      struct Data { // sizeof == 0xC
 		      UInt8	priority[2]; // 00 // broken? one per sex but the game loads the male value to both? see 004A0EF0
-		      UInt8	unk02; // 02 // subrecord byte 01: female priority?
-		      UInt8	unk03; // 03 // subrecord byte 02: weight slider flags, male
-		      UInt8	unk04; // 04 // subrecord byte 03: weight slider flags, female
+				UInt8 weightSliderFlags[2]; // 02 // one per sex
+		      UInt8	unk04; // 04 // subrecord byte 03
 		      UInt8	unk05; // 05 // subrecord byte 04
 		      UInt8	detectionSoundValue; // 06 // subrecord byte 05
 		      UInt8	pad07; // 07

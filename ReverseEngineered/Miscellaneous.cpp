@@ -2,6 +2,7 @@
 #include "Shared.h"
 #include "ReverseEngineered/Miscellaneous.h"
 
+class NiNode;
 namespace RE {
    namespace native {
       DEFINE_SUBROUTINE(void*,   memmove,     0x00F52E30, void* destination, void* source, uint32_t size);
@@ -21,4 +22,6 @@ namespace RE {
    DEFINE_SUBROUTINE(float, GetRandomFloat,     0x00448A90, float minVal, float maxVal);
 
    DEFINE_SUBROUTINE(void, TriggerScreenBlood, 0x0048A850, UInt32 papyrusAmountArg, float zeroA, UInt32 zeroB);
+
+   DEFINE_SUBROUTINE(UInt32, LoadModel, 0x0048A850, const char* path, NiPointer<NiNode>& out, LoadModelOptions& options);
 };

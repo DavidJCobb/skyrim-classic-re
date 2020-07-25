@@ -38,9 +38,15 @@ namespace RE {
             return CALL_MEMBER_FN(this, Add_B)(other);
          };
    };
-   class NiQuaternion : public ::NiQuaternion {
+   class NiQuaternion {
       public:
+         float w;
+         float x;
+         float y;
+         float z;
+
          MEMBER_FN_PREFIX(NiQuaternion);
+         DEFINE_MEMBER_FN(FromMatrix, void, 0x00AC0260, const NiMatrix33&);
          DEFINE_MEMBER_FN(ToMatrix, NiMatrix33&, 0x004719A0, NiMatrix33& out);
    };
    class NiMatrix33 : public ::NiMatrix33 { // sizeof == 0x24

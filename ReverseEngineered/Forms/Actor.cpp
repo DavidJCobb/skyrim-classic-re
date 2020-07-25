@@ -42,7 +42,7 @@ namespace RE {
             //
             NiNode * model = GetNiRootNode(0);
             if (model)
-               UpdateModelHair(model, &color);
+               UpdateModelHair((::NiNode*)model, &color);
          }
       }
    }
@@ -58,10 +58,10 @@ namespace RE {
          NiNode * thirdPerson = GetNiRootNode(0);
          NiNode * firstPerson = GetNiRootNode(1);
          if (thirdPerson) {
-            UpdateModelSkin(thirdPerson, &color); // Update for 3rd Person
+            UpdateModelSkin((::NiNode*)thirdPerson, &color); // Update for 3rd Person
          }
          if (firstPerson) {
-            UpdateModelSkin(firstPerson, &color); // Update for 1st Person
+            UpdateModelSkin((::NiNode*)firstPerson, &color); // Update for 1st Person
          }
       }
    }

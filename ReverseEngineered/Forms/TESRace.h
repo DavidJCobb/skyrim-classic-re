@@ -2,6 +2,7 @@
 #include "skse/GameForms.h"
 #include "skse/GameObjects.h"
 #include "ReverseEngineered/Forms/TESForm.h"
+#include "ReverseEngineered/Forms/FormComponents/BGSBipedObjectForm.h"
 
 class TESObjectARMO;
 namespace RE {

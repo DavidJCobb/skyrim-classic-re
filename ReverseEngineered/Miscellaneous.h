@@ -1,11 +1,14 @@
 #pragma once
 #include "Shared.h"
 #include "skse/Utilities.h"
+#include "skse/NiTypes.h"
 
 class SimpleLock;
 class TESObjectCELL;
 class TESWorldSpace;
 namespace RE {
+   class NiNode;
+   
    namespace native { // here for documentation purposes; don't bother actually using these
       DEFINE_SUBROUTINE_EXTERN(void*,   memmove,     0x00F52E30, void* destination, void* source, uint32_t size);
       DEFINE_SUBROUTINE_EXTERN(errno_t, memmove_s,   0x00F522BA, void* destination, size_t destSize, void* source, size_t sourceSize);
@@ -123,4 +126,21 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(float, GetTrainingCost, 0x0059B570, UInt32 playerSkill);
 
    DEFINE_SUBROUTINE_EXTERN(void, TriggerScreenBlood, 0x0048A850, UInt32 papyrusAmountArg, float zeroA, UInt32 zeroB);
+
+   struct LoadModelOptions {
+      UInt32 unk00 = 3;
+      UInt32 unk04 = 3;
+      bool   unk08 = false;
+      bool   isFaceGenHead = false; // 09
+      bool   unk0A = false;
+      bool   unk0B = true;
+   };
+   struct LoadedMeshResourcePtr; // see BSResource.h
+   //
+   // This attempts to load a NIF file, writes the root into the NiPointer argument, and returns 0 if it succeeds. It 
+   // appears to load the file synchronously, i.e. there will be a hitch while the file loads. You should probably 
+   // only run it from the main thread. It's used to handle actor ArmorAddons.
+   //
+   DEFINE_SUBROUTINE_EXTERN(UInt32, LoadModel,   0x00AF5820, const char* path, NiPointer<NiNode>& out, LoadModelOptions& options);
+   DEFINE_SUBROUTINE_EXTERN(UInt32, LoadModel_B, 0x00AF5680, const char* path, LoadedMeshResourcePtr& out, LoadModelOptions& options); // possibly an asynchronous load
 };

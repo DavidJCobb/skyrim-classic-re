@@ -8,7 +8,41 @@ class bhkAabbPhantom;
 namespace RE {
    class bhkCollisionObject;
    class bhkRigidBody;
+   class NiExtraData;
+   class NiNode;
    class TESObjectREFR;
+
+   struct NiCloningProcess {
+      UInt32 unk00;
+      UInt32 unk04;
+      UInt32 unk08 = 0;
+      UInt32 unk0C = 0;
+      UInt32 unk10 = 0;
+      UInt32 unk14 = 0x01240434; // pointer to 0xDEADBEEF
+      UInt32 unk18;
+      UInt32 unk1C;
+      UInt32 unk20;
+      UInt32 unk24;
+      UInt32 unk28 = 0;
+      UInt32 unk2C = 0;
+      UInt32 unk30 = 0;
+      UInt32 unk34 = 0x01240434; // pointer to 0xDEADBEEF
+      UInt32 unk38;
+      UInt32 unk3C = 0;
+      UInt32 unk40;
+      UInt8  unk44 = '$';
+      UInt8  pad45[3];
+      float  unk48; // initialized to constructor arg
+      float  unk4C; // initialized to constructor arg
+      float  unk50; // initialized to constructor arg
+
+      MEMBER_FN_PREFIX(NiCloningProcess);
+      DEFINE_MEMBER_FN(Constructor, NiCloningProcess&, 0x0046DF40, float);
+
+      NiCloningProcess(float a) {
+         CALL_MEMBER_FN(this, Constructor)(a);
+      }
+   };
 
    class NiObject : public NiRefObject {
       //
@@ -91,6 +125,7 @@ namespace RE {
 
          MEMBER_FN_PREFIX(NiObjectNET);
          DEFINE_MEMBER_FN(Constructor, NiObjectNET&, 0x00AB4180);
+         DEFINE_MEMBER_FN(AddExtraData, bool, 0x00AB44C0, NiExtraData*);
          DEFINE_MEMBER_FN(DynamicCastController, void*, 0x00AB40C0, const NiRTTI*); // dynamic-casts this->m_controller
          DEFINE_MEMBER_FN(SetName, void, 0x00AB4020, StringCache::Ref*);
    };
@@ -98,20 +133,33 @@ namespace RE {
 
    class NiAVObject : public NiObjectNET { // sizeof == 0xA8
       public:
-         enum {
-            kFlag_SelectiveUpdate             = 0x00000002,
-            kFlag_UpdatePropertyControllers   = 0x00000004,
-            kFlag_SelectiveUpdateRigid        = 0x00000010,
-            kFlag_OverrideSelectiveTransforms = 0x00000080,
+         struct flag {
+            flag() = delete;
+            enum type : uint32_t {
+               none = 0,
+               //
+               culled                        = 0x00000001, // used by Skyrim to hide nodes
+               selective_update              = 0x00000002,
+               update_property_controllers   = 0x00000004,
+               selective_update_rigid        = 0x00000010,
+               override_selective_transforms = 0x00000080,
+            };
          };
+         using flags_t = std::underlying_type_t<flag::type>;
          //
          struct ControllerUpdateContext {
-            enum {
-               kDirty = 1 << 0,
+            struct flag {
+               flag() = delete;
+               enum type : uint32_t {
+                  none = 0,
+                  //
+                  dirty = 0x00000001,
+               };
             };
+            using flags_t = std::underlying_type_t<flag::type>;
             //
-            float  delta;
-            UInt32 flags;
+            float   delta = 0.0F;
+            flags_t flags = flag::none;
          };
          //
          virtual void UpdateControllers(ControllerUpdateContext * ctx); // 21	// calls controller vtbl+0x8C
@@ -133,13 +181,13 @@ namespace RE {
          virtual void Unk_31(UInt32 arg0);
          virtual void Unk_32(UInt32 arg0);
          //
-         NiNode*     m_parent;			 // 18
+         NiNode*     parent;			 // 18
          bhkCollisionObject* collision; // 1C
-         NiTransform	m_localTransform;  // 20
-         NiTransform	m_worldTransform;  // 54
+         NiTransform	localTransform;  // 20
+         NiTransform	worldTransform;  // 54
          NiPoint3 unk88; // 88
          float		unk94;				// 94
-         UInt32   m_flags;			   // 98 - bitfield
+         flags_t  flags;			   // 98 - bitfield
          float		unk9C;				// 9C
          TESObjectREFR* unkA0;				// A0 // per 004D7C90
          UInt8		unkA4;				// A4
@@ -181,4 +229,5 @@ namespace RE {
 
    DEFINE_SUBROUTINE_EXTERN(bhkCollisionObject*, GetBhkCollisionObjectForNiObject, 0x0046A240, NiObject* obj); // returns obj->unk1C ? obj->unk1C : obj->GetAsBhkCollisionObject();
    DEFINE_SUBROUTINE_EXTERN(bool,                NiObjectIs,                       0x0042A960, const NiRTTI*, const NiObject*);
+   DEFINE_SUBROUTINE_EXTERN(bool,                NodeTreeContainsGeomMorpherController, 0x00B06360, NiNode* obj);
 };

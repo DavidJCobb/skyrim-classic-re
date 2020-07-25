@@ -1,9 +1,18 @@
-void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
+inline float TESNPC::GetRootTemplate() const {
+   TESNPC* node = this->nextTemplate;
+   if (node)
+      while (node->nextTemplate)
+         node = node->nextTemplate;
+   return node;
+}
+
+void ActorWeightData::Subroutine00470050(float overrideWeight = -1.0F, UInt32 Arg2 = 0) {
    // allocate 0x2E4 bytes on stack, plus register pushes
    auto edi = this;
    auto ebp = 0;
    auto esp10 = this;
    auto esp14 = 0;
+   TESNPC* esp60 = nullptr;
    bool bodyPartIsFaceGenHead; // esp27
    NiPointer<TESObjectREFR> currentRef = nullptr; // esp14
    TESObjectREFRHandleInterface::ExchangeHandleForRef(&this->unkA88, &currentRef);
@@ -13,15 +22,16 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
    if (this->npcRootNode) { // at 0x00470088
       auto  esp34 = esi->GetShieldBodyPartIndex();
       auto  edx   = GMST:fBodyMorphWeaponAdjustMult;
-      float totalWeaponAdjust = esi->GetFormWeight() / 100.0F * Arg1; // esp30
+      float totalWeaponAdjust = esi->GetFormWeight() / 100.0F * overrideWeight; // esp30
+      esp60 = esi->baseForm;
       InterlockedIncrement(&this->refcount);
       ecx = 0;
       esp34 = this;
-      bool esp2C = false;
+      bool isFirstPerson = false;
       if (esi == *g_thePlayer) {
          bool al = (*g_thePlayer)->TESV_00736FC0(&esp38);
          if (al) {
-            bool esp2C = true;
+            isFirstPerson = true;
             if ((*g_thePlayer)->unk727 & 2) {
                this->UpdateWeightData();
                esp38.TESV_004145C0(); // smart pointer destructor
@@ -73,7 +83,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esi->textureSet = edi->textureSet; // BGSTextureSet* assign
                      *edi = *esi;
                      NiNode* edx = this->bodyParts[esp4C].renderedArmor;
-                     this->TESV_0046D570(edx, esp4C, esp30); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
+                     this->TESV_0046D570(esp14, 0, esp4C); // updates visibility of partitions in the node's BSDismemberSkinInstance / geometry
                      esi->Reset();
                      if (*(bool*)(0x012E5CA4)) { // bool is only set by ActorProcessManager::UpdateEquipment
                         NiNode* eax = this->bodyParts[esp4C].renderedArmor;
@@ -138,7 +148,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                }
                continue;
             }
-            if (esp30) { // at 0x004703C0
+            if (isFirstPerson) { // at 0x004703C0
                if (eax = esp60) {
                   eax = eax->unkC4;
                   bool al = eax->unk38.TestBodyPartByIndex(esp4C);
@@ -162,7 +172,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   eax = currentRef;
                   if (eax != *g_thePlayer) {
                      if (INI:BackgroundLoad:bLoadHelmetsInBackground && INI:BackgroundLoad:bUseMultiThreadedFaceGen) {
-                        ecx->TESV_0046F4E0(0, 0, esp4C); // ecx is never assigned?
+                        this->Subroutine0046F4E0(0, 0, esp4C);
                         continue;
                      }
                   }
@@ -197,12 +207,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                bool esp26 = false;
                float a;
                if (eax != esi) { // at 0x004704F2
-                  do {
-                     ecx = eax->unk124;
-                     if (ecx != esi)
-                        eax = ecx;
-                  } while (eax != esi);
-                  a = eax->unk12C;
+                  a = esi->GetRootTemplate()->weight;
                } else {
                   a = currentRef->GetFormWeight();
                }
@@ -211,10 +216,10 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                // FPU: [100.0F, a / 100.0F]
                float weight = a / 100.0F; // esp28
                // FPU: [100.0F]
-               // FPU: [Arg1, 100.0F]
-               // FPU: [0, Arg1, 100]
-               if (0.0F <= Arg1) { // at 0x00470543
-                  weight = Arg1;
+               // FPU: [overrideWeight, 100.0F]
+               // FPU: [0, overrideWeight, 100]
+               if (0.0F <= overrideWeight) { // at 0x00470543
+                  weight = overrideWeight;
                }
                TESForm* ecx = this->bodyParts[esp4C].item;
                //
@@ -278,7 +283,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            bool   unk0A = false;
                            bool   unk0B = true;
                         } esp68; // decltype == LoadModelOptions
-                        esp40 = edi;
+                        esp40 = nullptr; // this is a smart pointer (not refcounted tho) to a state struct for a model being loaded through an alternative means
                         //
                         // It looks like an armor filename must end in "1" or "0", and it looks 
                         // like the game swaps it (i.e. if the model path is "a_1.nif", then 
@@ -312,14 +317,14 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                               } else {
                                  // at 0x004707CA
                                  // We gotta interpolate between the weight models.
-                                 bool esp26 = TESV_00B0EEF0(minWeightModel, maxWeightModel, (1.0F - weight), &interpolatedWeightModel); // interpolates between Arg1 and Arg2 by Arg3 amount; writes result to Arg4
+                                 bool esp26 = TESV_00B0EEF0(minWeightModel, maxWeightModel, (1.0F - weight), &interpolatedWeightModel); // interpolates between overrideWeight and Arg2 by Arg3 amount; writes result to Arg4
                                  esi = interpolatedWeightModel;
                                  // fall through to 0x004707F7
                               }
                            }
                         } else {
                            // at 0x0047072D
-                           espEC[7 + ebp] = '1'; // pretty sure the char index here is wrong; should probably be ebp - 5
+                           espEC[ebp - 5] = '1';
                            eax = TESV_00AF5680(&espEC, &esp40, &esp68); // at 0x00470747
                            if (!eax) {
                               minWeightModel = esp40->unk1C; // NiPointer& NiPointer::assign(NiPointer& other);
@@ -335,7 +340,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                               } else {
                                  // at 0x004707CA
                                  // We gotta interpolate between the weight models.
-                                 bool esp26 = TESV_00B0EEF0(minWeightModel, maxWeightModel, (1.0F - weight), &interpolatedWeightModel); // interpolates between Arg1 and Arg2 by Arg3 amount; writes result to Arg4
+                                 bool esp26 = TESV_00B0EEF0(minWeightModel, maxWeightModel, (1.0F - weight), &interpolatedWeightModel); // interpolates between overrideWeight and Arg2 by Arg3 amount; writes result to Arg4
                                  esi = interpolatedWeightModel;
                                  // fall through to 0x004707F7
                               }
@@ -347,7 +352,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                            // fall through to 0x004707F7
                         }
                         // at 0x004707F7
-                        esp40.TESV_00407EC0();
+                        esp40.TESV_00407EC0(); // destructor
                         maxWeightModel.~NiPointer(); // func is 007B1320
                         // fall through to 0x00470822
                      }
@@ -369,7 +374,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                   eax = nullptr;
                NiPointer<NiAVObject*> esp48(eax); // constructor at 0x00489910
                NiPointer esp10(nullptr);
-               eax = currentRef->GetNiRootNode(esp2C);
+               eax = currentRef->GetNiRootNode(isFirstPerson);
                ebp = esp48;
                //
                // Find all NiGeometry in the node tree (esp48), and perform some 
@@ -402,9 +407,9 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      esp64.~NiPointer();
                   }
                   // at 0x0047093F
-                  edx = esp30;
+                  edx = isFirstPerson;
                   edi = esp4C;
-                  auto eax = this->CreateArmorNode(ebp, edi, edx, 0, 0);
+                  auto eax = this->CreateArmorNode(ebp, edi, edx, 0, 0); // shimmed by NiOverride
                   esp14 = eax; // smart pointer assign
                   NiObjectNET* esi = esp10; // or subclass
                   if (!esi) { // at 0x00470967
@@ -446,7 +451,7 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      ecx = esp2C; // at 0x00470A48
                      if (ecx == *(PlayerCharacter**)0x01310588) {
                         bool al = (*g_thePlayer)->Unk_71();
-                        al = al xor esp30;
+                        al = al xor isFirstPerson;
                         if (al) {
                            // at 0x00470A6D
                            TESV_004DA320(ebp);
@@ -512,8 +517,12 @@ void ActorWeightData::Subroutine00470050(float Arg1, UInt32 Arg2) {
                      // a term for genuine cloth physics; I guess the vampire lord 
                      // cape is handled differently for the sake of being pretty?
                      //
-                     // ...
-                     //
+                     auto eax = esi->GetNiRootNode();
+                     if (eax && eax->m_parent == ebp) {
+                        ControllerUpdateContext esp90 = { 0, 0 };
+                        eax->UpdateNode(&esp90);
+                     }
+                     esi->Unk_67();
                   }
                   // at 0x00470BE4
                   esp5C.~NiPointer<ActorWeightData>();

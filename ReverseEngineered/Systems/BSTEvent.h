@@ -93,8 +93,14 @@ namespace RE {
       UInt16         unk08;
    };
    struct TESCellAttachDetachEvent {
-      TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
-      UInt8          unk08; // 04 // whether we're attaching or detaching
+      //
+      // Fires when an object's parent cell is attached or detached. DOES NOT refer to the 
+      // object itself being "attached" or "detached;" moving an object between cells will 
+      // not fire this event, and the cell that an object is in when it attaches may not 
+      // be the cell that it's in when it later detaches.
+      //
+      TESObjectREFR* ref;    // 00 // refcount should be managed by whatever fires the event
+      bool           attach; // 04 // whether we're attaching (true) or detaching (false)
    };
    struct TESCellFullyLoadedEvent {
       TESObjectCELL* unk00;
@@ -449,8 +455,8 @@ namespace RE {
       bool   interrupted;
    };
 
-   extern constexpr BSTEventSource<UInt32>* g_dayPassedEventSource      = (BSTEventSource<UInt32>*)0x01B2E728; // 0x01B2E728
-   extern constexpr BSTEventSource<UInt32>* g_menuModeChangeEventSource = (BSTEventSource<UInt32>*)0x01271CE8; // 0x01271CE8
+   extern BSTEventSource<UInt32>* const g_dayPassedEventSource;
+   extern BSTEventSource<UInt32>* const g_menuModeChangeEventSource;
 
    class BSTEventSourceHolder { // sizeof >= 0x9F0
       public:

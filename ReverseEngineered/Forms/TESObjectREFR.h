@@ -50,6 +50,8 @@ namespace RE {
       };
       //
       UInt32 bits;
+      BSUntypedPointerHandle() {}
+      BSUntypedPointerHandle(UInt32 v) : bits(v) {}
       //
       inline UInt32 index() const {
          return bits & kMask_Index;
@@ -179,12 +181,18 @@ namespace RE {
          static Entry* GetEntries() { // access as result[0], result[1], ...
             return TESObjectREFRHandleInterface::GetInstance()->entries;
          };
-         /*// TODO: rename "decoded" functions to Inl_Name and set up Name as calls to the vanilla functions
-         inline static bool GetRefByHandle(BSUntypedPointerHandle* refHandlePtr, refr_ptr&) {
-            // 0x004951F0
-
+         //
+         static bool lookup_c(const BSUntypedPointerHandle& handle, refr_ptr& p) {
+            DEFINE_SUBROUTINE(bool, f, 0x004A9180, const BSUntypedPointerHandle&, refr_ptr&);
+            return f(handle, p);
          }
-         //*/
+         static bool lookup(BSUntypedPointerHandle& handle, refr_ptr& p) {
+            DEFINE_SUBROUTINE(bool, f, 0x004951F0, const BSUntypedPointerHandle&, refr_ptr&);
+            return f(handle, p);
+         }
+         static bool lookup(UInt32 handle, refr_ptr& p) {
+            return lookup(BSUntypedPointerHandle(handle), p);
+         }
          //
          // SKSE identifies this as "LookupREFRByHandle." If the handle you pass in is 
          // invalid, then the handle will be destroyed (i.e. set to zero).
@@ -380,7 +388,7 @@ namespace RE {
          virtual void	Unk_67();
          virtual void	Unk_68();
          virtual void	Unk_69();
-         virtual void*  Unk_6A(UInt32); // handles a lot of 3D state stuff
+         virtual void*  Unk_6A(bool); // handles a lot of 3D state stuff
          virtual void 	Unk_6B();
          virtual void	Unk_6C(NiNode*, bool); // 6C // Unk_6C(nullptr, 0) will instantly unload 3D. // Unk_6C(newNode, 1); is used for newly-created BSFadeNodes?
          virtual bool	ParentCellIsLoaded(); // 6D
@@ -511,6 +519,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetCurrentLocation,      BGSLocation*,     0x004D83C0);
          DEFINE_MEMBER_FN(GetDistance,             float,            0x004D7ED0, TESObjectREFR* other, bool evenIfDisabled, bool oftenFalse);
          DEFINE_MEMBER_FN(GetDistanceSquared,      float,            0x004D7ED0, TESObjectREFR* other, bool evenIfDisabled, bool oftenFalse);
+         DEFINE_MEMBER_FN(GetFormWeight,           float,            0x004EA1A4); // == GetFormWeight(this->baseForm);
          DEFINE_MEMBER_FN(GetHealth,               float,            0x004E9F90);
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
@@ -536,6 +545,8 @@ namespace RE {
          DEFINE_MEMBER_FN(SetPitch,                void,             0x004DC9D0, float); // X // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).
          DEFINE_MEMBER_FN(SetRoll,                 void,             0x004DCA60, float); // Y // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).
          DEFINE_MEMBER_FN(SetYaw,                  void,             0x004DCAF0, float); // Z // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).
+         DEFINE_MEMBER_FN(SetUpCollisionVolume3D,  void,             0x004E2910); // listed for research purposes; probably shouldn't call it directly. is called for [STAT]CollisionMarker refs with ExtraPrimitive data
+         DEFINE_MEMBER_FN(SetUpTriggerVolume3D,    void,             0x004E3CE0); // listed for research purposes; probably shouldn't call it directly. is called for Activators with ExtraPrimitive data
          //
          // 4D9CF0 returns true if:
          //  - The reference is temporary (form ID starts with 0xFF)
@@ -550,6 +561,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004D9CF0,   bool,             0x004D9CF0);
          DEFINE_MEMBER_FN(Subroutine00450F60,   void,             0x00450F60, UInt32);
          DEFINE_MEMBER_FN(Subroutine004D6140,   void,             0x004D6140, char*);      // <-- Sets non-persistent activate prompt? I've seen it used to set "Open" or "Close".
+         DEFINE_MEMBER_FN(Subroutine004DBDB0,   void,             0x004DBDB0, TESForm* baseTorch, bool isShieldBodyPart);
          DEFINE_MEMBER_FN(Subroutine004EC4E0,   void,             0x004EC4E0, UInt32, UInt32); // <-- related to "used" and "reserved" furniture markers
          DEFINE_MEMBER_FN(SetFlag00000002State, void,             0x00450ED0, bool);       // <-- Setter for flag 0x02, wrapped in TLS stuff.
          DEFINE_MEMBER_FN(SetPosition,          void,             0x004DCBA0, NiPoint3*);  // <-- Does something with worldspace data, too. DOES NOT UPDATE THE REFERENCE'S LOADED 3D.

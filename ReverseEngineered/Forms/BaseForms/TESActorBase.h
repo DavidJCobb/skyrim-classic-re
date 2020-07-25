@@ -80,11 +80,9 @@ namespace RE {
          BGSAttackDataForm	attackData;	// AC
          BGSPerkRankArray	perkRanks;	// B4
 
-         virtual bool			Unk_52(void);
-         virtual UInt32			Unk_53(void);
          virtual void			Unk_54(UInt32 arg);
          virtual TESActorBase *	Unk_55(void);
    };
-   STATIC_ASSERT(offsetof(TESActorBase, keyword) == 0xA0);
-   STATIC_ASSERT(sizeof(TESActorBase) == 0xC0);
+   static_assert(sizeof(TESActorBase) == 0xC0, "RE::TESActorBase is the wrong size.");
+   static_assert(offsetof(TESActorBase, keyword) == 0xA0, "RE::TESActorBase::keyword has the wrong offset.");
 };

@@ -4,6 +4,160 @@
 #include "skse/GameForms.h"
 #include "skse/GameFormComponents.h"
 
+#pragma region Form type constants
+namespace RE {
+   struct form_type {
+      form_type() = delete;
+      enum type : uint8_t {
+         none = 0, // NONE
+         tes4,     // TES4: File Header
+         group,    // GRUP: File Group
+         setting,  // GMST: Game Setting
+         keyword           = 0x04, // KYWD: BGSKeywprd
+         location_ref_type,        // LCRT: BGSLocationRefType
+         action,                   // AACT: BGSAction
+         texture_set,              // TXST: BGSTextureSet
+         menu_icon,                // MICN: BGSMenuIcon
+         global, // GLOB: TESGlobal
+         combat_class,             // CLAS: TESClass
+         faction,                  // FACT: TESFaction
+         head_part,                // HDPT: BGSHeadPart
+         eyes,                     // EYES: TESEyes
+         race,                     // RACE: TESRace
+         sound,                    // SOUN: TESSound
+         acoustic_space    = 0x10, // ASPC: BGSAcousticSpace
+         skill,                    // SKIL
+         magic_effect,             // MGEF: EffectSetting
+         script,                   // SCPT: Script
+         land_texture,             // LTEX: TESLandTexture
+         enchantment,              // ENCH: EnchantmentItem
+         spell,                    // SPEL: SpellItem
+         scroll,                   // SCRL: ScrollItem
+         activator         = 0x18, // ACTI: Activator
+         talking_activator,        // TACT: BGSTalkingActivator
+         armor,                    // ARMO: TESObjectARMO
+         book,                     // BOOK: TESObjectBOOK
+         container,                // CONT: TESObjectCONT
+         door,                     // DOOR: TESObjectDOOR
+         ingredient,               // INGR: IngredientItem
+         light             = 0x1F, // LIGH: TESObjectLIGH
+         misc_item         = 0x20, // MISC: TESObjectMISC
+         apparatus,                // APPA: BGSApparatus
+         //
+         static_scenery,           // STAT: TESObjectSTAT
+         statik = static_scenery,
+         //
+         static_collection,        //       BGSStaticCollection
+         movable_static,           // MSTT: BGSMovableStatic
+         grass,                    // GRAS: TESGrass
+         tree,                     // TREE: TESObjectTREE
+         flora,                    // FLOR: TESFlora
+         furniture,                // FURN: TESFurniture
+         weapon,                   // WEAP: TESObjectWEAP
+         ammo,                     // AMMO: TESAmmo
+         actor_base,               // NPC_: TESNPC
+         leveled_character,        // LVLN: TESLevCharacter
+         key,                      // KEYM: TESKey
+         potion,                   // ALCH: AlchemyItem
+         idle_marker       = 0x2F, // IDLM: BGSIdleMarker
+         note              = 0x30, // NOTE: BGSNote
+         recipe,                   // COBJ: Constructible Object
+         projectile,               // PROJ: BGSProjectile
+         hazard,                   // HAZD: BGSHazard
+         soul_gem,                 // SLGM: TESSoulGem
+         leveled_item,             // LVLI: TESLevItem
+         weather,                  // WTHR: TESWeather
+         climate,                  // CLMT: TESClimate
+         shader_particle_geometry_data, // SPGD: BGSShaderParticleGeometryData
+         reference_effect,         // RFCT: BGSReferenceEffect
+         region,                   // REGN: TESRegion
+         navmesh_info_map,         // NAVI: NavMeshInfoMap
+         cell,                     // CELL: TESObjectCELL
+         reference,                // REFR: TESObjectREFR
+         actor,                    // ACHR: Actor / Character (previous games distinguished between Characters and Creatures)
+         missile           = 0x3F, // PMIS: MissileProjectile
+         arrow             = 0x40, // PARW: ArrowProjectile
+         grenade,                  // PGRE: GrenadeProjectile
+         beam,                     // PBEA: BeamProjectile
+         flame,                    // PLFA: FlamePrjoectile
+         cone,                     // PCON: ConeProjectile
+         barrier,                  // PBAR: BarrierProjectile
+         placed_hazard,            // PHZD: Hazard
+         worldspace,               // WRLD: TESWorldSpace
+         land,                     // LAND: TESObjectLAND
+         navmesh,                  // NAVM: NavMesh
+         tlod,                     // TLOD
+         topic,                    // DIAL: TESTopic
+         topic_info,               // INFO: TESTopicInfo
+         quest,                    // QUST: TESQuest
+         idle,                     // IDLE: TESIdleForm
+         package           = 0x4F, // PACK: TESPackage
+         combat_style      = 0x50, // CSTY: TESCombatStyle
+         load_screen,              // LSCR: TESLoadScreen
+         leveled_spell,            // LVSP: TESLevSpell
+         anio,                     // ANIO: TESObjectANIO
+         water_type,               // WATR: TESWaterForm
+         effect_shader,            // EFSH: TESEffectShader
+         toft,                     // TOFT
+         explosion,                // EXPL: BGSExplosion
+         debris,                   // DEBR: BGSDebris
+         imagespace,               // IMGS: TESImageSpace
+         imagespace_modifier,      // IMAD: TESImageSpaceModifier
+         formlist,                 // FLST: BGSListForm
+         perk,                     // PERK: BGSPerk
+         body_part_data,           // BPTD: BGSBodyPartData
+         addon_node,               // ADDN: BGSAddonNode
+         actor_value_info  = 0x5F, // AVIF: ActorValueInfo
+         camera_shot       = 0x60, // CAMS: BGSCameraShot
+         camera_path,              // CPTH: BGSCameraPath
+         voicetype,                // VTYP: BGSVoiceType
+         material_type,            // MATT: BGSMaterialType
+         impact_data,              // IPCT: BGSImpactData
+         impact_data_set,          // IPDS: BGSImpactDataSet
+         armor_addon,              // ARMA: TESObjectARMA
+         encounter_zone,           // ECZN: BGSEncounterZone
+         location,                 // LCTN: BGSLocation
+         message,                  // MESG: BGSMessage
+         ragdoll,                  // RGDL: BGSRagdoll
+         default_object_manager,   // DOBJ
+         lighting_template,        // LGTM: BGSLightingTemplate
+         music_type,               // MUSC: BGSMusicType
+         footstep,                 // FSTP: BGSFootstep
+         footstep_set      = 0x6F, // FSTS: BGSFootstepSet
+         story_branch_node = 0x70, // SMBN: BGSStoryManagerBranchNode
+         story_quest_node,         // SMQN: BGSStoryManagerQuestNode
+         story_event_node,         // SMEN: BGSStoryManagerEventNode
+         dialogue_branch,          // DLBR: BGSDialogueBranch
+         music_track,              // MUST: BGSMusicTrackFormWrapper
+         dialogue_view,            // DLVW
+         word_of_power,            // WOOP: TESWordOfPower
+         shout,                    // SHOU: TESShout
+         equip_slot,               // EQUP: BGSEquipSlot
+         relationship,             // RELA: BGSRelationship
+         scene,                    // SCEN: BGSScene
+         association_type,         // ASTP: BGSAssociationType
+         outfit,                   // OTFT: BGSOutfit
+         art_object,               // ARTO: BGSArtObject
+         material_object,          // MATO: BGSMaterialObject
+         movement_type     = 0x7F, // MOVT: BGSMovementType
+         sound_descriptor  = 0x80, // SNDR: BGSSoundDescriptorForm
+         dual_cast_data,           // DUAL: BGSDualCastData
+         sound_category,           // SNCT: BGSSoundCategory
+         sound_output,             // SOPM: BGSSoundOutput
+         collision_layer,          // COLL: BGSCollisionLayer
+         color,                    // CLFM: BGSColorForm
+         reverb_parameters,        // REVB: BGSReverbParameters
+         unk87,                    // 
+         alias,                    //       BGSBaseAlias
+         reference_alias,          //       BGSRefAlias
+         location_alias,           //       BGSLocAlias
+         active_magic_effect,      //       ActiveMagicEffect
+      };
+   };
+   using form_type_t = form_type::type;
+}
+#pragma endregion
+
 class BGSLoadFormBuffer;
 class BGSSaveFormBuffer;
 class BSString;
@@ -188,9 +342,61 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(LoadVMAD, void, 0x00451760, BGSLoadFormBuffer*);
    };
+   class TESObject : public TESForm {
+      public:
+         static constexpr uint32_t vtbl = 0x01083D14;
+         //
+         // SKSE VTBL displaced downward by two functions added to TESForm.
+         //
+         virtual UInt32 Unk_3B(); // 3B // no-op on TESObject; returns null
+         virtual bool   Unk_3C(); // 3C // no-op on TESObject; returns false
+         virtual UInt32 Unk_3D(); // 3D // no-op on TESObject; returns null
+         virtual bool   Unk_3E(); // 3E // no-op on TESObject; returns false
+         virtual void   Unk_3F(void* arg); // 3F // no-op on TESObject
+         virtual UInt32 Unk_40(void*, void*); // 40 // no-op on TESObject; returns null
+         virtual void   Unk_41(void*); // 41
+         virtual bool   Unk_42(); // 42 // returns true if the "is marker" flag is set. otherwise, returns true for all form_types in the range of [texture_set, idle_marker] EXCEPT lights with models, activators with the "EditorMarker.NIF" model, and statics
+         virtual bool   Unk_43(); // 43 // checks if the TESObject is a Static and is one of three executable-defined forms
+         virtual bool   Unk_44(); // 44
+         virtual void   Unk_45(UInt32 arg0, UInt32 arg1); // 45 // no-op on TESObject
+         virtual UInt32 Unk_46(); // 46 // no-op on TESObject; returns null
+         virtual UInt32 Unk_47(); // 47 // no-op on TESObject; returns null
+         virtual void*  Unk_48(void*); // 48
+   };
+   class TESBoundObject : public TESObject {
+      public:
+         struct Bound {
+            SInt16	x;
+            SInt16	y;
+            SInt16	z;
+         };
+
+         // SKSE VTBL displaced downward by two functions added to TESForm.
+         //
+         virtual void   Unk_49(UInt32 arg); // 49
+         virtual UInt32 Unk_4A(void); // 4A
+         virtual UInt32 Unk_4B(UInt32 arg); // 4B	// return Unk_40(arg, 0);
+         virtual bool   Unk_4C(UInt32 arg); // 4C
+         virtual bool   Unk_4D(void* arg0, BSString* dst, void*); // 4D // steal/take string // assumes that it's working with a TESObjectREFR*
+         virtual bool   Unk_4E(void* arg0, UInt8 arg1, UInt32 arg2, float arg3); // 4E
+         virtual void   Unk_4F(UInt32 arg); // 4F
+         virtual void   Unk_50(UInt32 arg); // 50
+         virtual void   Unk_51(void); // 51
+         virtual void   Unk_52(void); // 52
+         virtual void   Unk_53(void); // 53
+
+         Bound boundsMin; // 14
+         Bound boundsMax; // 1A
+   };
+   static_assert(sizeof(TESBoundObject) == 0x20, "RE::TESBoundObject is the wrong size.");
+
+   class TESBoundAnimObject : public TESBoundObject {
+      public:
+   };
 
    //static DEFINE_SUBROUTINE(::BGSDestructibleObjectForm*, GetBGSDestructibleObjectForm, 0x00448090, RE::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(::BGSKeywordForm*, GetKeywordListFor, 0x0044B2D0, ::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipSlot*, GetEquipSlotFor, 0x0044AB00, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipType*, GetEquipTypeFor, 0x0044AA10, TESForm*);
+   DEFINE_SUBROUTINE_EXTERN(BOOL, FormHasModel, 0x00453EF0, TESForm*); // checks the model path in TESModel and returns the length or, if there's no TESModel: checks if the form is a TESObjectREFR, and then things get complicated
 };

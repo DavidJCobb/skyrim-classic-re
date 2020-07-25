@@ -1,6 +1,5 @@
 #pragma once
-
-#include "ReverseEngineered/Forms/BaseForms/base.h"
+#include "ReverseEngineered/Forms/TESForm.h"
 
 namespace RE {
    class TESWaterForm;

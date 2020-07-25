@@ -9,14 +9,16 @@
 #include "skse/Utilities.h"
 #include "ReverseEngineered/Miscellaneous.h"
 #include "ReverseEngineered/Types.h"
-#include "ReverseEngineered/Systems/GameResources.h"
+#include "ReverseEngineered/Systems/BSResource.h"
 #include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
 
 class bhkAabbPhantom;
 class TESObjectCELL;
 
 namespace RE {
-   class PositionPlayerEvent;
+   struct NiCloningProcess;
+   class NiNode;
+   struct PositionPlayerEvent;
    class Sky;
 
    class GridArray {
@@ -154,6 +156,7 @@ namespace RE {
          DEFINE_MEMBER_FN(ModActorBaseDeathCount,  void,    0x00433BF0, TESActorBase*, SInt16 changeByHowMuch);
          DEFINE_MEMBER_FN(GetCurrentWorldspace,    TESWorldSpace*, 0x004317A0);
          DEFINE_MEMBER_FN(Subroutine004320C0,      void*,   0x004320C0, TESObjectCELL*, UInt32);
+         DEFINE_MEMBER_FN(Subroutine00432070,      UInt32,  0x00432070, NiPointer<NiNode>&, NiCloningProcess&);
          //
          ::TESObjectCELL** CopyGridCells(UInt32* count) const;
    };

@@ -11,6 +11,7 @@
 #include "ReverseEngineered/Forms/TESObjectCELL.h"
 #include "ReverseEngineered/Forms/TESWorldSpace.h"
 #include "ReverseEngineered/NetImmerse/havok.h"
+#include "ReverseEngineered/NetImmerse/nodes.h"
 #include "ReverseEngineered/Systems/ChangeForms.h"
 #include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
 
@@ -198,12 +199,12 @@ namespace RE {
          }
          ref->handleRefObject.m_uiRefCount = ref->handleRefObject.GetRefCount() | (*nextIndex << 0xB) | 0x400;
          //
-         eax = RefHandleSystem::GetEntries()[*nextIndex].refHandle.index();
-         if (eax == *nextIndex) {
+         auto index = RefHandleSystem::GetEntries()[*nextIndex].refHandle.index();
+         if (index == *nextIndex) {
             *nextIndex = -1;
             *lastIndex = -1;
          }
-         *nextIndex = eax;
+         *nextIndex = index;
       }
    };
    //
