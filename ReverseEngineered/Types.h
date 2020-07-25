@@ -31,7 +31,8 @@ namespace RE {
    struct BSTArrayCount { // actual name not known
       MEMBER_FN_PREFIX(BSTArrayCount);
       DEFINE_MEMBER_FN(Constructor, BSTArrayCount&, 0x00A49B40); // literally just sets itself to zero
-      DEFINE_MEMBER_FN(Increment,   SInt32, 0x00A49B83, void* allocator, UInt32 currentCapacity, UInt32 seemsToAlwaysBe4EvenWhenTheArrayElementSizeIsLarger);
+      DEFINE_MEMBER_FN(Increment,           SInt32, 0x00A49B83, void* allocator, UInt32 currentCapacity, UInt32 seemsToAlwaysBe4EvenWhenTheArrayElementSizeIsLarger);
+      DEFINE_MEMBER_FN(IncrementReturnBool, bool,   0x00A4A0B0, void* allocator, uint32_t, uint32_t currentCapacity, uint32_t index, uint32_t elementSize);
       DEFINE_MEMBER_FN(Remove,      void,   0x00A4A070, void* arrayData, UInt32 startIndex, UInt32 arraySizeMinusCountToRemove, UInt32 countToRemove, UInt32 sizeOfElement);
 
       UInt32 size; // 00
@@ -60,21 +61,38 @@ namespace RE {
       }
       void decrement_refcounts(UInt32 start, UInt32 end) {};
       T* items() {
+         if (this->count == 0)
+            return nullptr;
          if (this->capacityAndFlags & kFlag_Local)
             return &this->data.local;
          return this->data.arr;
       }
       const T* items() const {
+         if (this->count == 0)
+            return nullptr;
          if (this->capacityAndFlags & kFlag_Local)
             return &this->data.local;
          return this->data.arr;
       }
-      UInt32 size() const {
+      inline UInt32 size() const noexcept {
          return this->count;
       }
 
+      T* at(UInt32 index) {
+         auto i = this->items();
+         if (!i)
+            return nullptr;
+         return &i[index];
+      }
       T& operator[](UInt32 index) { return this->items()[index]; }
       const T& operator[](UInt32 index) const { return this->items()[index]; }
+
+      T* end() const noexcept {
+         auto i = this->items();
+         if (!i)
+            return nullptr;
+         return &this->items()[this->count];
+      }
 
       MEMBER_FN_PREFIX(BSTSmallArray);
       DEFINE_MEMBER_FN(Destructor,   void,   0x00A4A8F0);

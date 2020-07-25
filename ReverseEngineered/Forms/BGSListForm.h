@@ -1,8 +1,11 @@
 #pragma once
 #include "TESForm.h"
 #include "skse/GameForms.h"
+#include "skse/Utilities.h"
 
 namespace RE {
+   class InventoryChanges;
+
    class BGSListForm : public TESForm { // sizeof == 0x28
       public:
          enum { kTypeID = kFormType_List };
@@ -20,5 +23,14 @@ namespace RE {
          using Visitor = ::BGSListForm::Visitor;
 
          //bool Visit(Visitor& visitor);
+
+         struct CountMatchingItemsInInventoryVisitor {
+            uint32_t          count = 0;
+            InventoryChanges& inventory;
+            //
+            CountMatchingItemsInInventoryVisitor(InventoryChanges& ic) : inventory(ic) {}
+         };
+         DEFINE_MEMBER_FN(CountMatchingItemsInInventory, void, 0x00905F30, CountMatchingItemsInInventoryVisitor&);
+         SInt32 CountMatchingItemsInInventory(InventoryChanges&);
    };
 }

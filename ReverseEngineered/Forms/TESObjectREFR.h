@@ -368,7 +368,7 @@ namespace RE {
          virtual void	SetStartingPos(NiPoint3&); // 53
          virtual void	UpdateStartingPos(NiPoint3&); // 54 // same as SetStartingPos, except: we update the start rotation and location to the reference's current rotation and location; and if the argument is a zero NiPoint3, we use the reference's current position
          virtual void	Unk_55(); // 55 // related to lights
-         virtual UInt32* Unk_56(UInt32* outHandle, TESForm* baseItem, bool, bool, BaseExtraList* item, bool, bool, bool); // modifies and returns outHandle
+         virtual BSUntypedPointerHandle& Unk_56(BSUntypedPointerHandle& outHandle, TESForm* baseItem, uint32_t maybeCount, int, BaseExtraList* item, TESObjectREFR* transferTo, bool, bool); // modifies and returns outHandle // int == 3: drop?
          virtual bool	Unk_57(UInt32, UInt32, UInt32, UInt32, UInt32); // related to inventory
          virtual void	Unk_58(void*); // 58 // related to hit events?
          virtual void	Unk_59(UInt32, UInt32);
@@ -488,6 +488,8 @@ namespace RE {
          void           GetDestinationDoor(refr_ptr& out);
          bool   GetEditorCoordinateData(NiPoint3* pos, NiPoint3* rot, ::TESWorldSpace** worldspace, ::TESObjectCELL** cell);
          void   GetEditorCoordinateDataAlways(NiPoint3* pos, NiPoint3* rot, ::TESWorldSpace** worldspace, ::TESObjectCELL** cell); // Return editor coordinates if any, or current coordinates otherwise
+         UInt32 GetItemCount(TESForm* item); // supports all of the same things as Papyrus, and detects all of the same invalid arguments
+         UInt32 GetItemCountFast(TESForm* item); // only supports item base forms; doesn't check any form types; doesn't check whether the reference is a container
          TESKey* GetKey();
          SInt32 GetLockLevel();
          float  GetMass();
@@ -504,12 +506,22 @@ namespace RE {
          bool   MoveToMyEditorLocation(bool native = false);
          void   Reload3D();
          void   SetMotionType(UInt32 motionType, bool, bool markChanged = true); // asynch; careful about this
+
+         UInt32& GetOrCreateRefHandle(UInt32& handle) {
+            DEFINE_SUBROUTINE(UInt32&, _GetOrCreateRefHandle, 0x006BD6C0, UInt32 & handle); // <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
+            return _GetOrCreateRefHandle(handle);
+         }
+         BSUntypedPointerHandle& GetOrCreateRefHandle(BSUntypedPointerHandle& handle) {
+            DEFINE_SUBROUTINE(BSUntypedPointerHandle&, _GetOrCreateRefHandle, 0x006BD6C0, BSUntypedPointerHandle& handle);
+            return _GetOrCreateRefHandle(handle);
+         }
          //
          MEMBER_FN_PREFIX(TESObjectREFR);
          DEFINE_MEMBER_FN(Activate,                void,             0x004E4230, TESObjectREFR* activatedBy, UInt32 Arg2_papyrusUses0, UInt32 Arg3_papyrusUses0, UInt32 Arg4_papyrusUses1, bool defaultOnly);
          DEFINE_MEMBER_FN(IsLimbSevered,           bool,             0x004D5B90, BGSBodyPartData::PartType limb);
          DEFINE_MEMBER_FN(ClearDestruction,        void,             0x00449630);
          DEFINE_MEMBER_FN(ContainsQuestItem,       bool,             0x004D6020);
+         DEFINE_MEMBER_FN(CountItemTypes,          uint32_t,         0x004D9F40, bool useDataHandlerInsteadOfInventory, bool includeNonPlayableItems);
          DEFINE_MEMBER_FN(CreateLoadedStateIfMissing, void, 0x004E5AA0);
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
          DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30);
@@ -522,6 +534,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetFormWeight,           float,            0x004EA1A4); // == GetFormWeight(this->baseForm);
          DEFINE_MEMBER_FN(GetHealth,               float,            0x004E9F90);
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
+         DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x004D9EE0, uint32_t index, bool useDataHandlerInsteadOfInventory); // (index) is relative to (CountItemTypes)
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
          DEFINE_MEMBER_FN(GetScale,                float,            0x004D5230);
          DEFINE_MEMBER_FN(GetShieldBodyPartIndex,  SInt32,           0x004D6630); // returns a body part index (for Shield) pulled from the race data, or -1 if the reference isn't a valid actor
@@ -572,7 +585,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraLock,         ExtraLock*,       0x004EB5B0);             // <-- Gets the lock data on this reference. If this reference is a teleport door and has no lock, gets the lock on the other end (if any).
          DEFINE_MEMBER_FN(GetExtraMapMarker,    ExtraMapMarker*,  0x004EA3F0);
          DEFINE_MEMBER_FN(GetParentWorldspace,  TESWorldSpace*,   0x004D5EB0);             // <-- Return type confirmed. Purpose assumed based on usage in subroutine 0x0090CC60.
-         DEFINE_MEMBER_FN(GetOrCreateRefHandle, UInt32*,          0x006BD6C0, UInt32* out);// <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
+         DEFINE_MEMBER_FN(GetOrCreateRefHandle, UInt32&,          0x006BD6C0, UInt32& out);// <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
          DEFINE_MEMBER_FN(Subroutine004DFE80,   void,             0x004DFE80, bool);       // <-- Unknown. Not related to un-/re-loading 3D, though. Usually takes false as an argument.
          //
          DEFINE_MEMBER_FN(GetExtraEnableStateChildren,      RE::ExtraEnableStateChildren::Entry*, 0x004EA870);

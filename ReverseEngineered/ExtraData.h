@@ -29,6 +29,7 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
+   class BSUntypedPointerHandle;
    class DecalGroup;
    class TESNPC;
    class TESObjectREFR;
@@ -164,6 +165,7 @@ namespace RE {
          SInt32   countDelta;
 
          MEMBER_FN_PREFIX(InventoryEntryData);
+         DEFINE_MEMBER_FN(Destructor, void, 0x00476A70);
          DEFINE_MEMBER_FN(GenerateName,  const char*, 0x00475AA0);
          DEFINE_MEMBER_FN(GetSoulLevel,  SInt32, 0x00475740); // charge amount
          DEFINE_MEMBER_FN(GetSoulSize,   UInt32, 0x004756F0); // enum
@@ -171,6 +173,12 @@ namespace RE {
          DEFINE_MEMBER_FN(IsQuestObject, bool,   0x00475B90);
          DEFINE_MEMBER_FN(IsOwnedBy,     bool,   0x00477010, TESForm* actor, bool unk1);
          DEFINE_MEMBER_FN(IsWorn,        bool,   0x004758C0); // checks extra data
+
+         ~InventoryEntryData() { CALL_MEMBER_FN(this, Destructor)(); }
+         inline void Delete() {
+            CALL_MEMBER_FN(this, Destructor)();
+            FormHeap_Free(this);
+         }
 
          UInt8 GetSoulSize() const;
    };
@@ -215,12 +223,13 @@ namespace RE {
          class Data {
             public:
                tList<InventoryEntryData>* objList; // 00
-               TESObjectREFR* owner; // 04
+               TESObjectREFR* owner; // 04 // more like "carrier," actually
                float totalWeight; // 08 // -1.0F means "needs to be recomputed"
                float armorWeight; // 0C
 
                MEMBER_FN_PREFIX(Data);
                DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
+               DEFINE_MEMBER_FN(CountItemsWithKeyword, UInt32, 0x00475EB0, BGSKeyword*); // uses CountObjectsWithKeywordFunctor
                DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
                DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
                DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x00476160, Actor* owner); // actor ref needed for perk checks
@@ -229,6 +238,8 @@ namespace RE {
                DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
                DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
                DEFINE_MEMBER_FN(UnequipArmorFromSlot,  void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
+               DEFINE_MEMBER_FN(GetItemCount,          SInt32, 0x0047A4D0, TESForm*);
+               DEFINE_MEMBER_FN(CountItemTypes, UInt32, 0x0047A510, bool includeNonPlayableItems);
          };
          Data* data; // 08
 
@@ -260,7 +271,7 @@ namespace RE {
                UInt32 unk10; // 10 // race
          };
    };
-   typedef ExtraContainerChanges::Data InventoryChanges; // Bethesda's name for the struct
+   using InventoryChanges = ExtraContainerChanges::Data; // Bethesda's name for the struct
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData,            0x00476800, TESObjectREFR*);
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetOrCreateExtraContainerChangesDataFor, 0x00477780, TESObjectREFR*);
    //
@@ -829,6 +840,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraRagdollData,              void*,   0x0040D150); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRandomTeleportMarker,     void*,   0x0040D410); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRank,                     UInt32,  0x0040C110); // Returns rank (or -1 if no extra data) directly, without using the FPU stack. Not sure if float.
+         DEFINE_MEMBER_FN(GetExtraReferenceHandle, void, 0x004110F0, BSUntypedPointerHandle& out);
          DEFINE_MEMBER_FN(GetExtraRegionList,               void*,   0x0040CD90); // Return type not verified.
          DEFINE_MEMBER_FN(GetExtraScale,                    float,   0x0040C220); // Returns scale (or 1.0 if no extra data) via the FPU stack.
          DEFINE_MEMBER_FN(GetExtraSceneData,                void*,   0x0040D800); // Return type not verified. Returns NULL/zero if no extra data.

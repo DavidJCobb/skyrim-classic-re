@@ -163,6 +163,8 @@ class BGSSaveFormBuffer;
 class BSString;
 class TESForm;
 namespace RE {
+   class TESObjectREFR;
+
    struct FormSignatureInfo { // sizeof == 0xC
       const char* asString;
       UInt32      signature;
@@ -288,7 +290,7 @@ namespace RE {
          virtual void         SetFormFlag00000002(bool set); // 24
          virtual void         Unk_25();
          virtual void         Unk_26(BGSLoadFormBuffer*); // 26 // loads OBND?
-         virtual bool         CanBePlaced(); // 27
+         virtual bool         IsInventoryItemBase(); // 27
          virtual bool         Unk_28(); // 28
          virtual bool         Unk_29(); // 29
          virtual bool         IsWaterActivator(); // 2A // returns true if the form (or its base) is a TESObjectACTI with a water type
@@ -399,4 +401,5 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(BGSEquipSlot*, GetEquipSlotFor, 0x0044AB00, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipType*, GetEquipTypeFor, 0x0044AA10, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BOOL, FormHasModel, 0x00453EF0, TESForm*); // checks the model path in TESModel and returns the length or, if there's no TESModel: checks if the form is a TESObjectREFR, and then things get complicated
+   static DEFINE_SUBROUTINE(bool, FormHasName, 0x004522D0, TESForm*);
 };

@@ -1,14 +1,9 @@
 #pragma once
 #include "skse/Utilities.h"
+#include "ReverseEngineered/UI/Miscellaneous.h"
 
 class MagicMenu;
 namespace RE {
-   class IMessageBoxCallback {
-      public:
-         virtual void Dispose(bool);
-         virtual void Callback(UInt32) = 0;
-   };
-   //
    class SpendSoulCallback : public IMessageBoxCallback { // sizeof == 0xC // This is for DRAGON souls, not soul gems!
       public:
          virtual void Callback(UInt32);

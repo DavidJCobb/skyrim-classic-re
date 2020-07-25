@@ -2,6 +2,7 @@
 #include "skse/GameForms.h"
 
 #include "ReverseEngineered/Shared.h"
+#include "ReverseEngineered/Forms/TESForm.h"
 
 namespace RE {
    //
@@ -33,7 +34,53 @@ namespace RE {
    //
    class ActorValueInfo : public TESForm {
       public:
-         enum { kTypeID = kFormType_ActorValueInfo };
+         static constexpr form_type_t form_type = form_type::actor_value_info;
+         struct flag {
+            //
+            // Notes:
+            //
+            //  - For actors other than the player, AVs missing the 80 and 800 flags cannot 
+            //    change at run-time and are always pulled from the actorbase. This is 
+            //    intentional; the checks are at 0x006DF8B6.
+            //
+            //  - None of the "Variable##" values have any flags set.
+            //
+            //  - Health only uses 0x040000 and 0x080000.
+            //
+            flag() = delete;
+            enum type : uint32_t {
+               unk00000002 = 0x00000002, // possibly "Is Magic/Spell School"       // every magic skill except Enchanting
+               unk00000010 = 0x00000010, // possibly "Is Skill" or "Has Perk Tree" // every skill
+               unk00000020 = 0x00000020, // IS NOT THE "PERSISTENT" FLAG           // Magicka, [Stat]Condition, Stamina,
+               unk00000040 = 0x00000040, // if set, then the base value = (computeBaseFunc) result + ActorBase value; doesn't seem to actually be used by anything, though
+               unk00000080 = 0x00000080,
+               is_enum     = 0x00000100, // If true, then the only permitted values are integers in the range of [0, enumValueCount); this seems to only be enforced by Papyrus and console commands, though.
+               is_negative = 0x00000020, // if set, then the value is inverted: damaging increases the value and restoring decreases it (the value passed in will be negated before it gets passed into ActorValueOwner), and damage modifiers are positive (with a minimum of zero) instead of being negative (with a maximum of zero) // only used for MovementNoiseMult and ShoutRecoveryMult
+               unk00000800 = 0x00000800, // IS NOT THE "PERSISTENT" FLAG           // BowSpeedBonus, CarryWeight, CritChance, DamageResist, HealRate, Mass, MeleeDamage, [Stat]Condition, SpeedMult, StaminaRate, UnarmedDamage, VoiceRate,
+               unk00002000 = 0x00002000, // IS NOT THE "PERSISTENT" FLAG           // DEPRECATED05, IgnoreCrippledLimbs, [Stat]Condition, 
+               scripts_cant_modify = 0x00004000, // Papyrus APIs reject attempts to set AVs that have this flag.
+               unk00008000 = 0x00008000, // DetectLifeRange, DiseaseResist, DragonSouls, ElectricResist, Fame, FireResist, FrostResist, IgnoreCrippledLimbs, Infamy, Invisibility, JumpingBonus, MagicResist, NightEye, Paralysis, PoisonResist, Telekinesis, WardDeflection, WardPower, WaterBreathing, WaterWalking,
+               unk00020000 = 0x00020000, // IS NOT THE "PERSISTENT" FLAG           // PerceptionCondition, 
+               unk00040000 = 0x00040000, // IS NOT THE "PERSISTENT" FLAG           // every skill, Aggression, Assistance, CarryWeight, HealRate, Health, Invisibility, Magicka, MagickaRate, Morality, Paralysis, SpeedMult, Stamina, StaminaRate, VoicePoints, VoiceRate, WardDeflection, WardPower, // ActorProcessManager is involved when working with these AVs' current values
+               unk00080000 = 0x00080000, // possibly "Is Persistent"               // every skill, Health, Magicka, Stamina, VoicePoints, // ActorProcessManager is involved when working with these AVs' maximums
+               do_not_reduce_in_god_mode = 0x00100000, // see virtual float PlayerCharacter::IncerceptActorValueChange(...)
+               unk00200000 = 0x00200000,
+            };
+         };
+         struct type {
+            type() = delete;
+            enum t : uint32_t {
+               attribute       = 0, // e.g. Health, HealRate
+               skill           = 1, // e.g. OneHanded, VampirePerks, WerewolfPerks
+               ai              = 2, // e.g. Aggression, Energy, Morality
+               stat            = 3, // e.g. PoisonResist
+               limb_condition  = 4, // e.g. BrainCondition
+               status          = 5, // e.g. DetectLifeRange, Invisibility, NightEye, Paralysis
+               unk6            = 6, // e.g. ArmorPerks, BowSpeedBonus, Fame, Infamy, IgnoreCrippledLimbs, JumpingBonus, LeftItemCharge, [Skill]Mod, [Skill]SkillAdvance, Telekinesis, Variable01, WardPower
+            };
+         };
+         using flags_t = std::underlying_type_t<flag::type>;
+         using type_t  = std::underlying_type_t<type::t>;
 
          // Parents:
          TESFullName    fullName;    // 14
@@ -46,51 +93,12 @@ namespace RE {
             float skillImproveMult   =  1.0;
             float skillImproveOffset = 20.0;
          };
-         //
-         enum {
-            //
-            // Notes:
-            //
-            //  - For actors other than the player, AVs missing the 80 and 800 flags cannot 
-            //    change at run-time and are always pulled from the actorbase. This is 
-            //    intentional; the checks are at 0x006DF8B6.
-            //
-            //  - None of the "Variable##" values have any flags set.
-            //
-            //  - Health only uses 0x040000 and 0x080000.
-            //
-            kAVFlag_Unk000002 = 0x000002, // possibly "Is Magic/Spell School"       // every magic skill except Enchanting
-            kAVFlag_Unk000010 = 0x000010, // possibly "Is Skill" or "Has Perk Tree" // every skill
-            kAVFlag_Unk000020 = 0x000020, // IS NOT THE "PERSISTENT" FLAG           // Magicka, [Stat]Condition, Stamina,
-            kAVFlag_Unk000040 = 0x000040, // if set, then the base value = (computeBaseFunc) result + ActorBase value; doesn't seem to actually be used by anything, though
-            kAVFlag_Unk000080 = 0x000080,
-            kAVFlag_IsEnum    = 0x000100, // If true, then the only permitted values are integers in the range of [0, enumValueCount); this seems to only be enforced by Papyrus and console commands, though.
-            kAVFlag_IsNegative = 0x000200, // if set, then the value is inverted: damaging increases the value and restoring decreases it (the value passed in will be negated before it gets passed into ActorValueOwner), and damage modifiers are positive (with a minimum of zero) instead of being negative (with a maximum of zero) // only used for MovementNoiseMult and ShoutRecoveryMult
-            kAVFlag_Unk000800 = 0x000800, // IS NOT THE "PERSISTENT" FLAG           // BowSpeedBonus, CarryWeight, CritChance, DamageResist, HealRate, Mass, MeleeDamage, [Stat]Condition, SpeedMult, StaminaRate, UnarmedDamage, VoiceRate,
-            kAVFlag_Unk002000 = 0x002000, // IS NOT THE "PERSISTENT" FLAG           // DEPRECATED05, IgnoreCrippledLimbs, [Stat]Condition, 
-            kAVFlag_ScriptsCantModify = 0x004000, // Papyrus APIs reject attempts to set AVs that have this flag.
-            kAVFlag_Unk008000 = 0x008000, // DetectLifeRange, DiseaseResist, DragonSouls, ElectricResist, Fame, FireResist, FrostResist, IgnoreCrippledLimbs, Infamy, Invisibility, JumpingBonus, MagicResist, NightEye, Paralysis, PoisonResist, Telekinesis, WardDeflection, WardPower, WaterBreathing, WaterWalking,
-            kAVFlag_Unk020000 = 0x020000, // IS NOT THE "PERSISTENT" FLAG           // PerceptionCondition, 
-            kAVFlag_Unk040000 = 0x040000, // IS NOT THE "PERSISTENT" FLAG           // every skill, Aggression, Assistance, CarryWeight, HealRate, Health, Invisibility, Magicka, MagickaRate, Morality, Paralysis, SpeedMult, Stamina, StaminaRate, VoicePoints, VoiceRate, WardDeflection, WardPower, // ActorProcessManager is involved when working with these AVs' current values
-            kAVFlag_Unk080000 = 0x080000, // possibly "Is Persistent"               // every skill, Health, Magicka, Stamina, VoicePoints, // ActorProcessManager is involved when working with these AVs' maximums
-            kAVFlag_DoNotReduceInGodMode = 0x100000, // see virtual float PlayerCharacter::IncerceptActorValueChange(...)
-            kAVFlag_Unk200000 = 0x200000,
-         };
-         enum AVType : UInt32 {
-            kAVType_Attribute       = 0, // e.g. Health, HealRate
-            kAVType_Skill           = 1, // e.g. OneHanded, VampirePerks, WerewolfPerks
-            kAVType_AI              = 2, // e.g. Aggression, Energy, Morality
-            kAVType_Stat            = 3, // e.g. PoisonResist
-            kAVType_LimbCondition   = 4, // e.g. BrainCondition
-            kAVType_Status          = 5, // e.g. DetectLifeRange, Invisibility, NightEye, Paralysis
-            kAVType_6               = 6, // e.g. ArmorPerks, BowSpeedBonus, Fame, Infamy, IgnoreCrippledLimbs, JumpingBonus, LeftItemCharge, [Skill]Mod, [Skill]SkillAdvance, Telekinesis, Variable01, WardPower
-         };
 
          // Members:
          const char*      name;            // 30 - second ctor argument
          StringCache::Ref unk34;           // 34
-         UInt32           actorValueFlags; // 38
-         AVType           type;            // 3C
+         flags_t          actorValueFlags; // 38
+         type_t           type;            // 3C
          OverrideAVBase*  computeBaseFunc; // 40 // optional; used to return the base value when it can vary (e.g. HealRate pulls from the actor's race); note that if the AV doesn't have flags 0x80 or 0x800, it will only use this for the player, and all other actors pull from their ActorBase
          UInt32           unk44;           // 44 // unknown; minimum allowed value is 0xF
          UInt32           unk48[0x0F];     // 48 // initialized to 0xA4

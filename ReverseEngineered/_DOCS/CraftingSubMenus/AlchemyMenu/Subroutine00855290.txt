@@ -1,0 +1,132 @@
+void CraftingSubMenus::AlchemyMenu::TryCraftItem() {
+   auto ebx = this;
+   if (this->unkE8 == 0)
+      return;
+   tArray<EffectItem> esp4C; // NOT tArray<EffectItem*>
+   this->unkC8.sub00854900(&esp4C, 0, this->purifyIngredients); // copy matching effects
+   TESForm* esp20 = nullptr; // created potion/poison
+   bool esp48 = esp4C.count > 0;
+   auto ebp   = 0;
+   auto esp24 = 0;
+   bool esp17;
+   if (esp48) { // at 0x008552FA
+      esp5C = new CraftingSubMenus::AlchemyMenu::ModEffectivenessFunctor();
+      esp17 = esp4C[0]->IsHostile();
+      (*g_thePlayer)->unk727 &= ~0x80;
+      (*g_thePlayer)->unk727 |= esp17 ? 0x80 : 0;
+      esp4C[0].sub00854410(&esp5C);
+      if (esp17) { // at 0x00855342 // poison
+         Unknown012E3300::Get()->Subroutine0068AD00(&esp20, &esp4C);
+         sub00899620("UIAlchemyCreatePoison");
+      } else { // else, potion
+         Unknown012E3300::Get()->Subroutine0068ACB0(&esp20, &esp4C);
+         sub00899620("UIAlchemyCreatePotion");
+      }
+      float esp1C = 1.0F;
+      // esp20 == created potion
+      CalculatePerkData(kEntryPoint_Modify_Potions_Created, *g_thePlayer, esp20, &esp1C);
+      esp1C = RoundToNearestMultipleOf(max(0, esp1C), 1.0);
+      auto createdCount = (int32_t)esp1C; // ebp
+      // Add the potion(s) to the player's inventory:
+      (*g_thePlayer)->sub004D5C60(esp20, 0, createdCount, 0);
+      {
+         auto  eax   = this->unk10->unk79; // actor value index
+         float value = esp20->GetEffectiveMagickaCost(0); // esp18
+         if (eax >= 6 && eax <= 0x17) { // is skill
+            (*g_thePlayer)->AdvanceSkill(eax, value, 0, 0);
+         }
+         this->UpdatePlayerSkillInfo(0x10); // alchemy
+      }
+      sub008610D0(esp20, createdCount, 1, 1, 0);
+      auto eax = (*g_thePlayer)->processManager->GetMiddleProcessFurnitureHandle();
+      refr_ptr esp18;
+      TESObjectREFRHandleInterface::GetRefByHandle(eax, &esp18);
+      TESForm*       esi = GetDOBJByIndex(0xC7 + esp17); // default potion or default poison
+      TESObjectREFR* edi = esp18; // workbench ref
+      auto eax = edi->GetCurrentLocation();
+      esp34.sub0063BC70(edi, eax, esi);
+      if (*(bool*)0x01B10DA8 == false) { // at 0x008554C0
+         //
+         // initialize singleton...
+         //
+      }
+      Unknown01B10D68::Get()->Subroutine0063D9C0(*(uint32_t*)0x0126F368, &esp34);
+      sub0084F540(esi, 1, 0, 0);
+      if (createdCount) { // at 0x00855507
+         for(int i = 0; i < createdCount ++i)
+            Unknown012E3300::Get()->Subroutine0068A0F0(esp20);
+      }
+      // smart pointer destructor for esp18
+      // esp5C destructor
+      (*g_thePlayer)->unk727 &= 0x7F;
+   } else {
+      sub00899620("UIAlchemyFail"); // at 0x0085556D
+      sint32_t eax = this->unk10->unk79; // byte
+      if (eax >= 6 && eax <= 0x17) { // if eax is the index of a skill ActorValue
+         (*g_thePlayer)->AdvanceSkill(eax, GMST:fWortFailSkillUseMagnitude, 0, 0);
+      }
+   }
+   auto edi;
+   if (this->unkB4.count == 0) {
+      edi = nullptr;
+   } else {
+      edi = this->unkB4.items();
+   }
+   do { // at 0x008555C8
+      if (edi == this->unkB4.end())
+         break;
+      //
+      // Remove-item call?
+      //
+      esi = &this->unkA8[edi->unk00]; // sizeof(item) == 0xC
+      (*g_thePlayer)->Unk_56(&esp28, *esi, 1, 0, 0, 0, 0, 0); // at 0x0085562D
+      //
+      auto    esi = *esi;
+      int32_t eax = esi->sub00405BD0(GMST:iIngredientAlchemyUses);
+      if (eax == -1)
+         continue;
+      edx = esi->unk34;
+      eax = edx->unk00;
+      edi = eax->unk0C;
+      char esp5C[MAX_PATH];
+      snprintf(&esp5C, MAX_PATH, GMST:sDiscoveredIngredientEffectEating, GetFormName(edi), GetFormName(esi));
+      ShowNotification(&esp58, "UIAlchemyLearnEffect", 1);
+   } while (edi += 4); // sizeof(unkB4::T)
+   uint8_t esp378 = 0; // at 0x008556A1
+   if (esp48) { // did we create something?
+      char esp378[0x1000];
+      if (esp24 > 1) { // did we create multiple somethings?
+         snprintf(&esp378, 0x1000, "%s (%d) %s", GMST:sCreated", esp24, GetFormName(esp20));
+      } else {
+         snprintf(&esp378, 0x1000, "%s %s", GMST:sCreated", GetFormName(esp20));
+      }
+   } else {
+      strcpy_s(&esp378, 0x1000, GMST:sPotionCreationFailed);
+   }
+   esp17 = false; // at 0x00855728
+   if (esp48) {
+      //
+      // ...
+      //
+   }
+   if (this->unkB4.count > 1) { // at 0x0085592C
+      //
+      // ...
+      //
+   }
+   if (!esp17 && esp48) { // at 0x00855B96
+      this->sub00854E20(esp48);
+   } else {
+      sub00899620("UIAlchemyLearnEffect");
+      memset(&esp1380, 0, 4096); // but for some reason, they memset +1 and set the first byte manually
+      snprintf(&esp1380, 0x1000, this->unkF8, 0x00999999, &esp388); // at 0x00855BF7
+      //
+      // TODO: message box stuff
+      //
+   }
+   // esp20 == created potion
+   if (esp20 && esp20->IsTemporaryForm() && esp20->formType == form_type::potion) { // at 0x00855D8C
+      Unknown012E3300::Get()->Subroutine0068A1B0(esp20);
+   }
+   // esp4C destructor
+}

@@ -1,6 +1,7 @@
 #include "ReverseEngineered/Forms/TESObjectREFR.h"
 
 #include <algorithm>
+#include <cstdlib>
 
 #include "skse/GameRTTI.h"
 #include "skse/Utilities.h"
@@ -8,6 +9,7 @@
 #include "ReverseEngineered/Miscellaneous.h"
 #include "ReverseEngineered/Types.h"
 #include "ReverseEngineered/Forms/Actor.h"
+#include "ReverseEngineered/Forms/BGSListForm.h"
 #include "ReverseEngineered/Forms/TESObjectCELL.h"
 #include "ReverseEngineered/Forms/TESWorldSpace.h"
 #include "ReverseEngineered/NetImmerse/havok.h"
@@ -440,6 +442,42 @@ namespace RE {
       return;
 
    };
+   UInt32 TESObjectREFR::GetItemCount(TESForm* item) {
+      if (!item)
+         return 0;
+      if (!CALL_MEMBER_FN(this, GetBaseContainerData)()) // if this reference is not a container
+         return 0;
+      auto data = GetExtraContainerChangesData(this);
+      if (!data)
+         return 0;
+      if (item->IsInventoryItemBase()) // virtual method 0x27
+         return std::abs(CALL_MEMBER_FN(data, GetItemCount)(item));
+      if (item->formType == form_type::formlist) {
+         return ((RE::BGSListForm*)item)->CountMatchingItemsInInventory(*data);
+      }
+      auto cast = item->Unk_2C();
+      if (cast) {
+         BSUntypedPointerHandle my_handle;
+         BSUntypedPointerHandle check;
+         this->GetOrCreateRefHandle(my_handle);
+         CALL_MEMBER_FN((RE::BaseExtraList*)&cast->extraData, GetExtraReferenceHandle)(check);
+         return my_handle == check ? 1 : 0;
+      }
+      if (item->formType == form_type::keyword)
+         return CALL_MEMBER_FN(data, CountItemsWithKeyword)((BGSKeyword*)item);
+      //
+      // (item) is not a valid form for this query.
+      //
+      return 0;
+   }
+   UInt32 TESObjectREFR::GetItemCountFast(TESForm* item) {
+      if (!item)
+         return 0;
+      auto data = GetExtraContainerChangesData(this);
+      if (!data)
+         return 0;
+      return std::abs(CALL_MEMBER_FN(data, GetItemCount)(item));
+   }
    TESKey* TESObjectREFR::GetKey() {
       DEFINE_SUBROUTINE(TESKey*, PapyrusGetKey, 0x00902730, UInt32 dummy1, UInt32 dummy2, TESObjectREFR*);
       return PapyrusGetKey(0, 0, this);

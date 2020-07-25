@@ -1195,7 +1195,7 @@ namespace RE {
                                                                // 
                                                                // Known calls:
                                                                //  - 006A1870 (BSTask 0xA: kill actor)
-         virtual bool Unk_10E(TESForm*, UInt32 unk);    // 10E
+         virtual bool Unk_10E(TESForm* baseItem, UInt32 unk); // 10E // drops an item? calls TESObjectREFR::Unk_56
          virtual UInt8 Unk_10F(UInt32, UInt32, UInt32); // 10F
          virtual void Unk_110();       // 110 // no-op for Actor
          virtual SInt32  GetCurrentShoutVariation(); // 111 // returns -1 if no process manager
