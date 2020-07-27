@@ -1,6 +1,8 @@
 #pragma once
 #include "skse/GameAPI.h"
 #include "skse/GameTypes.h"
+#include "NetImmerse/objects.h"
+#include "NetImmerse/types.h"
 #include "Miscellaneous.h"
 
 namespace RE {
@@ -120,8 +122,24 @@ namespace RE {
          T*    data;
          Node* next;
          Node* prev;
+         //
+         MEMBER_FN_PREFIX(Node);
+         // TODO next function is only used for singly-linked lists, not doubly-linked lists; verify that tList itself is supposed to be doubly-linked
+         DEFINE_MEMBER_FN(append, void, 0x0042AFA0, T**, void* optionalNodeConstructor, void* constructorState); // if this->data == nullptr, just adopts the input node's data instead; if input node's data is nullptr, does nothing
       };
       Node items;
+      //
+      MEMBER_FN_PREFIX(tList);
+      DEFINE_MEMBER_FN(Destructor, void,     0x00476A70);
+      DEFINE_MEMBER_FN(size,       uint32_t, 0x0048CA90); // returns the number of Ts, not the number of Nodes; Nodes with null data pointers are not counted
+      //
+      T* operator[](int at) {
+         Node* node = this->items;
+         for (int i = 0; i < at; ++i)
+            if (!(node = node->next))
+               break;
+         return node ? node->data : nullptr;
+      }
    };
    class SimpleLockReversed {
       private:

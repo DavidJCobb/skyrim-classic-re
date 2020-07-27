@@ -534,7 +534,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetFormWeight,           float,            0x004EA1A4); // == GetFormWeight(this->baseForm);
          DEFINE_MEMBER_FN(GetHealth,               float,            0x004E9F90);
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
-         DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x004D9EE0, uint32_t index, bool useDataHandlerInsteadOfInventory); // (index) is relative to (CountItemTypes)
+         DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x004D9EE0, uint32_t index, bool useDataHandlerInsteadOfInventory); // (index) is relative to (CountItemTypes) // returns a shallow copy: new entry data, but pointers to the BaseExtraLists of the others
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
          DEFINE_MEMBER_FN(GetScale,                float,            0x004D5230);
          DEFINE_MEMBER_FN(GetShieldBodyPartIndex,  SInt32,           0x004D6630); // returns a body part index (for Shield) pulled from the race data, or -1 if the reference isn't a valid actor

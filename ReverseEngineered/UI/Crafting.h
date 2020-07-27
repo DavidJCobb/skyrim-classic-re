@@ -6,6 +6,19 @@
 
 namespace RE {
    class InventoryEntryData;
+   namespace CraftingSubMenus {
+      class CraftingSubMenu;
+   }
+
+   class CraftingMenu : public IMenu {
+      public:
+         static constexpr uint32_t vtbl = 0x010E4324;
+         //
+         CraftingSubMenus::CraftingSubMenu* submenu = nullptr; // 1C
+         //
+         MEMBER_FN_PREFIX(CraftingMenu);
+         DEFINE_MEMBER_FN(Constructor, CraftingMenu&, 0x0084EAF0);
+   };
 
    struct Struct0086C790 { // sizeof == 0x28
       uint32_t unk00 = 0;
@@ -87,19 +100,19 @@ namespace RE {
             };
             //
             struct EntryData { // sizeof == 0xC
-               InventoryEntryData* ingredient; // 00
-               uint32_t filterFlag; // 04
-               bool     selected;   // 08 // indicates whether or not the ingredient is selected
-               uint8_t  enabled;    // 09 // indicates whether or not the ingredient is dimmed
-               uint16_t pad0A;
+               InventoryEntryData* ingredient = nullptr; // 00
+               uint32_t filterFlag = 0;     // 04
+               bool     selected   = false; // 08 // indicates whether or not the ingredient is selected
+               uint8_t  enabled    = true;  // 09 // indicates whether or not the ingredient is dimmed
+               uint16_t pad0A      = 0;
             };
             class EntryDataList : public tArray<EntryData> {
                public:
                   MEMBER_FN_PREFIX(EntryDataList);
-                  DEFINE_MEMBER_FN(Subroutine0084EE40, void, 0x0084EE40, uint32_t index, InventoryEntryData**);
+                  DEFINE_MEMBER_FN(InsertAt, void, 0x0084EE40, uint32_t index, EntryData& ed); // does not copy the InventoryEntryData. it's actually a move-insert, i.e. (ed) has the pointer taken away from it
             };
             //
-            EntryDataList availableIngredients; // A8
+            EntryDataList availableIngredients; // A8 // sorted by ingredient name
             BSTSmallArray<uint32_t, 3> selections; // B4 // selected ingredient indices in availableIngredients
             tArray<uint32_t> unkC8; // array of EffectItem*?
             uint32_t unkD4;
@@ -145,7 +158,8 @@ namespace RE {
             //    target ingredient, and then call Unk_56 on that container, forwarding the original 
             //    arguments.
 
-            void ImportIngredientsFrom(TESObjectREFR* container); // does not update UI state; just adds to availableIngredients
+            void ImportIngredientsFrom(TESObjectREFR* container, bool merge = false); // does not update UI state; just adds to availableIngredients
+            int32_t GetIndexOfIngredientName(EntryData& ed, bool& exists);
       };
       static_assert(offsetof(AlchemyMenu, selections) >= 0xB4, "RE::CraftingSubMenus::AlchemyMenu::selections is too early!");
       static_assert(offsetof(AlchemyMenu, selections) <= 0xB4, "RE::CraftingSubMenus::AlchemyMenu::selections is too late!");
@@ -163,8 +177,6 @@ namespace RE {
             uint32_t unkB8 = 0x40;
             tArray<uint32_t> unkBC;
             BSString unkC8; // 3D model path?
-            uint32_t unkD0 = 0;
-            uint32_t unkD4 = 0;
             GFxValue unkD0;
             GFxValue unkE0; // entryList?
             struct {

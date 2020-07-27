@@ -29,7 +29,7 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
-   class BSUntypedPointerHandle;
+   struct BSUntypedPointerHandle;
    class DecalGroup;
    class TESNPC;
    class TESObjectREFR;
@@ -158,21 +158,26 @@ namespace RE {
          static ExtraCollisionData* Create();
    };
    //
-   class InventoryEntryData {
+   class InventoryEntryData { // sizeof == 0xC
       public:
-         TESForm* type;
-         tList<BaseExtraList>* extendDataList;
-         SInt32   countDelta;
+         TESForm* type; // 00
+         tList<BaseExtraList>* extendDataList; // 04 // TODO: this is a singly-linked list, not a doubly-linked list
+         SInt32   countDelta; // 08
 
          MEMBER_FN_PREFIX(InventoryEntryData);
-         DEFINE_MEMBER_FN(Destructor, void, 0x00476A70);
+         DEFINE_MEMBER_FN(Constructor, InventoryEntryData&, 0x004750C0, TESForm*, int32_t count);
+         DEFINE_MEMBER_FN(Destructor, void, 0x00475110);
          DEFINE_MEMBER_FN(GenerateName,  const char*, 0x00475AA0);
+         DEFINE_MEMBER_FN(GetFirstOwner, void*,  0x004755A0); // returns this->extendDataList[0]->GetExtraOwnership()
          DEFINE_MEMBER_FN(GetSoulLevel,  SInt32, 0x00475740); // charge amount
          DEFINE_MEMBER_FN(GetSoulSize,   UInt32, 0x004756F0); // enum
          DEFINE_MEMBER_FN(GetValue,      SInt32, 0x00475450);
-         DEFINE_MEMBER_FN(IsQuestObject, bool,   0x00475B90);
+         DEFINE_MEMBER_FN(IsQuestObject, bool,   0x004759B0);
          DEFINE_MEMBER_FN(IsOwnedBy,     bool,   0x00477010, TESForm* actor, bool unk1);
          DEFINE_MEMBER_FN(IsWorn,        bool,   0x004758C0); // checks extra data
+         DEFINE_MEMBER_FN(SimplifyExtendDataList, int32_t, 0x00476D80); // removes any BaseExtraLists that consist solely of ExtraCount. return value is an integer; meaning is unclear.
+         DEFINE_MEMBER_FN(Subroutine004751F0, bool, 0x004751F0);
+         DEFINE_MEMBER_FN(AbandonExtraData, void, 0x00476A70);
 
          ~InventoryEntryData() { CALL_MEMBER_FN(this, Destructor)(); }
          inline void Delete() {
@@ -181,6 +186,29 @@ namespace RE {
          }
 
          UInt8 GetSoulSize() const;
+   };
+   class InventoryChanges {
+      public:
+         tList<InventoryEntryData>* objList; // 00 // TODO: this is a singly-linked list, not a doubly-linked list
+         TESObjectREFR* container; // 04
+         float totalWeight; // 08 // -1.0F means "needs to be recomputed"
+         float armorWeight; // 0C
+
+         MEMBER_FN_PREFIX(InventoryChanges);
+         DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
+         DEFINE_MEMBER_FN(CountItemsWithKeyword, UInt32, 0x00475EB0, BGSKeyword*); // uses CountObjectsWithKeywordFunctor
+         DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
+         DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
+         DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x00476160, Actor* owner); // actor ref needed for perk checks
+         DEFINE_MEMBER_FN(GetTotalWeight, float, 0x0047B5F0);
+         DEFINE_MEMBER_FN(RemoveAllLeveledItems, void, 0x0047B990);
+         DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
+         DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
+         DEFINE_MEMBER_FN(UnequipArmorFromSlot,  void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
+         DEFINE_MEMBER_FN(GetItemCount,          SInt32, 0x0047A4D0, TESForm*);
+         DEFINE_MEMBER_FN(CountItemTypes, UInt32, 0x0047A510, bool includeNonPlayableItems);
+         DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x0047D9C0, uint32_t index); // (index) is relative to (CountItemTypes) // returns a shallow copy: new entry data, but pointers to the BaseExtraLists of the others
+         DEFINE_MEMBER_FN(FindEntry, InventoryEntryData*, 0x00477B20, TESForm* baseItem, uint32_t, uint32_t refrFormID);
    };
    class ExtraContainerChanges : public BSExtraData {
       //
@@ -220,27 +248,7 @@ namespace RE {
                virtual bool Unk_02(UInt32, UInt32) { return true;  }; // 02
                virtual void Unk_03(InventoryEntryData*, UInt32, bool* out) {}; // 03 // *out = true; this->Execute(Arg1);
          };
-         class Data {
-            public:
-               tList<InventoryEntryData>* objList; // 00
-               TESObjectREFR* owner; // 04 // more like "carrier," actually
-               float totalWeight; // 08 // -1.0F means "needs to be recomputed"
-               float armorWeight; // 0C
-
-               MEMBER_FN_PREFIX(Data);
-               DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
-               DEFINE_MEMBER_FN(CountItemsWithKeyword, UInt32, 0x00475EB0, BGSKeyword*); // uses CountObjectsWithKeywordFunctor
-               DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
-               DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
-               DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x00476160, Actor* owner); // actor ref needed for perk checks
-               DEFINE_MEMBER_FN(GetTotalWeight, float, 0x0047B5F0);
-               DEFINE_MEMBER_FN(RemoveAllLeveledItems, void, 0x0047B990);
-               DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
-               DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
-               DEFINE_MEMBER_FN(UnequipArmorFromSlot,  void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
-               DEFINE_MEMBER_FN(GetItemCount,          SInt32, 0x0047A4D0, TESForm*);
-               DEFINE_MEMBER_FN(CountItemTypes, UInt32, 0x0047A510, bool includeNonPlayableItems);
-         };
+         using Data = InventoryChanges;
          Data* data; // 08
 
          class CountObjectsWithKeywordFunctor : public InventoryVisitor {
@@ -271,7 +279,6 @@ namespace RE {
                UInt32 unk10; // 10 // race
          };
    };
-   using InventoryChanges = ExtraContainerChanges::Data; // Bethesda's name for the struct
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData,            0x00476800, TESObjectREFR*);
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetOrCreateExtraContainerChangesDataFor, 0x00477780, TESObjectREFR*);
    //
@@ -840,14 +847,13 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraRagdollData,              void*,   0x0040D150); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRandomTeleportMarker,     void*,   0x0040D410); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRank,                     UInt32,  0x0040C110); // Returns rank (or -1 if no extra data) directly, without using the FPU stack. Not sure if float.
-         DEFINE_MEMBER_FN(GetExtraReferenceHandle, void, 0x004110F0, BSUntypedPointerHandle& out);
+         DEFINE_MEMBER_FN(GetExtraReferenceHandle, BSUntypedPointerHandle&, 0x004110F0, BSUntypedPointerHandle& out); // Never modify *retval. Usually retval == out; sometimes it == g_invalidRefHandle.
          DEFINE_MEMBER_FN(GetExtraRegionList,               void*,   0x0040CD90); // Return type not verified.
          DEFINE_MEMBER_FN(GetExtraScale,                    float,   0x0040C220); // Returns scale (or 1.0 if no extra data) via the FPU stack.
          DEFINE_MEMBER_FN(GetExtraSceneData,                void*,   0x0040D800); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraShouldWear,               bool,    0x0040C480, ExtraShouldWear::Data* out);
          DEFINE_MEMBER_FN(GetExtraSoulSize,                 SInt32,  0x0040C200); // Returns soul (or 0 if no extra data).
          DEFINE_MEMBER_FN(GetExtraSound,                    void,    0x0040C2A0, ExtraSound::Data* out);
-         DEFINE_MEMBER_FN(GetExtraReferenceHandle,          UInt32*, 0x004110F0, UInt32* out); // Never modify *retval. Usually retval == out; sometimes it == g_invalidRefHandle.
          //
          DEFINE_MEMBER_FN(GOCESP_Sig1, NiPoint3*,              0x004107C0, NiPoint3* out, TESObjectREFR* reference); // Returns out after altering it. If no extra-data present, creates it based on the reference's position and rotation.
          DEFINE_MEMBER_FN(GOCESP_Sig2, ExtraStartingPosition*, 0x0040F720, TESObjectREFR* reference);                // If no extra-data present, creates it based on the reference's position and rotation.
@@ -888,6 +894,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraCellMusicType,            void,             0x00410D10, BGSMusicType*);
          DEFINE_MEMBER_FN(SetExtraCharge,                   ExtraCharge*,     0x0040C780, UInt32);       // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraCollisionData,            void,             0x00411FA0, ExtraCollisionData::Data*); // Destroys any existing extra-data, and then creates some if the supplied pointer is not null.
+         DEFINE_MEMBER_FN(SetExtraCount,                    void,             0x0040FCE0, int32_t);
          DEFINE_MEMBER_FN(SetExtraEnableStateParentFlags,   void,             0x0040D310, UInt8 flags);  // Does nothing if no extra-data present.
          DEFINE_MEMBER_FN(SetExtraFlags,                    void,             0x00416C50, UInt32 flagsMask, bool value); // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraForcedTargetRefHandle,    void,             0x00413F30, UInt32);
