@@ -515,6 +515,8 @@ namespace RE {
             DEFINE_SUBROUTINE(BSUntypedPointerHandle&, _GetOrCreateRefHandle, 0x006BD6C0, BSUntypedPointerHandle& handle);
             return _GetOrCreateRefHandle(handle);
          }
+
+         inline bool IsEnabled() const noexcept { return !(this->flags & kFlag_Disabled); }
          //
          MEMBER_FN_PREFIX(TESObjectREFR);
          DEFINE_MEMBER_FN(Activate,                void,             0x004E4230, TESObjectREFR* activatedBy, UInt32 Arg2_papyrusUses0, UInt32 Arg3_papyrusUses0, UInt32 Arg4_papyrusUses1, bool defaultOnly);

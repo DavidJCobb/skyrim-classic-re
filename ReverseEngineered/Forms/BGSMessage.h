@@ -5,7 +5,7 @@
 namespace RE {
    class BGSMessage : public TESForm { // sizeof == 0x40
       public:
-         enum { kTypeID = kFormType_Message };
+         static constexpr form_type_t form_type = form_type::message;
 
          struct Button {
             BSFixedString text; // 00

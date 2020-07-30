@@ -83,7 +83,7 @@ namespace RE {
    class InventoryEntryData { // sizeof == 0xC
       public:
          TESForm* type; // 00
-         tList<ExtraDataList>* extendDataList; // 04 // TODO: this is a singly-linked list, not a doubly-linked list
+         tList<ExtraDataList>* extendDataList; // 04
          SInt32   countDelta; // 08
 
          MEMBER_FN_PREFIX(InventoryEntryData);
@@ -115,7 +115,7 @@ namespace RE {
    };
    class InventoryChanges {
       public:
-         tList<InventoryEntryData>* objList; // 00 // TODO: this is a singly-linked list, not a doubly-linked list
+         tList<InventoryEntryData>* objList; // 00
          TESObjectREFR* container; // 04
          float totalWeight; // 08 // -1.0F means "needs to be recomputed"
          float armorWeight; // 0C

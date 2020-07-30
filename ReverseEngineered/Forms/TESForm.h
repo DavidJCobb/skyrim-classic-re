@@ -166,13 +166,13 @@ namespace RE {
    class TESObjectREFR;
 
    struct FormSignatureInfo { // sizeof == 0xC
-      const char* asString;
+      const char* asString; // signature as string
       UInt32      signature;
       UInt8       formType;
       UInt8       pad09[3];
    };
    extern FormSignatureInfo* g_formSignatureInfo; // array up to 0x87
-   DEFINE_SUBROUTINE_EXTERN(const char*, FormTypeToSignatureString, 0x00678129, SInt32 formType);
+   static DEFINE_SUBROUTINE(const char*, FormTypeToSignatureString, 0x00678120, UInt32 formType);
    //
    struct FormFactoryInfo {
       void*       formFactoryVtbl;

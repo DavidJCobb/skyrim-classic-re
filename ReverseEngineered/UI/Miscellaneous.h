@@ -28,7 +28,7 @@ namespace RE {
          scaleform_ptr(mapped_type p) { *this = p; }
          scaleform_ptr& operator=(mapped_type p) noexcept {
             if (data == p)
-               return;
+               return *this;
             _dec();
             data = p;
             _inc();
@@ -40,16 +40,44 @@ namespace RE {
          inline operator bool() const { return data != nullptr; };
          inline bool operator!() const { return data == nullptr; }
          inline operator mapped_type() const { return data; }
+         //
+         void adopt_without_increment(mapped_type p) {
+            this->_dec();
+            this->data = p;
+         }
    };
    
-   class IMessageBoxCallback : public GRefCountImplCore {
+   class IMessageBoxCallback : public GRefCountImplCore { // sizeof == 0x08
       public:
-         virtual void Dispose(bool);
-         virtual void Callback(uint32_t buttonIndex) = 0;
+         virtual ~IMessageBoxCallback() {};
+         virtual void Callback(uint8_t buttonIndex) = 0;
+
+         IMessageBoxCallback() { this->refCount = 0; } // SKSE's GRefCountImplCore constructor incorrectly initializes this to 1, probably because they based it on code where the use of a scaleform_ptr was not obvious (i.e. the object was constructed inline and immediately stuffed into a smart pointer)
+
+         //
+         // Make (new) and (delete) use the game heap for this class and its subclasses:
+         //
+         static void* operator new(std::size_t size) {
+            return FormHeap_Allocate(size);
+         }
+         static void* operator new(std::size_t size, const std::nothrow_t&) {
+            return FormHeap_Allocate(size);
+         }
+         static void* operator new(std::size_t size, void* ptr) { // placement new
+            return ptr;
+         }
+         static void operator delete(void* ptr) {
+            FormHeap_Free(ptr);
+         }
+         static void operator delete(void* ptr, const std::nothrow_t&) {
+            FormHeap_Free(ptr);
+         }
+         static void operator delete(void* ptr, void* place) {} // called if placement new throws an exception; shouldn't do anything
    };
-   class MessageBoxData { // sizeof == 0x2C
+   class MessageBoxData { // sizeof == 0x2C, constructed on the game heap
       public:
          static constexpr uint32_t vtbl = 0x010E452C;
+         virtual ~MessageBoxData();
          //
          uint8_t  unk04 = 0;
          uint8_t  unk05 = 0;
@@ -57,7 +85,7 @@ namespace RE {
          BSString text; // 08
          tArray<BSString> buttons; // 10
          uint32_t unk1C = 0;
-         scaleform_ptr<IMessageBoxCallback> callback;  // 20 // smart pointer to a callback
+         scaleform_ptr<IMessageBoxCallback> callback; // 20 // smart pointer to a callback
          uint32_t unk24 = 0xA; // callers often set this to 4
          uint8_t  unk28 = 0;
          uint8_t  unk29 = 0;
@@ -65,8 +93,10 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(MessageBoxData);
          DEFINE_MEMBER_FN(Constructor, MessageBoxData&, 0x00852530);
+         DEFINE_MEMBER_FN(Constructor_5, MessageBoxData&, 0x0087A940, BSString& text, scaleform_ptr<IMessageBoxCallback>&, uint32_t, uint32_t, uint32_t, BSTArray<BSString>& buttons); // used by Papyrus
    };
    static DEFINE_SUBROUTINE(void, SendMessageBoxData, 0x0087A9D0, MessageBoxData&);
+   static DEFINE_SUBROUTINE(void, ShowMessage, 0x0087ABA0, BSString& text, scaleform_ptr<IMessageBoxCallback>&, uint32_t papyrusUses0, uint32_t papyrusUses0x19, uint32_t papyrusUses4, BSTArray<BSString>& buttons); // same args as MessageBoxData::Constructor_5; constructs and then calls SendMessageBoxData
 };
 
 /*

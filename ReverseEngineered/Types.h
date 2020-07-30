@@ -15,6 +15,8 @@ namespace RE {
             }
             this->m_dataLen = this->m_bufLen = 0;
          }
+         BSString() {}
+         BSString(const char* s) { CALL_MEMBER_FN(this, assign)(s, 0); }
          //
          char*  m_data    = nullptr; // 00
          UInt16 m_dataLen = 0; // 04
@@ -22,6 +24,20 @@ namespace RE {
 
          MEMBER_FN_PREFIX(BSString);
          DEFINE_MEMBER_FN(assign, bool, 0x00402C00, const char*, UInt32 maxLength); // zero maxLength will copy the entire input string
+
+         BSString& operator=(const BSString& other) {
+            CALL_MEMBER_FN(this, assign)(other.m_data, 0);
+            return *this;
+         }
+         BSString& operator=(BSString&& other) {
+            this->m_data = other.m_data;
+            this->m_dataLen = other.m_dataLen;
+            this->m_bufLen = other.m_bufLen;
+            other.m_data = nullptr;
+            other.m_dataLen = 0;
+            other.m_bufLen = 0;
+            return *this;
+         }
    };
 
    struct BSTArrayAllocator {
@@ -37,7 +53,7 @@ namespace RE {
       DEFINE_MEMBER_FN(IncrementReturnBool, bool,   0x00A4A0B0, void* allocator, uint32_t, uint32_t currentCapacity, uint32_t index, uint32_t elementSize);
       DEFINE_MEMBER_FN(Remove,      void,   0x00A4A070, void* arrayData, UInt32 startIndex, UInt32 arraySizeMinusCountToRemove, UInt32 countToRemove, UInt32 sizeOfElement);
 
-      UInt32 size; // 00
+      UInt32 size = 0; // 00
 
       inline operator UInt32&() { return this->size; }
       inline operator const UInt32&() const { return this->size; }
@@ -119,7 +135,7 @@ namespace RE {
       public:
          T*            _data     = nullptr;
          uint32_t      _capacity = 0;
-         BSTArrayCount _size     = 0;
+         BSTArrayCount _size;
          //
          inline uint32_t capacity() const noexcept { return this->_capacity; };
          inline uint32_t size() const noexcept { return this->_size; }
@@ -149,11 +165,18 @@ namespace RE {
          //
          inline T& operator[](int i) noexcept { return this->_data[i]; }
          inline const T& operator[](int i) const noexcept { return this->_data[i]; }
+
+         //
+         // Functions below should probably be avoided because they're for individual BSTArray templates, 
+         // with differing (sizeof(T)). They are listed here for reference purposes only.
+         //
+         MEMBER_FN_PREFIX(BSTArray);
+         DEFINE_MEMBER_FN(construct_elements, void, 0x00736600, uint32_t start, uint32_t amount, BSString& value); // for BSTArray<BSString> // default-constructs elements in the given range (if they already exist, destructors are not called) and then sets them to (value) by way of BSString::assign
    };
 
    template<class T> struct tList {
       //
-      // The SKSE team did an iterator-LIKE implementation for tLists. 
+      // The SKSE team did an iterator-like implementation for tLists. 
       // This class definition straightforwardly matches Bethesda's 
       // internal implementation; members aren't made private, so you 
       // can replicate code and processes exactly as you see them in 
@@ -163,10 +186,8 @@ namespace RE {
       struct Node {
          T*    data;
          Node* next;
-         Node* prev;
          //
          MEMBER_FN_PREFIX(Node);
-         // TODO next function is only used for singly-linked lists, not doubly-linked lists; verify that tList itself is supposed to be doubly-linked
          DEFINE_MEMBER_FN(append, void, 0x0042AFA0, T**, void* optionalNodeConstructor, void* constructorState); // if this->data == nullptr, just adopts the input node's data instead; if input node's data is nullptr, does nothing
       };
       Node items;
