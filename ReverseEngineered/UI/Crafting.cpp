@@ -1,9 +1,13 @@
 #include "Crafting.h"
+#include "ReverseEngineered/Forms/BaseForms/TESObjectARMO.h"
+#include "ReverseEngineered/Forms/BaseForms/TESObjectWEAP.h"
 #include "ReverseEngineered/Forms/TESObjectREFR.h"
+#include "ReverseEngineered/Systems/Inventory.h"
 #include "ReverseEngineered/ExtraData.h"
 
 namespace RE {
    namespace CraftingSubMenus {
+      #pragma region AlchemyMenu
       void AlchemyMenu::ImportIngredientsFrom(TESObjectREFR* container, bool merge) {
          auto count = CALL_MEMBER_FN(container, CountItemTypes)(false, true);
          for (uint32_t index = 0; index < count; ++index) {
@@ -19,66 +23,7 @@ namespace RE {
                if (eax != -1) {
                   if (merge && found) {
                      auto* other = this->availableIngredients[eax].ingredient;
-                     other->countDelta += entry->countDelta;
-                     auto* eList = entry->extendDataList;
-                     auto* oList = other->extendDataList;
-                     if (eList && eList->items.data && !eList->items.next) {
-                        //
-                        // InventoryEntryData does not retain BaseExtraLists that consist solely of ExtraCount. 
-                        // I don't know if it requires its BaseExtraLists to have an ExtraCount if they cover 
-                        // the entire stack, e.g. if you have a stack of 5 Nightshade with the same owner, I 
-                        // don't know if that stack is required to have an ExtraCount of 5 in its list. So, if 
-                        // (entry) consists of a single BaseExtraList, we're going to require that it have a 
-                        // count before we migrate it over.
-                        //
-                        auto source = (RE::BaseExtraList*)eList->items.data;
-                        if (!CALL_MEMBER_FN(source, HasType)(kExtraData_Count))
-                           CALL_MEMBER_FN(source, SetExtraCount)(entry->countDelta);
-                     }
-                     //
-                     if (eList && eList->items.data) {
-                        bool sever = true;
-                        if (!oList) {
-                           other->extendDataList = eList;
-                        } else {
-                           //
-                           // Both (oList) and (eList) just contain pointers to the original BaseExtraList 
-                           // instances in the container's inventory, since (entry) and (other) are both 
-                           // shallow copies of the original InventoryEntryData instances. Moreover, the 
-                           // array insertion for AlchemyMenu::availableIngredients will copy the inserted 
-                           // InventoryEntryData instance yet again, with us destroying the original. That 
-                           // allows us to do a neat trick:
-                           //
-                           // Instead of individually inserting each (eList) element onto (oList) one at a 
-                           // time, we can just have (oList) "steal" (eList) entirely.
-                           //
-                           auto* last = &oList->items;
-                           auto* node = &eList->items;
-                           while (last->next)
-                              last = last->next;
-                           if (!last->data) {
-                              //
-                              // It's possible for oList to be an empty list. If that's the case, then simply 
-                              // appending eList onto oList will result in a list that has an empty node in 
-                              // the middle. That's a problem because somewhere in Bethesda's code for the 
-                              // InventoryEntryData::GenerateName function, they do this:
-                              //
-                              //    if (node->next || node->data)
-                              //       node->data->YepImSureThisIsSafe();
-                              //
-                              // Brilliant.
-                              //
-                              last->data = node->data;
-                              last->next = node->next;
-                              node->next = nullptr;
-                              sever = false; // we just severed the list here, save for one "dead" node that needs to be left behind so it can be deleted
-                           } else {
-                              last->next = node;
-                           }
-                        }
-                        if (sever)
-                           entry->extendDataList = nullptr;
-                     }
+                     other->Merge(*entry);
                   } else {
                      CALL_MEMBER_FN(&this->availableIngredients, InsertAt)(eax, data);
                   }
@@ -117,5 +62,74 @@ namespace RE {
          //
          return f(this->availableIngredients, ed, 0x0084D770, exists);
       }
+      #pragma endregion
+
+      #pragma region EnchantConstructMenu
+      /*static*/ CraftingSubMenus::EnchantConstructMenu::ItemChangeEntry* CraftingSubMenus::EnchantConstructMenu::ItemChangeEntry::make(uint32_t unk08, InventoryEntryData* item) {
+         auto memory = (ItemChangeEntry*) FormHeap_Allocate(sizeof(ItemChangeEntry));
+         CALL_MEMBER_FN(memory, Constructor)(unk08, item);
+         return memory;
+      }
+      /*static*/ bool CraftingSubMenus::EnchantConstructMenu::IsItemValidForUse(InventoryEntryData* entry) {
+         auto form = entry->type;
+         if (!form || !form->IsPlayable() || !RE::GetFormName(form)) // is playable?
+            return false;
+         if (CALL_MEMBER_FN(entry, IsQuestObject)()) // cannot use quest items
+            return false;
+         return true;
+      }
+      CraftingSubMenus::EnchantConstructMenu::ItemChangeEntry* CraftingSubMenus::EnchantConstructMenu::GetItemEntry(TESForm* itemBase) {
+         for (uint32_t i = 0; i < this->inventory.count; ++i) {
+            auto* existing = this->inventory[i];
+            auto* entry    = existing->item;
+            if (entry->type == itemBase)
+               return existing;
+         }
+         return nullptr;
+      }
+      void CraftingSubMenus::EnchantConstructMenu::ImportSoulGemsFrom(TESObjectREFR* container, bool merge) {
+         auto count = CALL_MEMBER_FN(container, CountItemTypes)(false, true);
+         for (uint32_t i = 0; i < count; ++i) {
+            auto entry = CALL_MEMBER_FN(container, GetInventoryEntryAt)(i, false); // returns a shallow copy
+            if (!entry)
+               continue;
+            if (IsItemValidForUse(entry)) {
+               auto form = entry->type;
+               if (form->formType == form_type::soul_gem && CALL_MEMBER_FN(entry, GetSoulSize)() > 0) {
+                  ItemChangeEntry* existing = nullptr;
+                  if (merge && (existing = this->GetItemEntry(form))) {
+                     existing->item->Merge(*entry);
+                  } else {
+                     auto item  = RE::CraftingSubMenus::EnchantConstructMenu::ItemChangeEntry::make(0x40, entry);
+                     auto index = CALL_MEMBER_FN(&this->inventory, Append)(item);
+                     if (index != -1) {
+                        item->unk0D = true;
+                        continue;
+                     }
+                  }
+               }
+            }
+            CALL_MEMBER_FN(entry, AbandonExtraData)();
+            FormHeap_Free(entry);
+         }
+      }
+      #pragma endregion
+
+      #pragma region SmithingMenu
+      BGSConstructibleObject* SmithingMenu::get_cobj_for(TESForm* item) const {
+         auto result = this->get_cobj_for(item->formID);
+         if (!result) {
+            if (item->formType == form_type::weapon)
+               item = ((RE::TESObjectWEAP*)item)->templateForm;
+            else if (item->formType == form_type::armor)
+               item = (RE::TESForm*) ((RE::TESObjectARMO*)item)->templateArmor;
+            else
+               return nullptr;
+            if (item)
+               result = this->get_cobj_for(item->formID);
+         }
+         return result;
+      }
+      #pragma endregion
    }
 }

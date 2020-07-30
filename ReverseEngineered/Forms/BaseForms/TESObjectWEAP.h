@@ -114,7 +114,7 @@ namespace RE {
          BGSSoundDescriptorForm* unequipSound;		// 11C
          BGSImpactDataSet* impactDataSet;	// 120
          TESObjectSTAT* model;				// 124
-         TESObjectWEAP* templateForm;			// 128 - Non-weapon templates don't make sense here and would probably crash anyway so assume it
+         TESObjectWEAP* templateForm;			// 128
          BSFixedString	embeddedNode;			// 12C
          UInt32	pad130;							// 130
 

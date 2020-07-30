@@ -31,6 +31,8 @@ namespace RE {
    //
    struct BSUntypedPointerHandle;
    class DecalGroup;
+   class ExtraDataList;
+   class InventoryChanges;
    class TESNPC;
    class TESObjectREFR;
    //
@@ -39,6 +41,7 @@ namespace RE {
          UInt32 id; // 08
    };
    //
+   #pragma region A
    class ExtraAction : public BSExtraData { // sizeof: 0x10
       public:
          ExtraAction(); // vanilla constructor at 0x00422650.
@@ -125,6 +128,8 @@ namespace RE {
          };
          Entry firstEntry; // 08 // first entry in linked list
    };
+   #pragma endregion
+   #pragma region C
    class ExtraCellAcousticSpace : public BSExtraData { // sizeof == 0xC
       public:
          BGSAcousticSpace* data; // 08
@@ -157,59 +162,6 @@ namespace RE {
          //
          static ExtraCollisionData* Create();
    };
-   //
-   class InventoryEntryData { // sizeof == 0xC
-      public:
-         TESForm* type; // 00
-         tList<BaseExtraList>* extendDataList; // 04 // TODO: this is a singly-linked list, not a doubly-linked list
-         SInt32   countDelta; // 08
-
-         MEMBER_FN_PREFIX(InventoryEntryData);
-         DEFINE_MEMBER_FN(Constructor, InventoryEntryData&, 0x004750C0, TESForm*, int32_t count);
-         DEFINE_MEMBER_FN(Destructor, void, 0x00475110);
-         DEFINE_MEMBER_FN(GenerateName,  const char*, 0x00475AA0);
-         DEFINE_MEMBER_FN(GetFirstOwner, void*,  0x004755A0); // returns this->extendDataList[0]->GetExtraOwnership()
-         DEFINE_MEMBER_FN(GetSoulLevel,  SInt32, 0x00475740); // charge amount
-         DEFINE_MEMBER_FN(GetSoulSize,   UInt32, 0x004756F0); // enum
-         DEFINE_MEMBER_FN(GetValue,      SInt32, 0x00475450);
-         DEFINE_MEMBER_FN(IsQuestObject, bool,   0x004759B0);
-         DEFINE_MEMBER_FN(IsOwnedBy,     bool,   0x00477010, TESForm* actor, bool unk1);
-         DEFINE_MEMBER_FN(IsWorn,        bool,   0x004758C0); // checks extra data
-         DEFINE_MEMBER_FN(SimplifyExtendDataList, int32_t, 0x00476D80); // removes any BaseExtraLists that consist solely of ExtraCount. return value is an integer; meaning is unclear.
-         DEFINE_MEMBER_FN(Subroutine004751F0, bool, 0x004751F0);
-         DEFINE_MEMBER_FN(AbandonExtraData, void, 0x00476A70);
-
-         ~InventoryEntryData() { CALL_MEMBER_FN(this, Destructor)(); }
-         inline void Delete() {
-            CALL_MEMBER_FN(this, Destructor)();
-            FormHeap_Free(this);
-         }
-
-         UInt8 GetSoulSize() const;
-   };
-   class InventoryChanges {
-      public:
-         tList<InventoryEntryData>* objList; // 00 // TODO: this is a singly-linked list, not a doubly-linked list
-         TESObjectREFR* container; // 04
-         float totalWeight; // 08 // -1.0F means "needs to be recomputed"
-         float armorWeight; // 0C
-
-         MEMBER_FN_PREFIX(InventoryChanges);
-         DEFINE_MEMBER_FN(ContainsQuestObject,   bool, 0x00476110);
-         DEFINE_MEMBER_FN(CountItemsWithKeyword, UInt32, 0x00475EB0, BGSKeyword*); // uses CountObjectsWithKeywordFunctor
-         DEFINE_MEMBER_FN(ExecuteVisitor,        void, 0x00475D20, void* visitor);
-         DEFINE_MEMBER_FN(ExecuteVisitorOnWorn,  void, 0x00475D50, void* visitor);
-         DEFINE_MEMBER_FN(GetEquippedItemsWeight, float, 0x00476160, Actor* owner); // actor ref needed for perk checks
-         DEFINE_MEMBER_FN(GetTotalWeight, float, 0x0047B5F0);
-         DEFINE_MEMBER_FN(RemoveAllLeveledItems, void, 0x0047B990);
-         DEFINE_MEMBER_FN(RemoveAllNotInAlias,   void, 0x00478B10);
-         DEFINE_MEMBER_FN(SetUniqueID,           void, 0x00482050, BaseExtraList* itemList, TESForm* oldForm, TESForm* newForm);
-         DEFINE_MEMBER_FN(UnequipArmorFromSlot,  void, 0x00475F30, UInt32 bodyPartIndex, Actor* target);
-         DEFINE_MEMBER_FN(GetItemCount,          SInt32, 0x0047A4D0, TESForm*);
-         DEFINE_MEMBER_FN(CountItemTypes, UInt32, 0x0047A510, bool includeNonPlayableItems);
-         DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x0047D9C0, uint32_t index); // (index) is relative to (CountItemTypes) // returns a shallow copy: new entry data, but pointers to the BaseExtraLists of the others
-         DEFINE_MEMBER_FN(FindEntry, InventoryEntryData*, 0x00477B20, TESForm* baseItem, uint32_t, uint32_t refrFormID);
-   };
    class ExtraContainerChanges : public BSExtraData {
       //
       // How the heck does inventory work?
@@ -236,52 +188,13 @@ namespace RE {
       //      - ...one with ExtraCount = 1 and an enchantment.
       //
       public:
-         class InventoryVisitor {
-            //
-            // NOTE: These visitors see only the ExtraContainerChanges data itself. These are container CHANGES: 
-            // if there are items initially in the container, the visitors won't see them; and if items were 
-            // removed from the container, the visitors will see negative amounts.
-            //
-            public:
-               virtual void Dispose(bool) {}; // 00
-               virtual BOOL Visit(RE::InventoryEntryData*) { return true; }; // 01 // return false to "break" from the loop
-               virtual bool Unk_02(UInt32, UInt32) { return true;  }; // 02
-               virtual void Unk_03(InventoryEntryData*, UInt32, bool* out) {}; // 03 // *out = true; this->Execute(Arg1);
-         };
          using Data = InventoryChanges;
          Data* data; // 08
-
-         class CountObjectsWithKeywordFunctor : public InventoryVisitor {
-            public:
-               BGSKeyword* keyword; // 04
-               UInt32      result;  // 08
-         };
-         class FindBaseObjectVisitor : public InventoryVisitor {
-            public:
-               TESForm* baseObject; // 04
-               UInt16   unk08;
-         };
-         class FindBestSoulGemVisitor : public InventoryVisitor { // sizeof == 0xC; used by Bethesda to get the soul gem to fill during a soul trap
-            public:
-               Actor*      soulTrapTarget; // 04
-               TESSoulGem* result = nullptr; // 08
-         };
-         class FindRefrObjectVisitor : public InventoryVisitor {
-            public:
-               UInt32 unk04; // 04
-               UInt16 unk08;
-         };
-         class InitWornVisitor : public InventoryVisitor {
-            public:
-               TESNPC*        unk04; // 04
-               TESObjectREFR* unk08; // 08 // the actor whose ArmorAddon we want to change
-               UInt32 unk0C; // 0C // same as unk04?
-               UInt32 unk10; // 10 // race
-         };
    };
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetExtraContainerChangesData,            0x00476800, TESObjectREFR*);
    static DEFINE_SUBROUTINE(ExtraContainerChanges::Data*, GetOrCreateExtraContainerChangesDataFor, 0x00477780, TESObjectREFR*);
-   //
+   #pragma endregion
+   #pragma region D
    class ExtraDismemberedLimbs : public BSExtraData { // sizeof == 0x24 -- smaller than in FO3
       public:
          enum DismembermentBits : UInt16 { // these are (1 << BGSBodyPartData::PartType).
@@ -318,6 +231,8 @@ namespace RE {
          };
          Entry firstEntry; // 08 // first entry in linked list
    };
+   #pragma endregion
+   #pragma region E
    class ExtraEditorID : public BSExtraData { // sizeof == 0xC
       public:
          BSFixedString data; // 08
@@ -345,6 +260,7 @@ namespace RE {
          UInt32 unk08;        // 08 // first child handle? or flags?
          Entry* firstEntry;   // 0C // are we sure there's a linked list here? I mean, why would there be?
    };
+   #pragma endregion
    class ExtraFlags : public BSExtraData { // sizeof == 0xC
       public:
          ExtraFlags();
@@ -369,6 +285,7 @@ namespace RE {
          bool isGhost;   // 08
          UInt8 pad09[3];
    };
+   #pragma region L
    class ExtraLeveledCreature : public BSExtraData {
       public:
          virtual ~ExtraLeveledCreature();
@@ -426,6 +343,8 @@ namespace RE {
          MEMBER_FN_PREFIX(ExtraLock);
          DEFINE_MEMBER_FN(Subroutine00422390, SInt32, 0x00422390, TESObjectREFR*); // returns lock level?
    };
+   #pragma endregion
+   #pragma region M
    class ExtraMapMarker : public BSExtraData {
       public:
          enum {
@@ -556,10 +475,12 @@ namespace RE {
          DEFINE_MEMBER_FN(FindFormByID, bool, 0x00414640, UInt32 formID, UInt32* outItemUnk04);
          DEFINE_MEMBER_FN(AppendItem,   void, 0x004277A0, UInt32 formID, UInt32 itemUnk04);
    };
+   #pragma endregion
    class ExtraNorthRotation : public BSExtraData { // sizeof == 0xC
       public:
          float northRotation;
    };
+   #pragma region P
    class ExtraPackage : public BSExtraData { // sizeof == 0x18
       public:
          struct Data { // sizeof == 0x10
@@ -611,6 +532,8 @@ namespace RE {
          //
          static ExtraPrimitive* Create();
    };
+   #pragma endregion
+   #pragma region R
    class ExtraRadius : public BSExtraData {
       public:
          ExtraRadius();
@@ -628,6 +551,8 @@ namespace RE {
          };
          Entry firstEntry; // 08 // first entry in linked list
    };
+   #pragma endregion
+   #pragma region S
    class ExtraShouldWear : public BSExtraData {
       public:
          struct Data {
@@ -684,6 +609,8 @@ namespace RE {
       public:
          void* startingWorldOrCell; // 08
    };
+   #pragma endregion
+   #pragma region T
    class ExtraTeleport : public BSExtraData { // sizeof: 0x0C
       public:
          //
@@ -711,6 +638,7 @@ namespace RE {
          //
          UInt32 unk08;
    };
+   #pragma endregion
    class ExtraWaterData : public BSExtraData {
       public:
          struct Unk08 {
@@ -867,6 +795,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraStartingWorldOrCell,      void*,   0x0040CA90); // Return type not verified. Could be a form ID, I suppose.
          DEFINE_MEMBER_FN(GetExtraTeleport,                 void*,   0x0040C052);
          DEFINE_MEMBER_FN(GetExtraTeleportData,             ExtraTeleport::TeleportData*, 0x0040C050);
+         DEFINE_MEMBER_FN(GetExtraTextDisplayData,          ExtraTextDisplayData*, 0x00418590);
          DEFINE_MEMBER_FN(GetExtraTimeLeft,                 float,   0x0040C1B0); // Returns time left, or -1.0 if no extra data.
          DEFINE_MEMBER_FN(GetExtraTrespassPackageUnk08,     void*,   0x0040CF70); // Returns extraDataObject->unk08, or zero/null if no extra data.
          DEFINE_MEMBER_FN(GetExtraWaterData,                void*,   0x0040EAD0); // Returns extraDataObject->unk08.
@@ -899,6 +828,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraFlags,                    void,             0x00416C50, UInt32 flagsMask, bool value); // Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraForcedTargetRefHandle,    void,             0x00413F30, UInt32);
          DEFINE_MEMBER_FN(SetExtraGhost,                    ExtraGhost*,      0x0040C940, bool isGhost); // Sets the ghost flag. Creates the new extra-data if needed.
+         DEFINE_MEMBER_FN(SetExtraHealth, void, 0x0040FC10, float health); // health == -1.0F results in removing the extra data
          DEFINE_MEMBER_FN(SetExtraItemDropper, void, 0x00415420, TESObjectREFR*); // Set who dropped this item.
          DEFINE_MEMBER_FN(SetExtraLock,                     ExtraLock*,       0x0040C560, void*);        // Deletes the unk08 on any existing lock data, and then sets a new unk08 pointer. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraMapMarkerData,            void,             0x0040F960, ExtraMapMarker::Data*); // If argument is NULL, deletes existing data.
@@ -907,7 +837,14 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraStartingWorldOrCell,      void,             0x00414DA0, void* startingWorldOrCell); // If argument is NULL, deletes existing data.
          DEFINE_MEMBER_FN(SetExtraTimeLeft,                 ExtraTimeLeft*,   0x0040C6E0, UInt32);       // Creates the new extra-data if needed.
    };
-   class ExtraDataList : public BaseExtraList { // ExtraDataList assumed to extend BaseExtraList. This is unconfirmed.
+   class ExtraDataList : public BaseExtraList {
+      //
+      // Does the type "BaseExtraList" ever actually appear anywhere? It seems like ExtraDataList is 
+      // the same class: instances of ExtraDataList are constructed just by calling the constructor 
+      // for BaseExtraList.
+      //
+      // The name "ExtraDataList" appears in some debug strings.
+      //
       public:
          DEFINE_MEMBER_FN(CompareListForContainer,          bool, 0x0040BDF0, BaseExtraList* other, UInt32 unknown); // Returns true if both lists have the exact same contents in the same order; false otherwise.
          DEFINE_MEMBER_FN(RemoveAllCopyableExtra,           void, 0x0040B940, UInt32 unknown);                       // Haven't looked into this. Name comes from a debug logging command.

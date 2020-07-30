@@ -10,9 +10,8 @@ namespace RE {
 
    class DefaultObjectList {
       public:
-         enum {
-            kNumDefaultObjects = 0x15A
-         };
+         static constexpr int count = 0x15A; // number of DOBJs
+         //
          struct DefaultObject {
             const char* description; // 00 // human-readable name
             UInt32		formType;    // 04
@@ -22,7 +21,7 @@ namespace RE {
          //
          static DefaultObjectList* GetSingleton(void);
          //
-         DefaultObject objects[kNumDefaultObjects];
+         DefaultObject objects[count];
          //
          TESForm* GetBySignature(UInt32 signature) const;
          SInt32 GetIndexOfSignature(UInt32 signature) const;
@@ -35,8 +34,8 @@ namespace RE {
          enum { kTypeID = kFormType_DOBJ };
 
          // cleared to 0 in ctor
-         TESForm* objects[0x15A]; // 14
-         UInt8    pad[0x15A];     // just pad out the rest of the space
+         TESForm* objects[DefaultObjectList::count]; // 14
+         UInt8    pad[DefaultObjectList::count];     // just pad out the rest of the space
 
          static BGSDefaultObjectManager* GetSingleton(void);
    };

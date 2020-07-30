@@ -11,6 +11,7 @@
 #include "ReverseEngineered/Types.h"
 #include "ReverseEngineered/Systems/BSResource.h"
 #include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
+#include "ReverseEngineered/UI/Crafting.h"
 
 class bhkAabbPhantom;
 class TESObjectCELL;
@@ -176,146 +177,151 @@ namespace RE {
          // this + ((formType + 1) * 0xC) == address of a tArray of that form, though it might be empty
          UInt32                       unk000;
          UInt32                       unk004;             // 0004 // linked list; item->unk04 is the next entry pointer
-         UnkFormArray unk008;
-         UnkFormArray unk014;
-         UnkFormArray unk020;
-         UnkFormArray unk02C;
-         tArray<BGSKeyword*>          keywords;           // 0038
-         tArray<BGSLocationRefType*>  locRefTypes;        // 0044
-         tArray<BGSAction*>           actions;            // 0050
-         tArray<BGSTextureSet*>       textureSets;        // 005C
-         tArray<BGSMenuIcon*>         menuIcons;
-         tArray<TESGlobal*>           globals;
-         tArray<TESClass*>            classes;            // 0080
-         tArray<TESFaction*>          factions;
-         tArray<BGSHeadPart*>         headParts;
-         tArray<TESEyes*>             eyes;
-         tArray<TESRace*>             races;              // 00B0
-         tArray<TESSound*>            sounds;
-         tArray<BGSAcousticSpace*>    acousticSpaces;
-         UnkFormArray                 unkSkills;
-         tArray<EffectSetting*>       magicEffects;       // 00E0
-         tArray<Script*>              scripts;
-         tArray<TESLandTexture*>      landTextures;
-         tArray<EnchantmentItem*>     enchantments;
-         tArray<SpellItem*>           spellItems;         // 0110
-         tArray<ScrollItem*>          scrolls;            // 011C
-         tArray<TESObjectACTI*>       activators;         // 0128
-         tArray<BGSTalkingActivator*> talkingActivators;
-         tArray<TESObjectARMO*>       armors;             // 0140
-         tArray<TESObjectBOOK*>	     books;
-         tArray<TESObjectCONT*>       containers;
-         tArray<TESObjectDOOR*>       doors;
-         tArray<IngredientItem*>      ingredients;        // 0170
-         tArray<TESObjectLIGH*>       lights;
-         tArray<TESObjectMISC*>       miscObjects;
-         tArray<BGSApparatus*>        apparatuses;
-         tArray<TESObjectSTAT*>       statics;            // 01A0
-         tArray<BGSStaticCollection*> staticCollections;
-         tArray<BGSMovableStatic*>    movableStatics;
-         tArray<TESGrass*>            grasses;
-         tArray<TESObjectTREE*>       trees;              // 01D0
-         tArray<TESFlora*>            flora;
-         tArray<TESFurniture*>        furniture;
-         tArray<TESObjectWEAP*>       weapons;
-         tArray<TESAmmo*>             ammo;               // 0200
-         tArray<TESNPC*>              npcs;
-         tArray<TESLevCharacter*>     levCharacters;
-         tArray<TESKey*>              keys;
-         tArray<AlchemyItem*>         potions;            // 0230
-         tArray<BGSIdleMarker*>       idleMarkers;
-         tArray<BGSNote*>             notes;
-         tArray<BGSConstructibleObject*> constructibles;
-         tArray<BGSProjectile*>       projectiles;        // 0260
-         tArray<BGSHazard*>           bgsHazards;
-         tArray<TESSoulGem*>          soulGems;
-         tArray<TESLevItem*>          levItems;
-         tArray<TESWeather*>          weather;            // 0290
-         tArray<TESClimate*>          climates;
-         tArray<BGSShaderParticleGeometryData*>	shaderParticleGeometryData;
-         tArray<BGSReferenceEffect*>  referenceEffects;
-         tArray<TESRegion*>           regions;            // 02C0
-         tArray<NavMeshInfoMap*>      navMeshInfoMaps;
-         tArray<TESObjectCELL*>       cells;
-         tArray<TESObjectREFR*>       refs;	// could be actors
-         tArray<Character*>           characters;         // 02F0
-         tArray<MissileProjectile*>   missleProjs;
-         tArray<ArrowProjectile*>     arrowProjs;
-         tArray<GrenadeProjectile*>   grenadeProjs;
-         tArray<BeamProjectile*>      beamProjs;          // 0320
-         tArray<FlameProjectile*>     flameProjs;
-         tArray<ConeProjectile*>      coneProjs;
-         tArray<BarrierProjectile*>   barrierProjs;
-         tArray<Hazard*>              hazards;            // 0350
-         tArray<TESWorldSpace*>       worldSpaces;
-         tArray<TESObjectLAND*>       lands;
-         tArray<NavMesh*>             navMeshes;
-         UnkFormArray                 unkTLOD;            // 0380
-         tArray<TESTopic*>            topics;
-         tArray<TESTopicInfo*>        topicInfos;
-         tArray<TESQuest*>            quests;
-         tArray<TESIdleForm*>         idleForms;          // 03B0
-         tArray<TESPackage*>          packages;
-         tArray<TESCombatStyle*>      combatStyles;
-         tArray<TESLoadScreen*>       loadScreens;
-         tArray<TESLevSpell*>         levSpells;          // 03E0
-         tArray<TESObjectANIO*>       anios;
-         tArray<TESWaterForm*>        waterForms;
-         tArray<TESEffectShader*>     effectShaders;
-         UnkFormArray                 unkTOFTs;           // 0410
-         tArray<BGSExplosion*>        explosions;
-         tArray<BGSDebris*>           debris;
-         tArray<TESImageSpace*>       imageSpaces;
-         tArray<TESImageSpaceModifier*> imageSpaceModifiers; // 0440
-         tArray<BGSListForm*>         listForms;
-         tArray<BGSPerk*>             perks;
-         tArray<BGSBodyPartData*>     bodyPartData;
-         tArray<BGSAddonNode*>        addonNodes;         // 0470
-         tArray<ActorValueInfo*>      actorValueInfos;
-         tArray<BGSCameraShot*>       cameraShots;
-         tArray<BGSCameraPath*>       cameraPaths;
-         tArray<BGSVoiceType*>        voiceTypes;         // 04A0
-         tArray<BGSMaterialType*>     materialTypes;
-         tArray<BGSImpactData*>       impactData;
-         tArray<BGSImpactDataSet*>    impactDataSets;
-         tArray<TESObjectARMA*>       armorAddons;        // 04D0
-         tArray<BGSEncounterZone*>    encounterZones;
-         tArray<BGSLocation*>         locations;
-         tArray<BGSMessage*>          messages;
-         tArray<BGSRagdoll*>          ragdolls;           // 0500
-         UnkFormArray                 unkDOBJs;
-         tArray<BGSLightingTemplate*> lightingTemplates;
-         tArray<BGSMusicType*>        musicTypes;
-         tArray<BGSFootstep*>         footsteps;          // 0530
-         tArray<BGSFootstepSet*>      footstepSets;
-         tArray<BGSStoryManagerBranchNode*> branchNodes;
-         tArray<BGSStoryManagerQuestNode*>  questNodes;
-         tArray<BGSStoryManagerEventNode*>  eventNodes;   // 0560
-         tArray<BGSDialogueBranch*>         dialogBranches;
-         tArray<BGSMusicTrackFormWrapper*>  musicTrackFormWrappers;
-         UnkFormArray                 unkDLVWs;
-         tArray<TESWordOfPower*>      wordOfPowers;       // 0590
-         tArray<TESShout*>            shouts;
-         tArray<BGSEquipSlot*>        equipSlots;
-         tArray<BGSRelationship*>     relationships;
-         tArray<BGSScene*>            scenes;             // 05C0
-         tArray<BGSAssociationType*>  associationTypes;
-         tArray<BGSOutfit*>           outfits;
-         tArray<BGSArtObject*>        artObjects;
-         tArray<BGSMaterialObject*>   materialObjects;    // 05F0
-         tArray<BGSMovementType*>     movementTypes;      // 05FC
-         tArray<BGSSoundDescriptorForm*> soundDescriptors;// 0608
-         tArray<BGSDualCastData*>     dualCastData;
-         tArray<BGSSoundCategory*>    soundCategories;    // 0620
-         tArray<BGSSoundOutput*>      soundOutputs;
-         tArray<BGSCollisionLayer*>   collisonLayers;
-         tArray<BGSColorForm*>        colors;
-         tArray<BGSReverbParameters*> reverbParams;       // 0650
-         UInt32  unks[(0x68C - 0x65C) / 4]; // 065C // 03 Cell** 06 TESGlobal**
+         union {
+            tArray<TESForm*> formsByType[0x87]; // 0008
+            struct {
+               UnkFormArray unk008; // dummy entry
+               UnkFormArray unk014; // dummy entry
+               UnkFormArray unk020; // dummy entry
+               UnkFormArray unk02C; // dummy entry
+               tArray<BGSKeyword*>          keywords;           // 0038
+               tArray<BGSLocationRefType*>  locRefTypes;        // 0044
+               tArray<BGSAction*>           actions;            // 0050
+               tArray<BGSTextureSet*>       textureSets;        // 005C
+               tArray<BGSMenuIcon*>         menuIcons;
+               tArray<TESGlobal*>           globals;
+               tArray<TESClass*>            classes;            // 0080
+               tArray<TESFaction*>          factions;
+               tArray<BGSHeadPart*>         headParts;
+               tArray<TESEyes*>             eyes;
+               tArray<TESRace*>             races;              // 00B0
+               tArray<TESSound*>            sounds;
+               tArray<BGSAcousticSpace*>    acousticSpaces;
+               UnkFormArray                 unkSkills;
+               tArray<EffectSetting*>       magicEffects;       // 00E0
+               tArray<Script*>              scripts;
+               tArray<TESLandTexture*>      landTextures;
+               tArray<EnchantmentItem*>     enchantments;
+               tArray<SpellItem*>           spellItems;         // 0110
+               tArray<ScrollItem*>          scrolls;            // 011C
+               tArray<TESObjectACTI*>       activators;         // 0128
+               tArray<BGSTalkingActivator*> talkingActivators;
+               tArray<TESObjectARMO*>       armors;             // 0140
+               tArray<TESObjectBOOK*>	     books;
+               tArray<TESObjectCONT*>       containers;
+               tArray<TESObjectDOOR*>       doors;
+               tArray<IngredientItem*>      ingredients;        // 0170
+               tArray<TESObjectLIGH*>       lights;
+               tArray<TESObjectMISC*>       miscObjects;
+               tArray<BGSApparatus*>        apparatuses;
+               tArray<TESObjectSTAT*>       statics;            // 01A0
+               tArray<BGSStaticCollection*> staticCollections;
+               tArray<BGSMovableStatic*>    movableStatics;
+               tArray<TESGrass*>            grasses;
+               tArray<TESObjectTREE*>       trees;              // 01D0
+               tArray<TESFlora*>            flora;
+               tArray<TESFurniture*>        furniture;
+               tArray<TESObjectWEAP*>       weapons;
+               tArray<TESAmmo*>             ammo;               // 0200
+               tArray<TESNPC*>              npcs;
+               tArray<TESLevCharacter*>     levCharacters;
+               tArray<TESKey*>              keys;
+               tArray<AlchemyItem*>         potions;            // 0230
+               tArray<BGSIdleMarker*>       idleMarkers;
+               tArray<BGSNote*>             notes;
+               tArray<BGSConstructibleObject*> constructibles;
+               tArray<BGSProjectile*>       projectiles;        // 0260
+               tArray<BGSHazard*>           bgsHazards;
+               tArray<TESSoulGem*>          soulGems;
+               tArray<TESLevItem*>          levItems;
+               tArray<TESWeather*>          weather;            // 0290
+               tArray<TESClimate*>          climates;
+               tArray<BGSShaderParticleGeometryData*>	shaderParticleGeometryData;
+               tArray<BGSReferenceEffect*>  referenceEffects;
+               tArray<TESRegion*>           regions;            // 02C0
+               tArray<NavMeshInfoMap*>      navMeshInfoMaps;
+               tArray<TESObjectCELL*>       cells;
+               tArray<TESObjectREFR*>       refs;	// could be actors
+               tArray<Character*>           characters;         // 02F0
+               tArray<MissileProjectile*>   missleProjs;
+               tArray<ArrowProjectile*>     arrowProjs;
+               tArray<GrenadeProjectile*>   grenadeProjs;
+               tArray<BeamProjectile*>      beamProjs;          // 0320
+               tArray<FlameProjectile*>     flameProjs;
+               tArray<ConeProjectile*>      coneProjs;
+               tArray<BarrierProjectile*>   barrierProjs;
+               tArray<Hazard*>              hazards;            // 0350
+               tArray<TESWorldSpace*>       worldSpaces;
+               tArray<TESObjectLAND*>       lands;
+               tArray<NavMesh*>             navMeshes;
+               UnkFormArray                 unkTLOD;            // 0380
+               tArray<TESTopic*>            topics;
+               tArray<TESTopicInfo*>        topicInfos;
+               tArray<TESQuest*>            quests;
+               tArray<TESIdleForm*>         idleForms;          // 03B0
+               tArray<TESPackage*>          packages;
+               tArray<TESCombatStyle*>      combatStyles;
+               tArray<TESLoadScreen*>       loadScreens;
+               tArray<TESLevSpell*>         levSpells;          // 03E0
+               tArray<TESObjectANIO*>       anios;
+               tArray<TESWaterForm*>        waterForms;
+               tArray<TESEffectShader*>     effectShaders;
+               UnkFormArray                 unkTOFTs;           // 0410
+               tArray<BGSExplosion*>        explosions;
+               tArray<BGSDebris*>           debris;
+               tArray<TESImageSpace*>       imageSpaces;
+               tArray<TESImageSpaceModifier*> imageSpaceModifiers; // 0440
+               tArray<BGSListForm*>         listForms;
+               tArray<BGSPerk*>             perks;
+               tArray<BGSBodyPartData*>     bodyPartData;
+               tArray<BGSAddonNode*>        addonNodes;         // 0470
+               tArray<ActorValueInfo*>      actorValueInfos;
+               tArray<BGSCameraShot*>       cameraShots;
+               tArray<BGSCameraPath*>       cameraPaths;
+               tArray<BGSVoiceType*>        voiceTypes;         // 04A0
+               tArray<BGSMaterialType*>     materialTypes;
+               tArray<BGSImpactData*>       impactData;
+               tArray<BGSImpactDataSet*>    impactDataSets;
+               tArray<TESObjectARMA*>       armorAddons;        // 04D0
+               tArray<BGSEncounterZone*>    encounterZones;
+               tArray<BGSLocation*>         locations;
+               tArray<BGSMessage*>          messages;
+               tArray<BGSRagdoll*>          ragdolls;           // 0500
+               UnkFormArray                 unkDOBJs; // dummy entry
+               tArray<BGSLightingTemplate*> lightingTemplates;
+               tArray<BGSMusicType*>        musicTypes;
+               tArray<BGSFootstep*>         footsteps;          // 0530
+               tArray<BGSFootstepSet*>      footstepSets;
+               tArray<BGSStoryManagerBranchNode*> branchNodes;
+               tArray<BGSStoryManagerQuestNode*>  questNodes;
+               tArray<BGSStoryManagerEventNode*>  eventNodes;   // 0560
+               tArray<BGSDialogueBranch*>         dialogBranches;
+               tArray<BGSMusicTrackFormWrapper*>  musicTrackFormWrappers;
+               UnkFormArray                 unkDLVWs; // dummy entry
+               tArray<TESWordOfPower*>      wordOfPowers;       // 0590
+               tArray<TESShout*>            shouts;
+               tArray<BGSEquipSlot*>        equipSlots;
+               tArray<BGSRelationship*>     relationships;
+               tArray<BGSScene*>            scenes;             // 05C0
+               tArray<BGSAssociationType*>  associationTypes;
+               tArray<BGSOutfit*>           outfits;
+               tArray<BGSArtObject*>        artObjects;
+               tArray<BGSMaterialObject*>   materialObjects;    // 05F0
+               tArray<BGSMovementType*>     movementTypes;      // 05FC
+               tArray<BGSSoundDescriptorForm*> soundDescriptors;// 0608
+               tArray<BGSDualCastData*>     dualCastData;
+               tArray<BGSSoundCategory*>    soundCategories;    // 0620
+               tArray<BGSSoundOutput*>      soundOutputs;
+               tArray<BGSCollisionLayer*>   collisonLayers;
+               tArray<BGSColorForm*>        colors;
+               tArray<BGSReverbParameters*> reverbParams;       // 0650
+            };
+         };
+         UInt32  unk65C[(0x68C - 0x65C) / 4]; // 065C // 03 Cell** 06 TESGlobal**
          UInt32  unk68C = 0; // 68C // "next ID" to load a form into? gets called by TESForm::TESForm(). gets set to 0xFF000800 after load?
          UInt32  unk690;  // 690
          ModList modList; // 694
-         UInt32 moreunks[100];                            // 0A9C
+         UInt32  unkA9C[100]; // 0A9C
          //
          MEMBER_FN_PREFIX(TESDataHandler);
          DEFINE_MEMBER_FN(GetAvailableLoadingScreens, void, 0x0086F510, UInt8 formTypeForLoadingScreens_WeWillCrashOtherwise, void* list);
@@ -326,49 +332,23 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(Subroutine0043EF60, TESObjectCELL*, 0x0043EF60, UInt32, UInt32, TESWorldSpace*, UInt32);
          DEFINE_MEMBER_FN(Subroutine0043FEC0, void, 0x0043FEC0, TESForm*); // register an executable-created non-temporary form?
-
-         UInt32 inl_GetNextID() {
-            //
-            // This function is listed here for documentation purposes only.
-            //
-            RE::simple_lock_guard scopedLock(*(RE::SimpleLock*)0x012E32D4);
-            while (true) {
-               //
-               // Loop over all form IDs within a given load order prefix, 
-               // starting at a stored value. If we hit the end of the range, 
-               // restart from the beginning of the range. If there isn't any 
-               // usable form ID, loop endlessly and hang.
-               //
-               do {
-                  auto edi = this->unk68C;
-                  auto eax = LookupFormByID(edi);
-                  if (!eax) {
-                     if (!CALL_MEMBER_FN(BGSSaveLoadManager::GetSingleton(), ChangeDataExistsForFormID)(edi)) {
-                        //
-                        // Found a free form ID. Increment the cached unk68C ID, and then return the 
-                        // found ID.
-                        //
-                        edi = this->unk68C;
-                        this->unk68C++;
-                        if ((this->unk68C & 0x00FFFFFF) >= 0x003FFFFF) {
-                           this->unk68C = (this->unk68C & 0xFF000000) + 0x800;
-                        }
-                        return edi;
-                     }
-                  }
-                  this->unk68C++;
-               } while ((this->unk68C & 0x00FFFFFF) < 0x003FFFFF);
-               //
-               // Restart search from form ID xx000800 within the same load 
-               // order prefix. Yes, this would just search endlessly if 
-               // the whole ID space were taken up.
-               //
-               this->unk68C = (this->unk68C & 0xFF000000) + 0x800;
-            }
+         //
+         struct _COBJRequestArray {
+            TESFurniture* workbench; // 00
+            tArray<CraftingSubMenus::ConstructibleObjectMenu::EntryData>* array; // 04
          };
+         DEFINE_MEMBER_FN(GetWorkbenchCOBJArray, void, 0x0084F380, UInt32 shouldBeCOBJFormType, _COBJRequestArray&); // checks conditions
+         //
+         struct _COBJRequestHashMap {
+            BSTHashMap<uint32_t, BGSConstructibleObject*>* map; // 00 // maps an item form ID to the recipe that can be used to create/improve it
+            TESFurniture* workbench; // 04
+         };
+         DEFINE_MEMBER_FN(GetWorkbenchCOBJMap, void, 0x008572C0, UInt32 shouldBeCOBJFormType, _COBJRequestHashMap&); // does not check conditions
+
+         UInt32 GetNextID(); // provided for documentation purposes only. you should call the vanilla function instead.
    };
-   static_assert(offsetof(DataHandler, spellItems) >= 0x110, "RE::TESDataHandler::spellItems is too early!");
-   static_assert(offsetof(DataHandler, spellItems) <= 0x110, "RE::TESDataHandler::spellItems is too late!");
-   static_assert(offsetof(DataHandler, unk68C) >= 0x68C, "RE::TESDataHandler::unk68C is too early!");
-   static_assert(offsetof(DataHandler, unk68C) <= 0x68C, "RE::TESDataHandler::unk68C is too late!");
+   static_assert(offsetof(TESDataHandler, spellItems) >= 0x110, "RE::TESDataHandler::spellItems is too early!");
+   static_assert(offsetof(TESDataHandler, spellItems) <= 0x110, "RE::TESDataHandler::spellItems is too late!");
+   static_assert(offsetof(TESDataHandler, unk68C) >= 0x68C, "RE::TESDataHandler::unk68C is too early!");
+   static_assert(offsetof(TESDataHandler, unk68C) <= 0x68C, "RE::TESDataHandler::unk68C is too late!");
 };

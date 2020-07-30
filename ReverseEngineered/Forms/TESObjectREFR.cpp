@@ -15,6 +15,7 @@
 #include "ReverseEngineered/NetImmerse/havok.h"
 #include "ReverseEngineered/NetImmerse/nodes.h"
 #include "ReverseEngineered/Systems/ChangeForms.h"
+#include "ReverseEngineered/Systems/Inventory.h"
 #include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
 
 namespace ReleaseDebug {

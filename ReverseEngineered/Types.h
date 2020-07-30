@@ -108,6 +108,48 @@ namespace RE {
       DEFINE_MEMBER_FN(SetElements, void, 0x006B0C90, UInt32 index, UInt32 numCopies, NiPointer<NiRefObject>& value); // assumes you've already allocated enough room
       DEFINE_MEMBER_FN(MassDecreaseRefcounts, void, 0x006B0930, UInt32 startIndex, UInt32 endIndex);
    };
+   template<typename T> struct BSTArray {
+      protected:
+         static constexpr int ce_grow_by = 5;
+         //
+         inline void _default_construct_at(uint32_t i) {
+            new (&this->_data[i]) T(); // default-construct in place
+         }
+         //
+      public:
+         T*            _data     = nullptr;
+         uint32_t      _capacity = 0;
+         BSTArrayCount _size     = 0;
+         //
+         inline uint32_t capacity() const noexcept { return this->_capacity; };
+         inline uint32_t size() const noexcept { return this->_size; }
+         //
+         __declspec(noinline) T& append() {
+            if (this->_size + 1 >= this->_capacity)
+               this->reserve(this->_capacity + ce_grow_by);
+            this->_default_construct_at(this->_size);
+            ++this->_size;
+            return this->_data[this->_size - 1];
+         }
+         void push_back(const T& item) {
+            this->append();
+            this->_data[this->_size - 1] = item;
+         }
+         __declspec(noinline) void reserve(uint32_t cap) {
+            if (cap <= this->_capacity)
+               return;
+            auto* migrate = FormHeap_Allocate(sizeof(T) * cap);
+            if (this->_data) {
+               memcpy(migrate, this->_data, sizeof(T) * this->_capacity);
+               FormHeap_Free(this->_data);
+            }
+            this->_data     = (T*)migrate;
+            this->_capacity = cap;
+         }
+         //
+         inline T& operator[](int i) noexcept { return this->_data[i]; }
+         inline const T& operator[](int i) const noexcept { return this->_data[i]; }
+   };
 
    template<class T> struct tList {
       //
@@ -206,4 +248,157 @@ namespace RE {
             this->lock->Release();
          };
    };
+
+   template <typename Key> uint32_t BSTDefaultScatterTableDefaultHashFunction(const Key& key) {
+      uint32_t crc;
+      CRC32_Calc4((UInt32*)&crc, key); // what a stupid cast to have to do
+      return crc;
+   };
+   template <typename Key> using BSTDefaultScatterTableHashFunction = decltype(&BSTDefaultScatterTableDefaultHashFunction<Key>);
+   template <typename Key, typename Value, BSTDefaultScatterTableHashFunction<Key> _hash_function = BSTDefaultScatterTableDefaultHashFunction> class BSTDefaultScatterTable { // sizeof == 0x1C
+      //
+      // This is the class that SKSE's class definitions call "tHashSet." However, their class 
+      // definition has a pretty significant problem: it frequently uses values as keys instead 
+      // of using, uh, keys as keys.
+      //
+      // As far as I can tell, Bethesda doesn't pass the hash function as a template argument; 
+      // I've done that here in the hopes of making this class marginally less painful to use 
+      // (i.e. not having to create structs for form IDs just so I can give them a member 
+      // function that templated code here could call).
+      //
+      public:
+         class entry_t;
+         //
+		protected:
+         inline static const entry_t* const sentinel_entry_pointer = (const entry_t*)0x012889D8; // (item) == 0xDEADBEEF
+         //
+      public:
+         using key_type   = Key;
+         using value_type = Value;
+         class entry_t {
+            public:
+               key_type   key;  // 00
+               value_type data;
+               entry_t*   next = sentinel_entry_pointer;
+         };
+         //
+      public:
+         uint32_t unk00;           // 00
+		   uint32_t _size       = 0; // 04
+		   uint32_t _freeCount  = 0; // 08
+		   uint32_t _freeOffset = 0; // 1C
+         entry_t* _end        = sentinel_entry_pointer; // 10
+		   uint32_t unk14;           // 14
+         entry_t* _entries    = nullptr; // 18
+         //
+         uint32_t size() const noexcept { return this->_size; }
+         uint32_t free_count() const noexcept { return this->_freeCount; }
+         uint32_t fill_count() const noexcept { return this->_size - this->_freeCount; }
+         //
+         [[nodiscard]] entry_t* entry_by_hash(uint32_t hash) const {
+            return this->_entries ? &this->_entries[hash & (size() - 1)] : nullptr;
+         }
+         [[nodiscard]] value_type* lookup(key_type& key) const {
+            auto hash = _hash_function(key);
+            auto e    = this->entry_by_hash(hash);
+            if (!e)
+               return nullptr;
+            do {
+               if (e->key == key)
+                  return &e->data;
+            } while ((e = e->next) != this->_end);
+            return nullptr;
+         }
+         //
+         MEMBER_FN_PREFIX(BSTDefaultScatterTable);
+         DEFINE_MEMBER_FN(Destructor, void, 0x00CB55B0);
+         DEFINE_MEMBER_FN(Subroutine0084E630, void, 0x0084E630, uint32_t count); // count == this->fill_count();
+         DEFINE_MEMBER_FN(Subroutine00856230, void, 0x00856230, void*);
+
+         ~BSTDefaultScatterTable() { CALL_MEMBER_FN(this, Destructor)(); }
+
+         //
+         // The functions below are known to work when key_type is uint32_t, and 
+         // when it is nay struct whose first field is a hashable dword.
+         //
+
+         // Bethesda always passes the same value for both value_type& arguments. 
+         // May only work if sizeof(value_type) == 4.
+         DEFINE_MEMBER_FN(insert,      void, 0x007B0480, key_type&, value_type& id, value_type& value);
+         DEFINE_MEMBER_FN(insert_impl, bool, 0x005015F0, entry_t& after, uint32_t hash, key_type&, value_type& id, value_type& value); // internal; used by 0x007B0480
+
+         DEFINE_MEMBER_FN(remove_impl, void, 0x00B9FC10, entry_t& after, uint32_t hash, key_type&, value_type& maybeOut); // internal. remove an element?
+   };
+   static_assert(sizeof(BSTDefaultScatterTable<void*, void*>) >= 0x1C);
+   static_assert(sizeof(BSTDefaultScatterTable<void*, void*>) <= 0x1C);
+   //
+	template <typename Key, typename Value, typename Table = BSTDefaultScatterTable<Key, Value>> class BSTHashMap { // sizeof == 0x20
+      //
+      // Bethesda uses BSTHashMapBase<BSTHashMapTraits<...>>, where the traits' template arguments 
+      // appear to be a key type, a value type, and BSTDefaultScatterTable templated on the same 
+      // key and value types.
+      //
+      // I lucked out with this one. BSTHashMap isn't virtual, but it has RTTI by virtue of being 
+      // one of the parent classes for AttackAnimationArrayMap, which is virtual. Examination of 
+      // the full RTTI established that BSTHashMap appears 0x08 bytes into AttackAnimationArrayMap, 
+      // and further established that the actual "scatter table" class appears 0x0C bytes into the 
+      // AttackAnimationArrayMap class.
+      //
+      public:
+         using key_type   = Key;
+         using value_type = Value;
+         using table_type = Table;
+         //
+		public:
+		   uint32_t unk00; // 00
+         Table    table; // 04
+         //
+         MEMBER_FN_PREFIX(BSTHashMap);
+         DEFINE_MEMBER_FN(remove, void, 0x00D9BE20, key_type&, value_type&); // see remove_impl above
+	};
+	static_assert(sizeof(BSTHashMap<void*, void*>) >= 0x20);
+   static_assert(sizeof(BSTHashMap<void*, void*>) <= 0x20);
+
+   /*
+	template <typename Item, typename Key> class BSTObjectDictionary { // sizeof == 0x1C
+      //
+      // Bethesda's template arguments are: Item, Key, MissPolicy, InitializationPolicy
+      //
+		protected:
+		   class _Entry {
+			   public:
+				   Item    item;
+				   _Entry* next = nullptr;
+		   };
+         static const _Entry* const sentinel_entry_pointer = (const _Entry*)0x012889D8; // (item) == 0xDEADBEEF
+         //
+		public:
+         using key_type   = Key;
+         using value_type = Item;
+         //
+		   uint32_t unk00; // 000
+		   uint32_t _size       = 0; // 004
+		   uint32_t _freeCount  = 0; // 008
+		   uint32_t _freeOffset = 0; // 00C
+		   _Entry*  _endPtr     = sentinel_entry_pointer; // 010
+		   uint32_t unk14       = 0; // 014
+		   _Entry*  _entries    = nullptr; // 018
+         //
+         uint32_t size() const noexcept { return this->_size; }
+         uint32_t free_count() const noexcept { return this->_freeCount; }
+         uint32_t fill_count() const noexcept { return this->_size - this->_freeCount; }
+         //
+         MEMBER_FN_PREFIX(BSTObjectDictionary);
+         DEFINE_MEMBER_FN(Insert, void, 0x007B0480, key_type&, value_type&, value_type&); // bethesda usually passes the same value for both value_type params
+         DEFINE_MEMBER_FN(Subroutine00458550, void, 0x00458550, decltype(_entries)&, uint32_t& key_hash, const key_type&, value_type& out);
+         //
+         inline void lookup(key_type& key, value_type& out) {
+            uint32_t crc;
+            CRC32_Calc4(&crc, *(uint32_t*)&key); // TODO: find a way to specify the hash function to use as a template argument
+            CALL_MEMBER_FN(this, Subroutine00458550)(this->_entries, crc, key, value);
+         }
+	};
+	static_assert(sizeof(BSTObjectDictionary<void*, void*>) >= 0x1C);
+   static_assert(sizeof(BSTObjectDictionary<void*, void*>) <= 0x1C);
+   */
 };

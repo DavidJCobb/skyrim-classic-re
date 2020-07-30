@@ -53,7 +53,7 @@ namespace RE {
          tree,                     // TREE: TESObjectTREE
          flora,                    // FLOR: TESFlora
          furniture,                // FURN: TESFurniture
-         weapon,                   // WEAP: TESObjectWEAP
+         weapon            = 0x29, // WEAP: TESObjectWEAP
          ammo,                     // AMMO: TESAmmo
          actor_base,               // NPC_: TESNPC
          leveled_character,        // LVLN: TESLevCharacter
@@ -61,7 +61,7 @@ namespace RE {
          potion,                   // ALCH: AlchemyItem
          idle_marker       = 0x2F, // IDLM: BGSIdleMarker
          note              = 0x30, // NOTE: BGSNote
-         recipe,                   // COBJ: Constructible Object
+         constructible_object,     // COBJ: BGSConstructibleObject
          projectile,               // PROJ: BGSProjectile
          hazard,                   // HAZD: BGSHazard
          soul_gem,                 // SLGM: TESSoulGem
@@ -400,6 +400,7 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(::BGSKeywordForm*, GetKeywordListFor, 0x0044B2D0, ::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipSlot*, GetEquipSlotFor, 0x0044AB00, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipType*, GetEquipTypeFor, 0x0044AA10, TESForm*);
+   static DEFINE_SUBROUTINE(const char*, GetFormName, 0x00452300, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BOOL, FormHasModel, 0x00453EF0, TESForm*); // checks the model path in TESModel and returns the length or, if there's no TESModel: checks if the form is a TESObjectREFR, and then things get complicated
    static DEFINE_SUBROUTINE(bool, FormHasName, 0x004522D0, TESForm*);
 };

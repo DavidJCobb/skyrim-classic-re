@@ -15,7 +15,7 @@ namespace RE {
    }
    SInt32 DefaultObjectList::GetIndexOfSignature(UInt32 signature) const {
       signature = _byteswap_ulong(signature);
-      for (UInt32 i = 0; i < DefaultObjectList::kNumDefaultObjects; i++) {
+      for (UInt32 i = 0; i < DefaultObjectList::count; i++) {
          if (this->objects[i].signature == signature)
             return i;
       };
