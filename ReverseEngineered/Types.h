@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include "skse/GameAPI.h"
 #include "skse/GameTypes.h"
 #include "NetImmerse/objects.h"
@@ -6,6 +7,71 @@
 #include "Miscellaneous.h"
 
 namespace RE {
+   class TESObjectREFR;
+
+   template<int index_bits, int reuse_bits> class BSUntypedPointerHandle {
+      public:
+         static constexpr uint32_t mask_index = (1 << index_bits) - 1;
+         static constexpr uint32_t mask_reuse = ((1 << reuse_bits) - 1) << index_bits;
+         static constexpr uint32_t mask_active = 1 << (reuse_bits + index_bits);
+         //
+         uint32_t bits;
+         //
+         BSUntypedPointerHandle() {}
+         BSUntypedPointerHandle(uint32_t v) : bits(v) {}
+         //
+         inline uint32_t index() const {
+            return bits & mask_index;
+         }
+         inline bool is_in_use() const {
+            return !!(bits & mask_active);
+         }
+         inline uint32_t reuse_bits() const { // used to guard against issues with reusing an index
+            return bits & mask_reuse;
+         }
+         inline uint8_t reuse_count() const {
+            return (bits & mask_reuse) >> index_bits;
+         }
+         //
+         inline void increment_reuse_count() {
+            auto ru = this->reuse_count();
+            this->bits &= ~mask_reuse;
+            this->bits |= ru << index_bits;
+         }
+         inline void set_index(uint32_t index) {
+            this->bits ^= ((this->bits ^ index) & mask_index);
+         }
+         inline void set_in_use() { this->bits |=  mask_active; }
+         inline void set_unused() { this->bits &= ~mask_active; }
+         //
+         inline BSUntypedPointerHandle& operator=(const BSUntypedPointerHandle& other) {
+            this->bits = other.bits;
+            return *this;
+         }
+         inline BSUntypedPointerHandle& operator=(const uint32_t& other) {
+            this->bits = other;
+            return *this;
+         }
+         inline BSUntypedPointerHandle& operator=(const UInt32& other) {
+            this->bits = other;
+            return *this;
+         }
+         inline operator bool() const { return this->bits != 0; }
+         inline bool operator!() const { return !this->bits; }
+         inline bool operator==(const BSUntypedPointerHandle& other) const { return this->bits == other.bits; }
+         inline bool operator!=(const BSUntypedPointerHandle& other) const { return this->bits != other.bits; }
+         inline bool operator> (const BSUntypedPointerHandle& other) const { return this->bits > other.bits; }
+         inline bool operator< (const BSUntypedPointerHandle& other) const { return this->bits < other.bits; }
+         inline bool operator>=(const BSUntypedPointerHandle& other) const { return (*this > other) || (*this == other); }
+         inline bool operator<=(const BSUntypedPointerHandle& other) const { return (*this < other) || (*this == other); }
+   };
+   template<class C, class ph> class BSPointerHandle : public ph {
+      public:
+         BSPointerHandle() {}
+         BSPointerHandle(uint32_t v) : ph(v) {}
+   };
+   using ref_handle = BSPointerHandle<TESObjectREFR, BSUntypedPointerHandle<20, 6>>;
+
    class BSString { // sizeof == 0x8
       public:
          ~BSString() { // assumes game heap allocation

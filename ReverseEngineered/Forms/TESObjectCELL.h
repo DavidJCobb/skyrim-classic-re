@@ -9,20 +9,19 @@ class BGSMusicType;
 class TESImageSpace;
 class TESObjectCELL;
 namespace RE {
+   class  BSMultiBoundNode;
+   class  BSPortalGraph; // constructor: 0x00B03E00
    struct MapMarkerOperation; // see TESWorldSpace.h
-   class TESObjectREFR; // Forward-declare instead of #including, so the compiler doesn't choke on a circular dependency
-   class TESWaterForm;
-   class TESWorldSpace;
+   class  NiNode;
+   class  TESObjectREFR; // Forward-declare instead of #including, so the compiler doesn't choke on a circular dependency
+   class  TESWaterForm;
+   class  TESWorldSpace;
    //
    class TESObjectCELL : public TESForm {
       public:
          operator ::TESObjectCELL*() const { return (::TESObjectCELL*) this; }
          enum { kTypeID = kFormType_Cell };
          //
-         // Parents:
-         TESFullName fullName; // 14
-         //
-         // Members:
          struct UnknownData {
             UInt32 unk00;
             UInt32 unk04;
@@ -130,6 +129,42 @@ namespace RE {
             kCellFlag_UseSkyLighting = 0x0100, // meaning inferred from documentation for Papyrus fog setters
          };
 
+         struct Struct004C70B0 { // sizeof == 0xC4
+            NiPointer<BSPortalGraph> unk00; // 00 // created in TESObjectCELL member function 0x004C20A0
+            BSMultiBoundNode* multiboundNode; // 04
+            NiNode*  unk08; // 08
+            NiNode*  unk0C; // 0C
+            uint32_t unk10 = 0;
+            tList<uint32_t> unk14; // cleared by TESObjectCELL::Subroutine004D3250
+            tArray<uint32_t> unk1C;
+            tArray<uint32_t> unk28;
+            NiTMap<TESForm*, ref_handle> unk34; // 34 // type confirmed via RTTI // related to ExtraEmittanceSource on refs? see TESObjectCELL::Subroutine004D2110
+            NiTMap<ref_handle, NiNode*>  unk44; // 44 // type confirmed via RTTI; this specifically uses a bare node pointer
+            NiTMap<ref_handle, NiPointer<BSMultiBoundNode>> unk54; // 54 // type confirmed via RTTI; this specifically uses a smart node pointer
+            NiTMap<BSMultiBoundNode*, ref_handle> unk64; // 64 // type confirmed via RTTI; this specifically uses a bare node pointer
+            tList<uint64_t> unk74; // 74 // sizeof(item) == 8
+            uint32_t unk7C = 0;
+            uint32_t unk80 = 0;
+            tArray<uint32_t> unk84;
+            tArray<uint32_t> unk90; // very likely an array of ref_handles
+            tArray<ref_handle> unk9C; // 9C
+            BGSEncounterZone* unkA8 = nullptr; // A8
+            uint32_t unkAC;
+            uint32_t unkB0 = 0;
+            uint32_t unkB4 = 0;
+            uint32_t unkB8 = 0;
+            uint32_t unkBC = 0xFFFFFFFF;
+            uint8_t  unkC0 = 0;
+            uint8_t  padC1[3];
+            //
+            MEMBER_FN_PREFIX(Struct004C70B0);
+            DEFINE_MEMBER_FN(Constructor, Struct004C70B0&, 0x004C70B0);
+            DEFINE_MEMBER_FN(Destructor, void, 0x004C73C0);
+         };
+         
+         // Parents:
+         TESFullName    fullName;      // 14
+         // Members:
          UnknownData    unk1C;			// 1C
          UnknownData    unk24;			// 24
          CellFlags      unk2C;			// 2C // cell flags.
@@ -149,7 +184,7 @@ namespace RE {
          UnkArray       unk70;			// 70
          SimpleLock     cellRefLock;    // 7C
          TESWorldSpace* parentWorld;	// 84
-         void*          unk88;			// 88 // memory inspection shows it holds portal and multibound pointers; investigate subroutine 0x004C20A0 to learn more about it
+         Struct004C70B0* unk88;			// 88 // memory inspection shows it holds portal and multibound pointers; investigate subroutine 0x004C20A0 to learn more about it
          BGSLightingTemplate* lightingTemplate;	// 8C
          //
          bool IsLoaded();
@@ -173,6 +208,8 @@ namespace RE {
          DEFINE_MEMBER_FN(CellRefLockExit,   void, 0x004C0190); // Call this after  modifying the cell's object list.
          DEFINE_MEMBER_FN(AddRefToList,      void, 0x004D3EA0, RE::TESObjectREFR* reference, UInt32 unknown); // Second argument is zero. You need to call CellRefLockEnter before, and CellRefLockExit after.
          DEFINE_MEMBER_FN(RemoveRefFromList, void, 0x004CB7B0, RE::TESObjectREFR* reference); // Calls CellRefLockEnter and CellRefLockExit for you.
+         //
+         DEFINE_MEMBER_FN(GetNode, BSMultiBoundNode*, 0x004C2230); // gets the cell's root 3D node; anything you want to render in the cell should be attached here
          //
          DEFINE_MEMBER_FN(GetAcousticSpace,    BGSAcousticSpace*, 0x004C0760);
          DEFINE_MEMBER_FN(GetEncounterZone,    BGSEncounterZone*, 0x004C2240); // checks unk88::unkA8, extra data, and parent worldspace

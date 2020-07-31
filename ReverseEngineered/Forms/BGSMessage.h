@@ -9,7 +9,7 @@ namespace RE {
 
          struct Button {
             BSFixedString text; // 00
-            UInt32 conditions; // 04 // type unknown
+            void* conditions; // 04 // type unknown
          };
 
          // parents

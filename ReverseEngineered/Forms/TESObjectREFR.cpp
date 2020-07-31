@@ -95,7 +95,7 @@ namespace RE {
 
    // -----------------------------------------------------------------------------------------------------------------------------------
 
-   bool RefHandleSystem::ExchangeHandleForRef(BSUntypedPointerHandle* refHandlePtr, refr_ptr& out) {
+   bool RefHandleSystem::ExchangeHandleForRef(ref_handle* refHandlePtr, refr_ptr& out) {
       auto handle = *refHandlePtr;
       if (handle) {
          auto ebx = handle.reuse_bits();
@@ -127,7 +127,7 @@ namespace RE {
       //
       // Technically, all branches that return do it as: return (out != nullptr).
    };
-   bool RefHandleSystem::GetRefByHandle(BSUntypedPointerHandle* refHandlePtr, refr_ptr& out) {
+   bool RefHandleSystem::GetRefByHandle(ref_handle* refHandlePtr, refr_ptr& out) {
       auto handle = *refHandlePtr;
       if (handle) {
          auto ebx = handle.reuse_bits();
@@ -158,7 +158,7 @@ namespace RE {
       //
       // Technically, all branches that return do it as: return (out != nullptr).
    };
-   BSUntypedPointerHandle* RefHandleSystem::CreateRefHandleByREFR(BSUntypedPointerHandle* refHandlePtr, TESObjectREFR* ref) {
+   ref_handle* RefHandleSystem::CreateRefHandleByREFR(ref_handle* refHandlePtr, TESObjectREFR* ref) {
       SInt32* const unk = (SInt32*)0x0131050C;
       //
       *refHandlePtr = 0;
@@ -179,7 +179,7 @@ namespace RE {
          RE::UnknownLock01::guard scopedLock(RefHandleSystem::GetInstance()->lock);
          //
          auto edx = &(RefHandleSystem::GetEntries()[*nextIndex]);
-         BSUntypedPointerHandle eax = edx->refHandle;
+         ref_handle eax = edx->refHandle;
          eax.increment_reuse_count();
          eax.set_in_use();
          //
@@ -220,7 +220,7 @@ namespace RE {
       } while (++i <= kMask_Index);
       *lastIndex = -1;
    };
-   void RefHandleSystem::ReleaseHandle(const BSUntypedPointerHandle& refHandlePtr) {
+   void RefHandleSystem::ReleaseHandle(const ref_handle& refHandlePtr) {
       auto handle = refHandlePtr;
       if (!handle)
          return;
@@ -276,7 +276,7 @@ namespace RE {
          *lastIndex = i;
       } while (++i <= kMask_Index);
    };
-   void RefHandleSystem::ReleaseAndLoseHandle(BSUntypedPointerHandle& refHandlePtr) {
+   void RefHandleSystem::ReleaseAndLoseHandle(ref_handle& refHandlePtr) {
       auto handle = refHandlePtr;
       if (!handle)
          return;
@@ -458,8 +458,8 @@ namespace RE {
       }
       auto cast = item->Unk_2C();
       if (cast) {
-         BSUntypedPointerHandle my_handle;
-         BSUntypedPointerHandle check;
+         ref_handle my_handle;
+         ref_handle check;
          this->GetOrCreateRefHandle(my_handle);
          CALL_MEMBER_FN((RE::BaseExtraList*)&cast->extraData, GetExtraReferenceHandle)(check);
          return my_handle == check ? 1 : 0;

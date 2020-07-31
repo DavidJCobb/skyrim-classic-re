@@ -21,5 +21,6 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004BAFB0, void,  0x004BAFB0, void* argOutTwoFloats);
          DEFINE_MEMBER_FN(Subroutine004BAF40, void,  0x004BAF40, void* out);
          DEFINE_MEMBER_FN(Subroutine004BBA70, void*, 0x004BBA70, UInt32 quadrantNumber);
+         DEFINE_MEMBER_FN(SetCellBordersVisible, void, 0x004BC400, bool visible, uint32_t zero);
    };
 };

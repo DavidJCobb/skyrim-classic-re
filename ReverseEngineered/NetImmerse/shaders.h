@@ -209,4 +209,13 @@ namespace RE {
          MEMBER_FN_PREFIX(BSDistantTreeShaderProperty);
          DEFINE_MEMBER_FN(Constructor, BSDistantTreeShaderProperty&, 0x00CAE810);
    };
+
+   class BSEffectShaderProperty : public BSShaderProperty { // sizeof == 0x50
+      public:
+         static constexpr uint32_t vtbl = 0x01154358;
+         static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA849C;
+         //
+         uint32_t unk48 = 0;
+         uint32_t unk4C;
+   };
 }

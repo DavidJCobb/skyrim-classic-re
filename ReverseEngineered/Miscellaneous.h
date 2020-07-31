@@ -141,6 +141,6 @@ namespace RE {
    // appears to load the file synchronously, i.e. there will be a hitch while the file loads. You should probably 
    // only run it from the main thread. It's used to handle actor ArmorAddons.
    //
-   DEFINE_SUBROUTINE_EXTERN(UInt32, LoadModel,   0x00AF5820, const char* path, NiPointer<NiNode>& out, LoadModelOptions& options);
-   DEFINE_SUBROUTINE_EXTERN(UInt32, LoadModel_B, 0x00AF5680, const char* path, LoadedMeshResourcePtr& out, LoadModelOptions& options); // possibly an asynchronous load
+   static DEFINE_SUBROUTINE(UInt32, LoadModel,   0x00AF5820, const char* path, NiPointer<NiNode>& out, LoadModelOptions& options);
+   static DEFINE_SUBROUTINE(UInt32, LoadModel_B, 0x00AF5680, const char* path, LoadedMeshResourcePtr& out, LoadModelOptions& options); // possibly an asynchronous load
 };

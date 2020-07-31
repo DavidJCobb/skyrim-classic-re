@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "Shared.h"
+#include "Types.h"
 
 #include "skse/GameBSExtraData.h"
 #include "skse/GameFormComponents.h"
@@ -29,7 +30,6 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
-   struct BSUntypedPointerHandle;
    class DecalGroup;
    class ExtraDataList;
    class InventoryChanges;
@@ -775,7 +775,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraRagdollData,              void*,   0x0040D150); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRandomTeleportMarker,     void*,   0x0040D410); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraRank,                     UInt32,  0x0040C110); // Returns rank (or -1 if no extra data) directly, without using the FPU stack. Not sure if float.
-         DEFINE_MEMBER_FN(GetExtraReferenceHandle, BSUntypedPointerHandle&, 0x004110F0, BSUntypedPointerHandle& out); // Never modify *retval. Usually retval == out; sometimes it == g_invalidRefHandle.
+         DEFINE_MEMBER_FN(GetExtraReferenceHandle,          ref_handle&, 0x004110F0, ref_handle& out); // Never modify *retval. Usually retval == out; sometimes it == g_invalidRefHandle.
          DEFINE_MEMBER_FN(GetExtraRegionList,               void*,   0x0040CD90); // Return type not verified.
          DEFINE_MEMBER_FN(GetExtraScale,                    float,   0x0040C220); // Returns scale (or 1.0 if no extra data) via the FPU stack.
          DEFINE_MEMBER_FN(GetExtraSceneData,                void*,   0x0040D800); // Return type not verified. Returns NULL/zero if no extra data.

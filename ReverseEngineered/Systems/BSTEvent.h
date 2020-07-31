@@ -93,14 +93,23 @@ namespace RE {
       UInt16         unk08;
    };
    struct TESCellAttachDetachEvent {
+      enum class attach_state : uint8_t {
+         detach = 0, // at 004D087C // Papyrus treats this as OnCellDetach
+         attach = 1, // at 004D09F6 // Papyrus treats this as OnCellAttach
+         unk_02 = 2, // at 004D0AF5 // Papyrus treats this as OnCellAttach
+         unk_03 = 3, // at 004D0F17 // Papyrus treats this as OnCellAttach
+      };
       //
       // Fires when an object's parent cell is attached or detached. DOES NOT refer to the 
       // object itself being "attached" or "detached;" moving an object between cells will 
       // not fire this event, and the cell that an object is in when it attaches may not 
       // be the cell that it's in when it later detaches.
       //
-      TESObjectREFR* ref;    // 00 // refcount should be managed by whatever fires the event
-      bool           attach; // 04 // whether we're attaching (true) or detaching (false)
+      TESObjectREFR* ref;   // 00 // refcount should be managed by whatever fires the event
+      attach_state   state; // 04 // whether we're attaching (true) or detaching (false)
+      //
+      inline bool is_attachment() const noexcept { return this->state != attach_state::detach; }
+      inline bool is_detachment() const noexcept { return this->state == attach_state::detach; }
    };
    struct TESCellFullyLoadedEvent {
       TESObjectCELL* unk00;

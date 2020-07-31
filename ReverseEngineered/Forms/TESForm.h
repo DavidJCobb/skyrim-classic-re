@@ -83,7 +83,7 @@ namespace RE {
          cone,                     // PCON: ConeProjectile
          barrier,                  // PBAR: BarrierProjectile
          placed_hazard,            // PHZD: Hazard
-         worldspace,               // WRLD: TESWorldSpace
+         worldspace        = 0x47, // WRLD: TESWorldSpace
          land,                     // LAND: TESObjectLAND
          navmesh,                  // NAVM: NavMesh
          tlod,                     // TLOD

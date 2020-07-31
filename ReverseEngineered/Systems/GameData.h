@@ -66,6 +66,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetItem,        TESObjectCELL**, 0x004743F0, UInt32 x, UInt32 y);
          DEFINE_MEMBER_FN(SetItem,        TESObjectCELL**, 0x00474420, UInt32 x, UInt32 y, TESObjectCELL* cell);
          DEFINE_MEMBER_FN(IsCellAttached, bool,            0x00474470, UInt32 x, UInt32 y);
+         DEFINE_MEMBER_FN(SetCellBordersVisible, void, 0x00474940, bool visible); // used by TES::SetCellBordersVisible
          //
          DEFINE_MEMBER_FN(Subroutine004744B0, bool, 0x004744B0); // Returns false if any cell in the array is NULL or has an unk30 != 4.
    };
@@ -111,7 +112,7 @@ namespace RE {
          UInt32 currentCellGridY; // 60 // == 7FFFFFFF if interior // sometimes read as an SInt16 // cell Y?
          UInt32 unk64; // 7FFFFFFF
          UInt32 unk68; // 7FFFFFFF
-         TESObjectCELL* currentCell; // 6C
+         TESObjectCELL* currentCell; // 6C // very, very likely to only be the current interior cell; ToggleBorders triggers 3D updates if this is nullptr
          TESObjectCELL**  interiorCellBuffer; // idk, visited cells perhaps?
          UInt32 unk74;
          UInt32 unk78; // 0
@@ -127,12 +128,12 @@ namespace RE {
          UInt32 unkA0;
          UInt32 unkA4;
          UInt8  unkA8;
-         UInt8  unkA9;
+         bool   lastToggleBordersState; // A9 // used to avoid re-drawing cell borders if they're already turned on
          UInt8  unkAA;
          UInt8  unkAB;
          UInt8  unkAC;
          UInt8  unkAD;
-         UInt8  unkAE;
+         UInt8  unkAE; // possibly a bool indicating whether RunCellTest is active
          UInt8  unkAF;
          UInt8  unkB0;
          UInt8  padB1[3];
@@ -156,6 +157,8 @@ namespace RE {
          DEFINE_MEMBER_FN(GetCurrentCell,          TESObjectCELL*, 0x00433490); // checks currentCell and currentCellGrid(X|Y); can return nullptr
          DEFINE_MEMBER_FN(ModActorBaseDeathCount,  void,    0x00433BF0, TESActorBase*, SInt16 changeByHowMuch);
          DEFINE_MEMBER_FN(GetCurrentWorldspace,    TESWorldSpace*, 0x004317A0);
+         DEFINE_MEMBER_FN(RunCellTest,             void,    0x004393F0, uint32_t);
+         DEFINE_MEMBER_FN(SetCellBordersVisible,   void,    0x00433460, bool visible); // used by the ToggleBorders command
          DEFINE_MEMBER_FN(Subroutine004320C0,      void*,   0x004320C0, TESObjectCELL*, UInt32);
          DEFINE_MEMBER_FN(Subroutine00432070,      UInt32,  0x00432070, NiPointer<NiNode>&, NiCloningProcess&);
          //
@@ -332,6 +335,8 @@ namespace RE {
          //
          DEFINE_MEMBER_FN(Subroutine0043EF60, TESObjectCELL*, 0x0043EF60, UInt32, UInt32, TESWorldSpace*, UInt32);
          DEFINE_MEMBER_FN(Subroutine0043FEC0, void, 0x0043FEC0, TESForm*); // register an executable-created non-temporary form?
+         //
+         DEFINE_MEMBER_FN(Subroutine0043C070, TESObjectCELL*, 0x0043C070, uint32_t index); // index should be below the return value of 0043BCD0
          //
          struct _COBJRequestArray {
             TESFurniture* workbench; // 00

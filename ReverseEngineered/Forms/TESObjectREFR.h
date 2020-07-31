@@ -8,6 +8,7 @@
 #include "ReverseEngineered/Systems/Decals.h"
 #include "ReverseEngineered/Systems/Magic.h"
 #include "ReverseEngineered/Shared.h"
+#include "ReverseEngineered/Types.h"
 
 #include "skse/GameObjects.h"
 #include "skse/GameReferences.h"
@@ -41,78 +42,6 @@ namespace RE {
    extern tList<TESObjectREFR*>* const g_referencesPendingEnable;
    extern tList<TESObjectREFR*>* const g_referencesPendingDeletion;
 
-   struct BSUntypedPointerHandle { // reference handles; kinda-sorta-mostly interchangeable with UInt32
-      enum {
-         kMask_Index = 0x000FFFFF,
-         kMask_IsInUse = 0x04000000,
-         kMask_ReuseCount = 0x03F00000,
-         kMask_ReuseUnit = 0x00100000,
-      };
-      //
-      UInt32 bits;
-      BSUntypedPointerHandle() {}
-      BSUntypedPointerHandle(UInt32 v) : bits(v) {}
-      //
-      inline UInt32 index() const {
-         return bits & kMask_Index;
-      };
-      inline bool is_in_use() const {
-         return !!(bits & kMask_IsInUse);
-      };
-      inline UInt32 reuse_bits() const { // used to guard against issues with reusing an index
-         return bits & kMask_ReuseCount;
-      };
-      inline UInt8 reuse_count() const {
-         return (bits & kMask_ReuseCount) >> 0x14;
-      };
-      //
-      inline void increment_reuse_count() {
-         auto eax = (this->bits + kMask_ReuseUnit) & kMask_ReuseCount;
-         this->bits = eax | (this->bits & ~kMask_ReuseCount);
-      };
-      inline void set_index(UInt32 index) {
-         this->bits ^= ((this->bits ^ index) & kMask_Index);
-      };
-      inline void set_in_use() {
-         this->bits |= kMask_IsInUse;
-      };
-      inline void set_unused() {
-         this->bits &= ~kMask_IsInUse;
-      };
-      //
-      inline BSUntypedPointerHandle& operator=(const BSUntypedPointerHandle& other) {
-         this->bits = other.bits;
-         return *this;
-      };
-      inline BSUntypedPointerHandle& operator=(const UInt32& other) {
-         this->bits = other;
-         return *this;
-      };
-      inline operator bool() const {
-         return this->bits != 0;
-      };
-      inline bool operator!() const {
-         return !this->bits;
-      };
-      inline bool operator==(const BSUntypedPointerHandle& other) const {
-         return this->bits == other.bits;
-      };
-      inline bool operator!=(const BSUntypedPointerHandle& other) const {
-         return this->bits != other.bits;
-      };
-      inline bool operator>(const BSUntypedPointerHandle& other) const {
-         return this->bits > other.bits;
-      };
-      inline bool operator<(const BSUntypedPointerHandle& other) const {
-         return this->bits < other.bits;
-      };
-      inline bool operator>=(const BSUntypedPointerHandle& other) const {
-         return (*this > other) || (*this == other);
-      };
-      inline bool operator<=(const BSUntypedPointerHandle& other) const {
-         return (*this < other) || (*this == other);
-      };
-   };
    class TESObjectREFRHandleInterface {
       //
       // Basic concept:
@@ -162,8 +91,8 @@ namespace RE {
             kMask_ReuseUnit  = 0x00100000,
          };
          struct Entry {
-            BSUntypedPointerHandle refHandle; // 00
-            BSHandleRefObject*     refObject; // 04 // TODO: this is actually a smart pointer that modifies the BSHandleRefObject::m_uiRefCount.
+            ref_handle         refHandle; // 00
+            BSHandleRefObject* refObject; // 04 // TODO: this is actually a smart pointer that modifies the BSHandleRefObject::m_uiRefCount.
          };
          //
          Entry entries[kMask_Index + 1]; // sizeof == 0x00800000 // at 0x01310638
@@ -182,16 +111,16 @@ namespace RE {
             return TESObjectREFRHandleInterface::GetInstance()->entries;
          };
          //
-         static bool lookup_c(const BSUntypedPointerHandle& handle, refr_ptr& p) {
-            DEFINE_SUBROUTINE(bool, f, 0x004A9180, const BSUntypedPointerHandle&, refr_ptr&);
+         static bool lookup_c(const ref_handle& handle, refr_ptr& p) {
+            DEFINE_SUBROUTINE(bool, f, 0x004A9180, const ref_handle&, refr_ptr&);
             return f(handle, p);
          }
-         static bool lookup(BSUntypedPointerHandle& handle, refr_ptr& p) {
-            DEFINE_SUBROUTINE(bool, f, 0x004951F0, const BSUntypedPointerHandle&, refr_ptr&);
+         static bool lookup(ref_handle& handle, refr_ptr& p) {
+            DEFINE_SUBROUTINE(bool, f, 0x004951F0, const ref_handle&, refr_ptr&);
             return f(handle, p);
          }
          static bool lookup(UInt32 handle, refr_ptr& p) {
-            return lookup(BSUntypedPointerHandle(handle), p);
+            return lookup(ref_handle(handle), p);
          }
          //
          // SKSE identifies this as "LookupREFRByHandle." If the handle you pass in is 
@@ -200,7 +129,7 @@ namespace RE {
          // Don't use this! Just call the SKSE LookupREFRByHandle. This version exists 
          // for documentation purposes only, and could be wrong.
          //
-         static bool ExchangeHandleForRef(BSUntypedPointerHandle* refHandlePtr, refr_ptr&);
+         static bool ExchangeHandleForRef(ref_handle* refHandlePtr, refr_ptr&);
          //
          // SKSE identifies this as "LookupREFRObjectByHandle," and their definition 
          // states that it yields a BSHandleRefObject. This is incorrect! It yields a 
@@ -211,12 +140,12 @@ namespace RE {
          // Don't use this! Just call the SKSE LookupREFRObjectByHandle. This version 
          // exists for documentation purposes only, and could be wrong.
          //
-         static bool GetRefByHandle(BSUntypedPointerHandle* refHandlePtr, refr_ptr&);
+         static bool GetRefByHandle(ref_handle* refHandlePtr, refr_ptr&);
          //
          // Don't use this! Just call the SKSE CreateRefHandleByREFR. This version 
          // exists for documentation purposes only, and could be wrong.
          //
-         static BSUntypedPointerHandle* CreateRefHandleByREFR(BSUntypedPointerHandle* refHandlePtr, TESObjectREFR* ref); // returns refHandlePtr
+         static ref_handle* CreateRefHandleByREFR(ref_handle* refHandlePtr, TESObjectREFR* ref); // returns refHandlePtr
          //
          // Don't use this! It's just here for documentation.
          static void Init(); // at 0x006930C0 // Called on application startup.
@@ -225,7 +154,7 @@ namespace RE {
          //
          // Don't use this! It's just here for documentation.
          //
-         static void ReleaseHandle(const BSUntypedPointerHandle& refHandlePtr); // at 0x0043C400
+         static void ReleaseHandle(const ref_handle& refHandlePtr); // at 0x0043C400
          //
          // Clears all handles that are currently active.
          //
@@ -237,7 +166,7 @@ namespace RE {
          //
          // Don't use this! It's just here for documentation.
          //
-         static void ReleaseAndLoseHandle(BSUntypedPointerHandle& refHandlePtr); // at 0x0079DDF0
+         static void ReleaseAndLoseHandle(ref_handle& refHandlePtr); // at 0x0079DDF0
    };
    typedef TESObjectREFRHandleInterface RefHandleSystem;
    class BSHandleRefObject : public NiRefObject {
@@ -368,7 +297,7 @@ namespace RE {
          virtual void	SetStartingPos(NiPoint3&); // 53
          virtual void	UpdateStartingPos(NiPoint3&); // 54 // same as SetStartingPos, except: we update the start rotation and location to the reference's current rotation and location; and if the argument is a zero NiPoint3, we use the reference's current position
          virtual void	Unk_55(); // 55 // related to lights
-         virtual BSUntypedPointerHandle& Unk_56(BSUntypedPointerHandle& outHandle, TESForm* baseItem, uint32_t maybeCount, int, BaseExtraList* item, TESObjectREFR* transferTo, bool, bool); // modifies and returns outHandle // int == 3: drop?
+         virtual ref_handle& Unk_56(ref_handle& outHandle, TESForm* baseItem, uint32_t maybeCount, int, BaseExtraList* item, TESObjectREFR* transferTo, bool, bool); // modifies and returns outHandle // int == 3: drop?
          virtual bool	Unk_57(UInt32, UInt32, UInt32, UInt32, UInt32); // related to inventory
          virtual void	Unk_58(void*); // 58 // related to hit events?
          virtual void	Unk_59(UInt32, UInt32);
@@ -511,8 +440,8 @@ namespace RE {
             DEFINE_SUBROUTINE(UInt32&, _GetOrCreateRefHandle, 0x006BD6C0, UInt32 & handle); // <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
             return _GetOrCreateRefHandle(handle);
          }
-         BSUntypedPointerHandle& GetOrCreateRefHandle(BSUntypedPointerHandle& handle) {
-            DEFINE_SUBROUTINE(BSUntypedPointerHandle&, _GetOrCreateRefHandle, 0x006BD6C0, BSUntypedPointerHandle& handle);
+         ref_handle& GetOrCreateRefHandle(ref_handle& handle) {
+            DEFINE_SUBROUTINE(ref_handle&, _GetOrCreateRefHandle, 0x006BD6C0, ref_handle & handle);
             return _GetOrCreateRefHandle(handle);
          }
 
@@ -620,6 +549,8 @@ namespace RE {
          operator RE::TESObjectREFR*() const;
          refr_ptr operator=(RE::TESObjectREFR* rhs);
          refr_ptr operator=(const refr_ptr& rhs);
+         inline refr_ptr operator=(::TESObjectREFR* rhs) { return *this = (RE::TESObjectREFR*)rhs; }
+         inline refr_ptr operator=(std::nullptr_t rhs) { return *this = (RE::TESObjectREFR*) rhs; }
          //
          inline bool operator==(const refr_ptr& rhs) { return this->ref == rhs.ref; }
          inline bool operator==(const std::nullptr_t&) { return this->ref == nullptr; }
@@ -649,5 +580,8 @@ namespace RE {
                return 0;
             return ref->handleRefObject.GetRefCount();
          };
+
+         inline void set_from_handle(const uint32_t handle) { this->set_from_handle((UInt32)handle); }
+         inline void set_from_handle(uint32_t* handle) { this->set_from_handle((UInt32*)handle); }
    };
 };
