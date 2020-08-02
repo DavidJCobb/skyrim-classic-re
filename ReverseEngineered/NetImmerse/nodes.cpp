@@ -7,6 +7,11 @@ namespace RE {
       CALL_MEMBER_FN(memory, Constructor)(preallocateChildrenArraySize);
       return memory;
    }
+   void NiNode::MakeBSFadeNodeFullyVisible() {
+      auto bs = this->GetAsBSFadeNode();
+      if (bs)
+         bs->MakeFullyVisible();
+   }
 
    DEFINE_SUBROUTINE(bool, InterpolateWeightModels, 0x00B0EEF0, NiPointer<NiNode> minWeightModel, NiPointer<NiNode> maxWeightModel, float weight, NiPointer<NiNode>& out);
 }

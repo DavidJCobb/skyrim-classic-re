@@ -8,6 +8,7 @@ class bhkAabbPhantom;
 namespace RE {
    class bhkCollisionObject;
    class bhkRigidBody;
+   class BSFadeNode;
    class NiExtraData;
    class NiNode;
    class TESObjectREFR;
@@ -79,7 +80,7 @@ namespace RE {
          //
          // Back to NetImmerse:
          //
-         virtual NiObject*		CreateClone(NiCloningProcess cloner); // 13
+         virtual NiObject*		CreateClone(NiCloningProcess*); // 13 // internal; you should call the non-virtual Clone member function instead
          //
          virtual void			LoadBinary(NiStream * stream); // 14
          virtual void			LinkObject(NiStream * stream); // 15
@@ -87,7 +88,7 @@ namespace RE {
          virtual void			SaveBinary(NiStream * stream); // 17
          virtual bool			IsEqual(NiObject * object); // 18
          //
-         virtual void			ProcessClone(NiCloningProcess * cloner); // 19
+         virtual void			ProcessClone(NiCloningProcess*); // 19 // internal; you should call the non-virtual Clone member function instead
          virtual void			PostLinkObject(NiStream * stream); // 1A
          virtual bool			StreamCanSkip(void); // 1B
          virtual const NiRTTI*	GetStreamableRTTI(void) const; // 1C
@@ -185,7 +186,7 @@ namespace RE {
          bhkCollisionObject* collision; // 1C
          NiTransform	localTransform;  // 20
          NiTransform	worldTransform;  // 54
-         NiPoint3 unk88; // 88
+         NiPoint3 unk88; // 88 // world bound?
          float		unk94;				// 94
          flags_t  flags;			   // 98 - bitfield
          float		unk9C;				// 9C
@@ -195,6 +196,8 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(NiAVObject);
          DEFINE_MEMBER_FN(UpdateNode, void, 0x00AAF320, ControllerUpdateContext * ctx);
+         //
+         void RemoveFromNodeTree();
    };
    static_assert(sizeof(NiAVObject) == 0xA8, "RE::NiAVObject is not the right size!");
 

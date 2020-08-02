@@ -317,7 +317,7 @@ namespace RE {
          virtual void	Unk_67();
          virtual void	Unk_68();
          virtual void	Unk_69();
-         virtual void*  Unk_6A(bool); // handles a lot of 3D state stuff
+         virtual void*  Unk_6A(bool); // handles a lot of 3D state stuff; probably loads/creates the reference's model
          virtual void 	Unk_6B();
          virtual void	Unk_6C(NiNode*, bool); // 6C // Unk_6C(nullptr, 0) will instantly unload 3D. // Unk_6C(newNode, 1); is used for newly-created BSFadeNodes?
          virtual bool	ParentCellIsLoaded(); // 6D
@@ -545,18 +545,19 @@ namespace RE {
          }
          //
          RE::TESObjectREFR* operator->(); // implies comparison operators with pointers, because it allows for an implicit cast
-         operator bool() const;
          operator RE::TESObjectREFR*() const;
          refr_ptr operator=(RE::TESObjectREFR* rhs);
          refr_ptr operator=(const refr_ptr& rhs);
          inline refr_ptr operator=(::TESObjectREFR* rhs) { return *this = (RE::TESObjectREFR*)rhs; }
          inline refr_ptr operator=(std::nullptr_t rhs) { return *this = (RE::TESObjectREFR*) rhs; }
          //
+         /*//
          inline bool operator==(const refr_ptr& rhs) { return this->ref == rhs.ref; }
          inline bool operator==(const std::nullptr_t&) { return this->ref == nullptr; }
          inline bool operator==(const RE::TESObjectREFR* rhs) { return this->ref == rhs; }
          inline bool operator==(const ::TESObjectREFR* rhs) { return this->ref == (RE::TESObjectREFR*) rhs; }
          inline bool operator==(const void* rhs) { return this->ref == (RE::TESObjectREFR*) rhs; }
+         //*/
          //
          bool operator!();
          //

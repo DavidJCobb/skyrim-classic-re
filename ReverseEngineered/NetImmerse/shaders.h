@@ -120,6 +120,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetShaderFlag, void, 0x00C6EEA0, UInt8 flagIndex, bool);
          DEFINE_MEMBER_FN(Subroutine00C6F920, void, 0x00C6F920, BSLightingShaderMaterial*, UInt32); // called by BSGrassShaderProperty constructor with args (this->unk3C, 1)
    };
+   static DEFINE_SUBROUTINE(void, SetBSShaderFlags, 0x00C6F2F0, NiAVObject*, uint8_t flagIndex, bool, bool mustBeLightingShader); // if you pass in a NiNode, recurses on all children; for a NiGeometry, sets the shader flag
    //
    class BSLightingShaderProperty : public BSShaderProperty { // sizeof == 0xB0
       public:

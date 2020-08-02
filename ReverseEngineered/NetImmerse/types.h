@@ -58,12 +58,8 @@ namespace RE {
          DEFINE_MEMBER_FN(ConvertPositionToThisFrame, NiPoint3*, 0x00474CD0, NiPoint3& out, const NiPoint3& in);
          DEFINE_MEMBER_FN(Multiply,           NiMatrix33*, 0x00447ED0, NiMatrix33& out, const NiMatrix33& other);
 
-         inline NiMatrix33& operator=(const NiMatrix33& other) {
-            memcpy(this, &other, sizeof(NiMatrix33));
-         }
-         inline NiMatrix33& operator=(const ::NiMatrix33& other) {
-            memcpy(this, &other, sizeof(NiMatrix33));
-         }
+         inline NiMatrix33& operator=(const NiMatrix33& other) { memcpy(this, &other, sizeof(NiMatrix33)); return *this; }
+         inline NiMatrix33& operator=(const ::NiMatrix33& other) { memcpy(this, &other, sizeof(NiMatrix33)); return *this; }
 
          static NiMatrix33 ConstructFromEuler(float x, float y, float z) {
             NiMatrix33 mX = ConstructFromX(x);
@@ -73,75 +69,18 @@ namespace RE {
             CALL_MEMBER_FN(&mY, Multiply)(scrap, mZ);
             return *(CALL_MEMBER_FN(&mZ, Multiply)(mY, scrap));
          }
-         static NiMatrix33 ConstructFromX(float x) {
-            //
-            // [ 1,       0,      0,
-            //   0,  cos(x), sin(x),
-            //   0, -sin(x), cos(x)  ]
-            //
-            NiMatrix33 out;
-            auto& d = out.data;
-            float c = std::cos(x);
-            float s = std::sin(x);
-            d[0][0] = 1.0F;
-            d[0][1] = 0.0F;
-            d[0][2] = 0.0F;
-            d[1][0] = 0.0F;
-            d[1][1] = c;
-            d[1][2] = s;
-            d[2][0] = 0.0F;
-            d[2][1] = -s;
-            d[2][2] = c;
-            return out;
-         };
-         static NiMatrix33 ConstructFromY(float y) {
-            //
-            // [ cos(y), 0, -sin(y),
-            //        0, 1,       0,
-            //   sin(y), 0,  cos(y) ]
-            //
-            NiMatrix33 out;
-            auto& d = out.data;
-            float c = std::cos(y);
-            float s = std::sin(y);
-            d[0][0] = c;
-            d[0][1] = 0.0F;
-            d[0][2] = -s;
-            d[1][0] = 0.0F;
-            d[1][1] = 1.0F;
-            d[1][2] = 0.0F;
-            d[2][0] = s;
-            d[2][1] = 0.0F;
-            d[2][2] = c;
-            return out;
-         };
-         static NiMatrix33 ConstructFromZ(float z) {
-            //
-            // [ cos(z), sin(z), 0,
-            //  -sin(z), cos(z), 0,
-            //        0,      0, 1 ]
-            //
-            NiMatrix33 out;
-            auto& d = out.data;
-            float c = std::cos(z);
-            float s = std::sin(z);
-            d[0][0] = c;
-            d[0][1] = s;
-            d[0][2] = 0.0F;
-            d[1][0] = -s;
-            d[1][1] = c;
-            d[1][2] = 0.0F;
-            d[2][0] = 0.0F;
-            d[2][1] = 0.0F;
-            d[2][2] = 1.0F;
-            return out;
-         };
+         inline static NiMatrix33 ConstructFromEuler(const RE::NiPoint3& rot) {
+            return ConstructFromEuler(rot.x, rot.y, rot.z);
+         }
+         static NiMatrix33 ConstructFromX(float x);
+         static NiMatrix33 ConstructFromY(float y);
+         static NiMatrix33 ConstructFromZ(float z);
 
          //
          // Relative direction getters, given a matrix that represents a reference frame 
          // (e.g. an object rotation, camera rotation, trajectory, etc.):
          //
-         NiPoint3 Forward() const {
+         inline NiPoint3 Forward() const {
             NiPoint3 dir;
             dir.x = data[0][1]; // Y+ == forward
             dir.y = data[1][1];
@@ -149,7 +88,7 @@ namespace RE {
             CALL_MEMBER_FN(RE::NiPoint3::as(dir), VectorNormalize)();
             return dir;
          };
-         NiPoint3 Up() const {
+         inline NiPoint3 Up() const {
             NiPoint3 dir;
             dir.x = data[0][2]; // Z+ == up
             dir.y = data[1][2];
@@ -160,5 +99,23 @@ namespace RE {
          //
          // could add getters for down, left, right, etc.; maybe later
          //
+   };
+   class NiTransform { // sizeof == 0x34
+      public:
+	      NiMatrix33 rot;   // 00
+	      NiPoint3   pos;   // 24
+	      float      scale; // 30
+         //
+         NiTransform() { CALL_MEMBER_FN(this, Constructor)(); }
+         void Apply(const NiTransform& other) {
+            NiTransform scratch;
+            *this = CALL_MEMBER_FN(this, Apply)(scratch, other);
+         }
+         //
+         MEMBER_FN_PREFIX(NiTransform);
+         DEFINE_MEMBER_FN(Constructor, NiTransform&, 0x00ABD300);
+         DEFINE_MEMBER_FN(Apply, NiTransform&, 0x004EC9C0, NiTransform& out, const NiTransform& other);
+         //
+         inline static NiTransform& from(::NiTransform& out) { return *(RE::NiTransform*)(&out); }
    };
 }

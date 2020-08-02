@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include "skse/GameForms.h"
 #include "skse/GameObjects.h"
 #include "ReverseEngineered/Forms/BaseForms/TESObjectACTI.h"
@@ -80,13 +80,13 @@ namespace RE {
          };
          tArray<ModifiedMarker>  markers;         // 6C // These are just the marker changes made on the FURN. You must access the loaded 3D to find base marker data.
          WorkbenchData           workbench;       // 78
-         UInt32                  flags;           // 7C // MNAM
+         UInt32                  furnFlags;       // 7C // MNAM
          SpellItem*              associatedSpell; // 80
          //
          bool IsMarkerEnabled(UInt8 markerIndex) {
             if (markerIndex >= 25)
                return false;
-            return (1 == (this->flags & (1 << markerIndex)));
+            return (this->furnFlags & (1 << markerIndex)) != 0;
          };
          BGSKeyword* GetMarkerKeyword(UInt8 markerIndex) {
             if (markerIndex >= 24)
@@ -96,6 +96,21 @@ namespace RE {
                   return this->markers[i].keyword;
             return NULL;
          };
+
+         inline void GetEnabledMarkers(std::vector<uint8_t>& out) {
+            out.clear();
+            for (uint8_t i = 0; i < 25; ++i)
+               if (this->IsMarkerEnabled(i))
+                  out.push_back(i);
+         }
+         ModifiedMarker* GetMarkerChanges(uint32_t i) const noexcept {
+            uint32_t size = this->markers.count;
+            for (uint32_t i = 0; i < size; ++i) {
+               if (this->markers.arr.entries[i].furnitureMarkerIndex == i)
+                  return &this->markers.arr.entries[i];
+            }
+            return nullptr;
+         }
 
          MEMBER_FN_PREFIX(TESFurniture);
          DEFINE_MEMBER_FN(CanLean,            bool, 0x00499980);

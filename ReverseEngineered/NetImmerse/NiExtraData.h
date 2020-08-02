@@ -44,25 +44,26 @@ namespace RE {
 
    class BSFurnitureMarkerNode : public NiExtraData {
       public:
-         enum MarkerEntry : UInt16 {
-            None = 0,
-            Front,
-            Behind,
-            Right,
-            Left,
-            Up
+         enum class marker_entry : uint16_t {
+            none  = 0,
+            front = 0x01,
+            back  = 0x02,
+            right = 0x04,
+            left  = 0x08,
+            up    = 0x10,
          };
-         enum MarkerType : UInt16 {
-            Unknown = 0, // Lean?
-            Sit,
-            Sleep
+         using direction_t = std::underlying_type_t<marker_entry>;
+         enum class marker_type : uint16_t {
+            lean = 0,
+            sit,
+            sleep,
          };
-         // 14 bytes:
-         struct FurnitureMarker {
-            NiPoint3   position;
-            float      yaw; // rotation in radians.
-            MarkerType type;
-            UInt16     directions; // MarkerEntry values OR'd together.
+         //
+         struct FurnitureMarker { // sizeof == 0x14
+            NiPoint3    position;
+            float       yaw; // rotation in radians.
+            marker_type type;
+            direction_t directions; // bitmask
          };
          tArray<FurnitureMarker> markers;
          //

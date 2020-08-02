@@ -163,6 +163,7 @@ class BGSSaveFormBuffer;
 class BSString;
 class TESForm;
 namespace RE {
+   class BSFadeNode;
    class TESObjectREFR;
 
    struct FormSignatureInfo { // sizeof == 0xC
@@ -222,7 +223,7 @@ namespace RE {
          enum FormFlagsREFR : UInt32 {
             kRefrFlag_MarkedForDelete    = 0x00000020,
             kRefrFlag_HideFromLocalMap   = 0x00000040,
-            //
+            kRefrFlag_HasFlames          = 0x00000080, // see the two function calls at 004E729A
             kRefrFlag_Inaccessible       = 0x00000100, // for DOOR references
             kRefrFlag_DontLightWater     = 0x00000100, // for LIGH references
             kRefrFlag_Unk00000100        = 0x00000100, // for all other references; gets modified (can be set or cleared) on all created refs after they're created
@@ -363,7 +364,7 @@ namespace RE {
          virtual void   Unk_45(UInt32 arg0, UInt32 arg1); // 45 // no-op on TESObject
          virtual UInt32 Unk_46(); // 46 // no-op on TESObject; returns null
          virtual UInt32 Unk_47(); // 47 // no-op on TESObject; returns null
-         virtual void*  Unk_48(void*); // 48
+         virtual BSFadeNode* Unk_48(void*); // 48
    };
    class TESBoundObject : public TESObject {
       public:

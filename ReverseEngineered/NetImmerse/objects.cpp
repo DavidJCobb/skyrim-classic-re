@@ -1,9 +1,15 @@
 #include "ReverseEngineered/NetImmerse/objects.h"
+#include "ReverseEngineered/NetImmerse/nodes.h"
 #include "ReverseEngineered/NetImmerse/NiExtraData.h"
 #include "skse/NiExtraData.h"
 
 namespace RE {
    DEFINE_SUBROUTINE(bool, NiObjectIs, 0x0042A960, const NiRTTI*, const NiObject*);
+
+	void NiAVObject::RemoveFromNodeTree() {
+		if (auto p = this->parent)
+			p->RemoveChild(this);
+	}
 
    //
    // untested code from SKSE:

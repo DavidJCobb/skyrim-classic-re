@@ -682,7 +682,6 @@ namespace RE {
    TESObjectREFR* refr_ptr::operator->() {
       return ref;
    }
-   refr_ptr::operator bool() const { return ref != nullptr; }
    refr_ptr::operator RE::TESObjectREFR*() const { return ref; }
    refr_ptr refr_ptr::operator=(RE::TESObjectREFR* rhs) {
       _dec();
