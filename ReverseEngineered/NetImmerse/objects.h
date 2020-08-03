@@ -146,6 +146,7 @@ namespace RE {
                update_property_controllers   = 0x00000004,
                selective_update_rigid        = 0x00000010,
                override_selective_transforms = 0x00000080,
+               always_draw                   = 0x00020000,
             };
          };
          using flags_t = std::underlying_type_t<flag::type>;
@@ -188,8 +189,7 @@ namespace RE {
          bhkCollisionObject* collision = nullptr; // 1C
          NiTransform	localTransform;  // 20
          NiTransform	worldTransform;  // 54
-         NiPoint3 unk88;        // 88 // world bound, along with unk94?
-         float		unk94;        // 94
+         NiBound  unk88;        // 88 // world bound?
          flags_t  flags = 0;    // 98 // bitfield
          float		unk9C = 1.0F; // 9C
          TESObjectREFR* unkA0;				// A0 // per 004D7C90

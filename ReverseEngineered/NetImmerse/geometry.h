@@ -33,9 +33,9 @@ namespace RE {
          virtual void Unk_33(void); // call controller vtbl+0xA0?
          virtual void Unk_34(void); // ret 0
          virtual void Unk_35(void); // same as Unk_33
-         virtual void * Unk_36(void); // ret call m_spModelData vtbl+0x9C
-         virtual void SetGeometryData(NiGeometryData * unk1); // set and AddRef geometry data
-         virtual void * Unk_38(void); // ret call m_spModelData vtbl+0x94
+         virtual void* Unk_36(void); // ret call data vtbl+0x9C
+         virtual void SetGeometryData(NiGeometryData*); // set and AddRef geometry data
+         virtual void* Unk_38(void); // ret call m_spModelData vtbl+0x94
          virtual UInt16 Unk_39(bool unk1); // ??
 
          NiPointer<NiProperty>       niProp;       // A8
@@ -87,6 +87,8 @@ namespace RE {
          //
          void RecalcBounds();
          void SetAllVertexColors(const NiColorA&);
+         //
+         inline uint8_t GetConsistencyType() const noexcept { return this->flagsDirty >> 12; }
          //
          MEMBER_FN_PREFIX(NiGeometryData);
          DEFINE_MEMBER_FN(Constructor,  NiGeometryData&, 0x00AC17C0); // default-constructs with vertex count 0 and nullptr arrays

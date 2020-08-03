@@ -17,9 +17,9 @@ namespace RE {
    class NiAlphaProperty : public NiProperty {
       protected:
          inline bool _get_flag(uint8_t i) const noexcept { return (this->alphaFlags >> i) & 1; };
-         inline void _mod_flag(uint8_t i, bool s) noexcept { this->alphaFlags = (this->alphaFlags & ~(1 << i)) | ((s ? 1 : 0) << i); }
-         inline uint8_t _get_bits(uint8_t i, uint8_t mask) const noexcept { return (this->alphaFlags >> i) & mask; }
-         inline void    _set_bits(uint8_t i, uint8_t mask, uint8_t v) noexcept { this->alphaFlags = (this->alphaFlags & ~mask) | (v << i); }
+         inline void _mod_flag(uint8_t i, bool s) noexcept { this->alphaFlags = (this->alphaFlags & ~uint16_t(1 << i)) | (uint16_t(s ? 1 : 0) << i); }
+         inline uint16_t _get_bits(uint8_t i, uint16_t mask) const noexcept { return (this->alphaFlags >> i) & mask; }
+         inline void     _set_bits(uint8_t i, uint16_t mask, uint16_t v) noexcept { this->alphaFlags = (this->alphaFlags & ~(mask << i)) | (v << i); }
          //
       public:
          static constexpr uint32_t vtbl = 0x0107D61C;
@@ -55,6 +55,8 @@ namespace RE {
          MEMBER_FN_PREFIX(NiAlphaProperty);
          DEFINE_MEMBER_FN(Constructor, NiAlphaProperty&, 0x00461440);
          //
+         void dump() const noexcept;
+         //
          inline bool get_alpha_blending_enabled() const noexcept { return this->_get_flag(0); }
          inline void set_alpha_blending_enabled(bool s) noexcept { this->_mod_flag(0, s); }
          inline blend_mode get_source_blend_mode() const noexcept { return (blend_mode)this->_get_bits(1, 0b1111); }
@@ -78,6 +80,88 @@ namespace RE {
          static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA743C;
          //
       public:
+         struct shader_flag_index_1 {
+            shader_flag_index_1() = delete;
+            enum type : uint32_t {
+               specular,
+               skinned,
+               temp_refraction,
+               vertex_alpha,
+               greyscale_to_palette_color,
+               greyscale_to_palette_alpha,
+               use_falloff,
+               environment_mapping,
+               receive_shadows,
+               cast_shadows,
+               facegen_detail_map,
+               parallax,
+               model_space_normals,
+               non_projective_shadows,
+               landscape,
+               refraction,
+               fire_refraction,
+               eye_environment_mapping,
+               hair_soft_lighting,
+               screendoor_alpha_fade,
+               local_map_hide_secret,
+               facegen_rgb_tint,
+               own_emit,
+               projected_uv,
+               multiple_textures,
+               remappable_textures,
+               decal,
+               dynamic_decal,
+               parallax_occlusion,
+               external_emittance,
+               soft_effect,
+               zbuffer_test
+            };
+         };
+         struct shader_flag_index_2 {
+            shader_flag_index_2() = delete;
+            enum type : uint32_t {
+               z_buffer_write,
+               lod_landscape,
+               lod_objects,
+               no_fade,
+               double_sided,
+               vertex_colors,
+               glow_map,
+               assume_shadow_mask,
+               packed_tangent,
+               multi_index_snow,
+               vertex_lighting,
+               uniform_scale,
+               fit_slope,
+               billboard,
+               no_lod_land_blend,
+               env_map_light_fade,
+               wireframe,
+               weapon_blood,
+               hide_on_local_map,
+               premult_alpha,
+               cloud_lod,
+               anisotropic_lighting,
+               no_transparency_multisampling,
+               unused_01,
+               multi_layer_parallax,
+               soft_lighting,
+               rim_lighting,
+               back_lighting,
+               unused_02,
+               tree_anim,
+               effect_lighting,
+               hd_lod_objects,
+            };
+         };
+
+         static constexpr uint32_t shader_flag_indices_to_mask(std::initializer_list<std::underlying_type_t<shader_flag_index_1::type>> list) {
+            uint32_t out = 0;
+            for (auto it = list.begin(); it != list.end(); ++it)
+               out |= (1 << *it);
+            return out;
+         }
+
 	      enum ShaderFlags1 {
 		      kSLSF1_Specular						= 1 << 0,
 		      kSLSF1_Skinned						= 1 << 1,
