@@ -1,4 +1,5 @@
 #pragma once
+#include "skse/GameTypes.h"
 #include "skse/NiNodes.h"
 #include "skse/NiObjects.h"
 #include "skse/Utilities.h"
@@ -10,6 +11,7 @@ namespace RE {
    class bhkRigidBody;
    class BSFadeNode;
    class NiExtraData;
+   class NiGeometry;
    class NiNode;
    class TESObjectREFR;
 
@@ -62,20 +64,20 @@ namespace RE {
          // Casts:
          //
          virtual NiNode*			GetAsNiNode(); // 03
-         virtual NiSwitchNode*	GetAsNiSwitchNode();
+         virtual NiSwitchNode*	GetAsNiSwitchNode(); // 04
          virtual BSFadeNode*		GetAsBSFadeNode(); // 05
          virtual UInt32			   Unk_06();
          virtual NiGeometry*		GetAsNiGeometry(); // 07
          virtual NiTriBasedGeom*	GetAsNiTriBasedGeom(); // 08
-         virtual NiTriStrips*		GetAsNiTriStrips();
-         virtual NiTriShape*		GetAsNiTriShape();
-         virtual BSSegmentedTriShape* GetAsBSSegmentedTriShape();
+         virtual NiTriStrips*		GetAsNiTriStrips(); // 09
+         virtual NiTriShape*		GetAsNiTriShape(); // 0A
+         virtual BSSegmentedTriShape* GetAsBSSegmentedTriShape(); // 0B
          virtual UInt32			Unk_0C(void);
          virtual UInt32			Unk_0D(void);
          virtual UInt32			Unk_0E(void);
-         virtual bhkCollisionObject* GetAsBhkCollisionObject(); // or a superclass? // virtual method 0x0F
+         virtual bhkCollisionObject* GetAsBhkCollisionObject(); // 0F // or a superclass? // virtual method 0x0F
          virtual UInt32			Unk_10(void);
-         virtual bhkRigidBody* GetAsBhkRigidBody(); // or a superclass?
+         virtual bhkRigidBody* GetAsBhkRigidBody(); // 11 // or a superclass?
          virtual UInt32        Unk_12(void);
          //
          // Back to NetImmerse:
@@ -112,7 +114,7 @@ namespace RE {
          static constexpr uint32_t vtbl = 0x01117824;
          //
       public:
-         const char*       m_name;
+         const char*       m_name; // 08
          NiTimeController* m_controller; // 0C next pointer at +0x30
          NiExtraData**     m_extraData;  // 10 extra data
          UInt16 m_extraDataLen;      // 14 max valid entry
@@ -169,7 +171,7 @@ namespace RE {
          virtual void SetNiProperty(NiProperty * prop); // 24
          virtual void Unk_25(UInt32 arg0);
          virtual void Unk_26(UInt32 arg0);
-         virtual NiAVObject* GetObjectByName(const char ** name);	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type
+         virtual NiAVObject* GetObjectByName(const BSFixedString&); // 27	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type
          virtual void SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid);
          virtual void UpdateDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1);
          virtual void UpdateSelectedDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1);
@@ -182,20 +184,21 @@ namespace RE {
          virtual void Unk_31(UInt32 arg0);
          virtual void Unk_32(UInt32 arg0);
          //
-         NiNode*     parent;			 // 18
-         bhkCollisionObject* collision; // 1C
+         NiNode*     parent = nullptr; // 18
+         bhkCollisionObject* collision = nullptr; // 1C
          NiTransform	localTransform;  // 20
          NiTransform	worldTransform;  // 54
-         NiPoint3 unk88; // 88 // world bound?
-         float		unk94;				// 94
-         flags_t  flags;			   // 98 - bitfield
-         float		unk9C;				// 9C
+         NiPoint3 unk88;        // 88 // world bound, along with unk94?
+         float		unk94;        // 94
+         flags_t  flags = 0;    // 98 // bitfield
+         float		unk9C = 1.0F; // 9C
          TESObjectREFR* unkA0;				// A0 // per 004D7C90
          UInt8		unkA4;				// A4
          UInt8		unkA5;				// A5 - bitfield
          //
          MEMBER_FN_PREFIX(NiAVObject);
          DEFINE_MEMBER_FN(UpdateNode, void, 0x00AAF320, ControllerUpdateContext * ctx);
+         DEFINE_MEMBER_FN(UpdateWorldTransformFromParent, void, 0x00AB5370);
          //
          void RemoveFromNodeTree();
    };
@@ -233,4 +236,5 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(bhkCollisionObject*, GetBhkCollisionObjectForNiObject, 0x0046A240, NiObject* obj); // returns obj->unk1C ? obj->unk1C : obj->GetAsBhkCollisionObject();
    DEFINE_SUBROUTINE_EXTERN(bool,                NiObjectIs,                       0x0042A960, const NiRTTI*, const NiObject*);
    DEFINE_SUBROUTINE_EXTERN(bool,                NodeTreeContainsGeomMorpherController, 0x00B06360, NiNode* obj);
+   static DEFINE_SUBROUTINE(float, GetMassOfNiObject, 0x00588C40, NiObject*);
 };

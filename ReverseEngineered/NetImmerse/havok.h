@@ -291,7 +291,8 @@ namespace RE {
          UInt8  unk0BD;
          UInt8  unk0BE;
          UInt8  unk0BF;
-         UInt32 unk0C0[(0xF0 - 0xC0) / 4]; // not initialized
+         float  mass; // C0
+         UInt32 unk0C4[(0xF0 - 0xC4) / 4]; // not initialized
          UInt32 unk0F0[0x10 / 4]; // DQWORD
          UInt32 unk100[0x10 / 4]; // DQWORD
          UInt32 unk110 = 0;
@@ -302,7 +303,10 @@ namespace RE {
          UInt16 unk11E;
          //
          MEMBER_FN_PREFIX(hkpMotion);
+         DEFINE_MEMBER_FN(GetMass, float, 0x00D4A3D0);
          DEFINE_MEMBER_FN(SetUnkBC, void, 0x00D4A3C0, UInt8 value);
+         //
+         inline float GetMass() const noexcept { return this->mass < 0.0F ? 0.0F : this->mass;}
    };
    static_assert(sizeof(RE::hkpMotion) == 0x120, "RE::hkpMotion is not the right size!");
    class hkpMaxSizeMotion : public hkpMotion { // sizeof == 0x120
@@ -325,7 +329,7 @@ namespace RE {
          //
          UInt16 unk004;
          UInt16 unk006 = 0x0001;
-         void*  unk008 = NULL; // class with no RTTI
+         void*  unk008 = nullptr;
          void*  unk00C; // Most likely a pointer back to the owning bhkWorldObject instance.
          Struct00D57F60 unk010;
          UInt32 unk060 = 0;
@@ -384,6 +388,8 @@ namespace RE {
          UInt32 unk210 = 0;
          UInt32 unk214 = 0;
          UInt32 unk218 = 0xFFFFFFFF;
+         //
+         inline float GetMass() const noexcept { return this->unk0E0.GetMass(); }
    };
    static_assert(sizeof(RE::hkpEntity) == 0x21C, "RE::hkpEntity is not the right size!");
 
@@ -457,17 +463,17 @@ namespace RE {
       //
       public:
          //
-         UInt32 unk0C; // could belong to bhkWorldObject
-         UInt16 unk10;
-         UInt16 unk12;
-         SInt32 unk14;
+         UInt32 unk0C = 0; // could belong to bhkWorldObject
+         UInt16 unk10 = 0;
+         UInt16 unk12 = 0;
+         SInt32 unk14 = 0;
          UnkArray unk18;
          //
          // Remember: if you rename these virtual methods, rename their counterparts (if any) in the superclasses.
          //
          virtual void Unk_21(void);
          virtual void Unk_22(void);
-         virtual UInt32 Unk_23(); // returns this->unk08 ? this->unk08->unk08 : NULL;
+         virtual UInt32 Unk_23(); // returns this->wrappedHavokObject ? this->wrappedHavokObject->unk08 : nullptr;
          virtual UInt32 Unk_24(); // same as Unk_23, but it checks if this exists first
          virtual bool Unk_25(bhkWorld*);
          virtual void Unk_26(); // does stuff (not sure what) and then recursively executes self on all unk18 elements
@@ -487,7 +493,15 @@ namespace RE {
 
          MEMBER_FN_PREFIX(bhkRigidBody);
          DEFINE_MEMBER_FN(Constructor, bhkRigidBody&, 0x004E06D0, Struct00D378B0& params);
+         DEFINE_MEMBER_FN(GetMotionSystem, UInt8, 0x004A5040); // const // returns 5 as a default
          DEFINE_MEMBER_FN(Subroutine00D0D3C0, void, 0x00D0D3C0, NiNode*, UInt32 zero);
+
+         float GetMass() {
+            auto* hkp = (hkpRigidBody*) this->wrappedHavokObject;
+            if (hkp)
+               return hkp->GetMass();
+            return 0.0F;
+         }
 
          static bhkRigidBody* make(Struct00D378B0&);
    };
@@ -508,7 +522,7 @@ namespace RE {
          //
          UInt32        unk08 = 0; // 08 // almost certainly the NiNode* that the collision object is attached to, but I'd like to confirm that
          Flags         flags;     // 0C
-         bhkRigidBody* unk10;     // 10
+         bhkRigidBody* rigidBody; // 10
    };
    class bhkNiCollisionObject : public NiCollisionObject { // sizeof == 0x14
       public:
@@ -538,7 +552,7 @@ namespace RE {
          virtual void Unk_27(void);
          virtual void Unk_28(void);
          virtual void Unk_29(void);
-         virtual void SetMotionSystem(UInt32 motionSystemToSet, UInt32 unkInt, UInt32 unkBool);
+         virtual void SetMotionSystem(UInt32 motionSystemToSet, NiObject* rigidBody_optional, UInt32 unkBool);
          //
          static bhkCollisionObject* make(NiNode*);
    };
@@ -576,8 +590,8 @@ namespace RE {
    class bhkWorld : public bhkRefObject { // sizeof == 0x6320
       public:
          virtual ~bhkWorld();
-         virtual UInt32 Unk_23() const; // 23 // returns this->unk08
-         virtual UInt32 Unk_24() const; // 24 // returns this->unk08
+         virtual UInt32 Unk_23() const; // 23 // returns this->wrappedHavokObject
+         virtual UInt32 Unk_24() const; // 24 // returns this->wrappedHavokObject
          virtual bool   Unk_25();
          virtual bool   Unk_26();
          virtual void   Unk_27(UInt32);
@@ -591,7 +605,7 @@ namespace RE {
          virtual bool   Unk_2F(Struct0045C7E0&); // 2F // involved in raycasting
          virtual bool   Unk_30();
          virtual bool   Unk_31(UInt32, UInt32, UInt32, UInt32, UInt32);
-         virtual bool   Unk_32(UInt32, UInt32, UInt32, UInt32, UInt32);
+         virtual bool   Unk_32(UInt32, NiNode*);
          //
          // ...
    };

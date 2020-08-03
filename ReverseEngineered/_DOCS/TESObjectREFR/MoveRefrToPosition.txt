@@ -1,0 +1,77 @@
+inline Actor* TESObjectREFR::AsActor() const noexcept {
+   return (this->formType == form_type::actor) ? (Actor*)this : nullptr;
+}
+inline bool TESObjectREFR::IsDisabled() const noexcept {
+   return (this->flags & 0x800) != 0;
+}
+
+void MoveRefrToPosition(
+   TESObjectREFR* subject, // (ebp) throughout the subroutine
+   const ref_handle& handle,
+   TESObjectCELL* cell,
+   TESWorldSpace* world,
+   const NiPoint3& position,
+   const NiPoint3& rotation
+) {
+   bool   disabledForMove = false;       // (esp54)
+   Actor* actor    = subject->AsActor(); // (esi) for most of the subroutine
+   bool   isPlayer = subject == *(TESObjectREFR*)0x01310588; // (bl) for most of the subroutine
+   if (!actor && !subject->IsDisabled()) { // not an actor, and not disabled
+      subject->Disable();
+      disabledForMove = true;
+   }
+   ref_handle esp14;
+   subject->extraData.GetExtraRefHandle(esp14);
+   refr_ptr carrier; // smart pointer is (esp10), but accessed as (edi)
+   TESObjectREFRHandleInterface::GetRefByHandle(esp14, carrier);
+   if (carrier) {
+      if (auto inventory = GetInventory(carrier)) {
+         //
+         // Probably responsible for moving a reference out of an inventory 
+         // when you call MoveTo on it.
+         //
+         inventory->sub00481AE0(subject, 0, 1);
+      }
+      sub00897F90(carrier, 0);
+   }
+   if (isPlayer) { // at 0x0090CA89
+      Struct004A4B70 esp1C;
+      esp1C.unk08 = position;
+      esp1C.unk1C = rotation;
+      esp1C.unk30 = true;
+      if (world) {
+         esp1C.unk00 = world;
+      } else if (cell && cell->unk2C & 1) {
+         esp1C.unk04 = cell;
+      }
+      esp1C.unk28 = handle;
+      (*g_thePlayer)->sub00734B00(esp1C);
+   } else if (actor) { // at 0x0090CAFD
+      actor->sub006E8290(1);
+      actor->sub006D46F0(position, rotation.z, 0.0F, cell, world, 1);
+   } else { // at 0x0090CB35
+      subject->SetPosition(position);
+      if (cell && (*g_TES)->CheckCellLoaded(cell, 0)) {
+         subject->SetRotation(rotation);
+         if (auto ebx = subject->GetNiNode()) { // at 0x0090CB81
+            NiMatrix33 esp1C;
+            ebx->m_localTransform.pos = subject->pos;
+            ebx->m_localTransform.rot = subject->GetRotationAsMatrix(esp1C); // pass-by-reference
+            sub00D171D0(ebx, 1);
+            NiAVObject::ControllerUpdateContext esp14;
+            ebx->UpdateNode(&esp14);
+         }
+      }
+      sub004E4780(subject, cell, world); // at 0x0090CBDD
+      auto parent = subject->parentCell;
+      if (parent && (*g_TES)->CheckCellLoaded(parent, 0)) {
+         subject->Unk_66(); // at 0x0090CC09 // call rebuilds 3D?
+      }
+   }
+   // at 0x0090CC0B
+   (*g_thePlayer)->sub00746180(subject);
+   if (disabledForMove) {
+      subject->Enable();
+   }
+   // smart pointer destructor: carrier
+}

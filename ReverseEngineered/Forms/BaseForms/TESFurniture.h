@@ -9,19 +9,20 @@ namespace RE {
 
    class TESFurniture : public TESObjectACTI {
       public:
+         enum class marker_entry : uint16_t {
+            none  = 0,
+            front = 0x01,
+            back  = 0x02,
+            right = 0x04,
+            left  = 0x08,
+            up    = 0x10,
+         };
+         //
          class ModifiedMarker {
             public:
-               enum EntryPoints {
-                  FurnitureEntryPointUndefined,
-                  FurnitureEntryPointFront,
-                  FurnitureEntryPointBehind,
-                  FurnitureEntryPointRight,
-                  FurnitureEntryPointLeft,
-                  FurnitureEntryPointUp
-               };
-               //
-               UInt32 furnitureMarkerIndex;  // "Which marker is this?" The FURN's list of ModifiedMarkers isn't always in order.
-               UInt32 disabledEntryPoints;   // EntryPoints values OR'd together
+               uint32_t furnitureMarkerIndex;  // "Which marker is this?" The FURN's list of ModifiedMarkers isn't always in order.
+               uint16_t unk04;
+               uint16_t disabledEntryPoints;   // EntryPoints values OR'd together
                BGSKeyword* keyword;          // Marker Keyword in CK
          };
          enum { kTypeID = kFormType_Furniture };

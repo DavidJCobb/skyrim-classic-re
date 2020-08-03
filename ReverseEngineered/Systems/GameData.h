@@ -14,13 +14,16 @@
 #include "ReverseEngineered/UI/Crafting.h"
 
 class bhkAabbPhantom;
+class BGSPrimitive;
 class TESObjectCELL;
 
 namespace RE {
    struct NiCloningProcess;
-   class NiNode;
+   class  NiNode;
    struct PositionPlayerEvent;
-   class Sky;
+   class  Sky;
+   class  TESObjectREFR;
+   class  TESWorldSpace;
 
    class GridArray {
       public:
@@ -327,6 +330,7 @@ namespace RE {
          UInt32  unkA9C[100]; // 0A9C
          //
          MEMBER_FN_PREFIX(TESDataHandler);
+         DEFINE_MEMBER_FN(ExecutePlaceAtMe, void, 0x0043F870, void* arg1, TESForm* baseForm, const NiPoint3& position, const NiPoint3& rotation, TESObjectCELL*, TESWorldSpace*, TESObjectREFR* incompleteRefToPlace, BGSPrimitive*, uint32_t, bool arg10, uint32_t);
          DEFINE_MEMBER_FN(GetAvailableLoadingScreens, void, 0x0086F510, UInt8 formTypeForLoadingScreens_WeWillCrashOtherwise, void* list);
          DEFINE_MEMBER_FN(GetFormByTypeAndIndex, TESForm*, 0x0043BCB0, UInt8 formType, UInt32 index);
          DEFINE_MEMBER_FN(GetNextID,   UInt32, 0x0043B6D0); // Name comes from a debug logging command.

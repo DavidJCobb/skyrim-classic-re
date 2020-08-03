@@ -1,4 +1,5 @@
 #pragma once
+#include "skse/Utilities.h"
 
 #define DEFINE_SUBROUTINE_EXTERN(retType, name, address, ...) extern retType(*name##)(__VA_ARGS__);
 #define DEFINE_SUBROUTINE(retType, name, address, ...) retType(*name##)(__VA_ARGS__) = (retType(*)(__VA_ARGS__))address;
@@ -16,3 +17,6 @@ namespace RE {
    void* HeapAllocate(UInt32 size);
    void* HeapCreateByVtbl(UInt32 size, UInt32 vtbl);
 };
+
+#define ERASE_MEMBER_FN_LONG(className, functionName, retnType) _##functionName##_type* _##functionName##_GetPtr(void) = delete;
+#define ERASE_MEMBER_FN(functionName, retnType) ERASE_MEMBER_FN_LONG(_MEMBER_FN_BASE_TYPE, functionName, retnType)

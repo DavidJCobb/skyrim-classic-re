@@ -67,7 +67,8 @@ namespace RE {
       UInt32 unk00;
       UInt8  unk04;
    };
-   struct PositionPlayerEvent {}; // TODO
+   struct PositionPlayerEvent {
+   }; // TODO
    struct TESActivateEvent {
       TESObjectREFR* target;        // 00
       TESObjectREFR* whoInteracted; // 04
@@ -288,8 +289,11 @@ namespace RE {
       UInt8          unk08; // 04
    };
    struct TESObjectLoadedEvent {
+      //
+      // Powers the ObjectReference.OnLoad and ObjectReference.OnUnload events in Papyrus.
+      //
       UInt32 refrFormID; // 00
-      bool   unk04; // 04
+      bool   loading;    // 04 // if false, then this is an unload event
    };
    struct TESObjectREFRTranslationEvent {
       TESObjectREFR* ref;   // 00

@@ -5,9 +5,15 @@
 namespace RE {
    struct NiPoint3 : public ::NiPoint3 {
       public:
-         NiPoint3() {};
+         NiPoint3() {
+            this->x = 0.0F;
+            this->y = 0.0F;
+            this->z = 0.0F;
+         };
          NiPoint3(float X, float Y, float Z) {
-            ::NiPoint3::NiPoint3(X, Y, Z);
+            this->x = X;
+            this->y = Y;
+            this->z = Z;
          };
          NiPoint3(const ::NiPoint3& other) {
             *this = other;
@@ -38,6 +44,16 @@ namespace RE {
             return CALL_MEMBER_FN(this, Add_B)(other);
          };
    };
+
+   class NiBound { // sizeof == 0x10
+      public:
+         NiPoint3	pos;
+         float    radius;
+         //
+         MEMBER_FN_PREFIX(NiBound);
+         DEFINE_MEMBER_FN(Recalculate, void, 0x00AC4370, uint32_t vertexCount, NiPoint3* vertices);
+   };
+
    class NiQuaternion {
       public:
          float w;
@@ -49,6 +65,7 @@ namespace RE {
          DEFINE_MEMBER_FN(FromMatrix, void, 0x00AC0260, const NiMatrix33&);
          DEFINE_MEMBER_FN(ToMatrix, NiMatrix33&, 0x004719A0, NiMatrix33& out);
    };
+
    class NiMatrix33 : public ::NiMatrix33 { // sizeof == 0x24
       public:
          MEMBER_FN_PREFIX(NiMatrix33);
@@ -62,12 +79,17 @@ namespace RE {
          inline NiMatrix33& operator=(const ::NiMatrix33& other) { memcpy(this, &other, sizeof(NiMatrix33)); return *this; }
 
          static NiMatrix33 ConstructFromEuler(float x, float y, float z) {
+            /*//
             NiMatrix33 mX = ConstructFromX(x);
             NiMatrix33 mY = ConstructFromY(y);
             NiMatrix33 mZ = ConstructFromZ(z);
             NiMatrix33 scrap;
             CALL_MEMBER_FN(&mY, Multiply)(scrap, mZ);
-            return *(CALL_MEMBER_FN(&mZ, Multiply)(mY, scrap));
+            return *(CALL_MEMBER_FN(&mX, Multiply)(mY, scrap));
+            //*/
+            NiMatrix33 out;
+            CALL_MEMBER_FN(&out, ConstructFromEuler)(x, y, z);
+            return out;
          }
          inline static NiMatrix33 ConstructFromEuler(const RE::NiPoint3& rot) {
             return ConstructFromEuler(rot.x, rot.y, rot.z);
@@ -114,7 +136,7 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(NiTransform);
          DEFINE_MEMBER_FN(Constructor, NiTransform&, 0x00ABD300);
-         DEFINE_MEMBER_FN(Apply, NiTransform&, 0x004EC9C0, NiTransform& out, const NiTransform& other);
+         DEFINE_MEMBER_FN(Apply, NiTransform&, 0x004EC9C0, NiTransform& out, const NiTransform& other); // parent_world.Apply(scrap, child_local);
          //
          inline static NiTransform& from(::NiTransform& out) { return *(RE::NiTransform*)(&out); }
    };

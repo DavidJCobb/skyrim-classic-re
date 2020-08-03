@@ -11,7 +11,9 @@ namespace RE {
       UInt8  pad2F9[3];					// 2F9
       UInt32 pad2FC[0xF];
       UInt32 unk338; // Referenced in subroutine at 0x00687B10.
-      UInt32 pad33C[0x4E];
+      UInt32 unk33C[(0x348 - 0x33C) / 4];
+      UInt32 unk348; // 348 // bitmask related to the BSTaskPool; atomic access via InterlockedOr
+      UInt32 unk34C[(0x474 - 0x34C) / 4];
       UInt8  unk474;
       UInt8  unk475;
       UInt8  unk476;
@@ -26,7 +28,7 @@ namespace RE {
       UInt32 unk4AC; // Some sort of index? Referenced all over the place, including in the DFM subroutine that SKSE hooks.
       UInt32 unk4B0; // Referenced in subroutine at 0x00A494B0. Length of something?
    };
-   static_assert(offsetof(TLSData, pad33C) == 0x033C, "Data layout incorrect for RE::TLSData: bad pad33C."); // IntelliSense chokes on this; ignore the squiggly red lines.
+   static_assert(offsetof(TLSData, unk33C) == 0x033C, "Data layout incorrect for RE::TLSData: bad unk33C."); // IntelliSense chokes on this; ignore the squiggly red lines.
    static_assert(offsetof(TLSData, unk476) == 0x0476, "Data layout incorrect for RE::TLSData: bad unk476."); // IntelliSense chokes on this; ignore the squiggly red lines.
    static_assert(offsetof(TLSData, unk4AC) == 0x04AC, "Data layout incorrect for RE::TLSData: bad unk4AC."); // IntelliSense chokes on this; ignore the squiggly red lines.
    //

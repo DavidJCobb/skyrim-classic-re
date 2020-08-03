@@ -72,9 +72,9 @@ namespace RE {
          reference_effect,         // RFCT: BGSReferenceEffect
          region,                   // REGN: TESRegion
          navmesh_info_map,         // NAVI: NavMeshInfoMap
-         cell,                     // CELL: TESObjectCELL
-         reference,                // REFR: TESObjectREFR
-         actor,                    // ACHR: Actor / Character (previous games distinguished between Characters and Creatures)
+         cell              = 0x3C, // CELL: TESObjectCELL
+         reference         = 0x3D, // REFR: TESObjectREFR
+         actor             = 0x3E, // ACHR: Actor / Character (previous games distinguished between Characters and Creatures)
          missile           = 0x3F, // PMIS: MissileProjectile
          arrow             = 0x40, // PARW: ArrowProjectile
          grenade,                  // PGRE: GrenadeProjectile
@@ -280,7 +280,7 @@ namespace RE {
          virtual bool         IsPlayable();      // 19
          virtual bool         Unk_1A();          // 1A
          virtual bool         GetFormFlag00020000(); // 1B // if called on TESObjectREFR, retrieves the base form's flag
-         virtual bool         Unk_1C(); // 1C
+         virtual bool         HasWaterCurrents(); // 1C // reads the "has currents" flag for STAT and MSTT
          virtual bool         GetFormFlag00000200(); // 1D // if called on TESObjectREFR, retrieves the base form's flag
          virtual bool         GetFormFlag00000100(void); // 1E
          virtual void         SetFormFlag00000200(bool set); // 1F

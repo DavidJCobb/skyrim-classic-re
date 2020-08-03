@@ -14,6 +14,7 @@
 #include "ReverseEngineered/Forms/TESWorldSpace.h"
 #include "ReverseEngineered/NetImmerse/havok.h"
 #include "ReverseEngineered/NetImmerse/nodes.h"
+#include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
 #include "ReverseEngineered/Systems/ChangeForms.h"
 #include "ReverseEngineered/Systems/Inventory.h"
 #include "ReverseEngineered/Systems/Savedata/BGSSaveLoadManager.h"
@@ -50,7 +51,7 @@ namespace RE {
                SInt8 result = 0;
             };
             void Iterator(RE::bhkCollisionObject* collision, State* parameters) {
-               auto obj = ((hkpRigidBody*)collision->unk10->asHkpWorldObject());
+               auto obj = ((hkpRigidBody*)collision->rigidBody->asHkpWorldObject());
                if (!obj)
                   return;
                UInt8 current = obj->unk0E0.motionSystem;
@@ -78,7 +79,7 @@ namespace RE {
                bool  simulate = false;
             };
             void Iterator(RE::bhkCollisionObject* collision, State* parameters) {
-               collision->SetMotionSystem(parameters->motionType, NULL, parameters->simulate);
+               collision->SetMotionSystem(parameters->motionType, nullptr, parameters->simulate);
             };
          }
       }
@@ -95,6 +96,7 @@ namespace RE {
 
    // -----------------------------------------------------------------------------------------------------------------------------------
 
+   #pragma region Ref handle system
    bool RefHandleSystem::ExchangeHandleForRef(ref_handle* refHandlePtr, refr_ptr& out) {
       auto handle = *refHandlePtr;
       if (handle) {
@@ -311,6 +313,7 @@ namespace RE {
          refHandlePtr = 0;
       }
    };
+   #pragma endregion
 
    // -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -391,8 +394,8 @@ namespace RE {
       return result;
    };
    UInt32 __declspec(noinline) TESObjectREFR::GetChangeFlags() { // TODO: This should probably be moved to TESForm*
-      BGSSaveLoadManager* man = BGSSaveLoadManager::GetSingleton();
-      if (man == nullptr)
+      auto* man = RE::BGSSaveLoadManager::GetSingleton();
+      if (!man || !man->unk3E8)
          return 0;
       UInt32 changeFlags;
       CALL_MEMBER_FN(man->unk3E8, GetChangeFlags)(&changeFlags, this->formID);
@@ -617,6 +620,9 @@ namespace RE {
       // MoveRefrToPosition will not modify an object's rotation if the object is being moved to an unloaded 
       // cell. We'll do it forcibly. Note that this has not been tested on actors.
       //
+      // Note that MoveRefrToPosition WILL break a moved object's collision if it's not run at an appropriate 
+      // time. In general, it is only safe to run whenever BSTaskPool is processing stuff.
+      //
       CALL_MEMBER_FN(this, SetRotation)(rotation);
    };
    bool TESObjectREFR::MoveToMyEditorLocation(bool native) {
@@ -667,16 +673,13 @@ namespace RE {
       this->flags |= 0x800;
       CALL_MEMBER_FN(this, Subroutine004E0E30)();
    };
-   void __declspec(noinline) TESObjectREFR::SetMotionType(UInt32 motionType, bool simulateImmediately, bool markChanged) {
-      NiNode* node = this->GetNiNode();
-      if (!node)
-         return;
-      node->IncRef();
-      Functors::TESObjectREFR::SetMotionType::State parameters(motionType, simulateImmediately);
-      IterateOverBhkCollisionObjects(node, &parameters, (BhkCollisionIteratorFunction*)&Functors::TESObjectREFR::SetMotionType::Iterator);
-      node->DecRef();
-      if (markChanged)
-         this->MarkChanged(4);
+   void __declspec(noinline) TESObjectREFR::SetMotionType(uint8_t motionType, bool simulateImmediately, bool markChanged) {
+      NiPointer<NiNode> node = this->GetNiNode();
+      if (node.m_pObject) {
+         SetNodeMotionType(node.m_pObject, motionType, true, false, simulateImmediately);
+         if (markChanged)
+            this->MarkChanged(4);
+      }
    };
 
    TESObjectREFR* refr_ptr::operator->() {

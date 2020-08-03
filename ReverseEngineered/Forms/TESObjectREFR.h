@@ -434,15 +434,15 @@ namespace RE {
          void   MoveTo(UInt32* pTargetHandle, void* parentCell, void* worldSpace, NiPoint3* postion, NiPoint3* rotation); // MoveRefrToPosition wrapper with some additions
          bool   MoveToMyEditorLocation(bool native = false);
          void   Reload3D();
-         void   SetMotionType(UInt32 motionType, bool, bool markChanged = true); // asynch; careful about this
+         void   SetMotionType(uint8_t motionType, bool simulateImmediately, bool markChanged = true); // asynch; careful about this
 
-         UInt32& GetOrCreateRefHandle(UInt32& handle) {
-            DEFINE_SUBROUTINE(UInt32&, _GetOrCreateRefHandle, 0x006BD6C0, UInt32 & handle); // <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
-            return _GetOrCreateRefHandle(handle);
+         inline Actor* AsActor() const noexcept { return (this->formType == form_type::actor) ? (Actor*)this : nullptr; }
+
+         inline UInt32& GetOrCreateRefHandle(UInt32& handle) {
+            return *(UInt32*)&CALL_MEMBER_FN(this, GetOrCreateRefHandle)(*(ref_handle*)(&handle));
          }
-         ref_handle& GetOrCreateRefHandle(ref_handle& handle) {
-            DEFINE_SUBROUTINE(ref_handle&, _GetOrCreateRefHandle, 0x006BD6C0, ref_handle & handle);
-            return _GetOrCreateRefHandle(handle);
+         inline ref_handle& GetOrCreateRefHandle(ref_handle& handle) {
+            return CALL_MEMBER_FN(this, GetOrCreateRefHandle)(handle);
          }
 
          inline bool IsEnabled() const noexcept { return !(this->flags & kFlag_Disabled); }
@@ -455,7 +455,7 @@ namespace RE {
          DEFINE_MEMBER_FN(CountItemTypes,          uint32_t,         0x004D9F40, bool useDataHandlerInsteadOfInventory, bool includeNonPlayableItems);
          DEFINE_MEMBER_FN(CreateLoadedStateIfMissing, void, 0x004E5AA0);
          DEFINE_MEMBER_FN(DoesRespawn,             bool,             0x004D5270); // always false for created refs; checks base form flags for NPCs and containers, and the reference's NoRespawn form flag otherwise
-         DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30);
+         DEFINE_MEMBER_FN(Enable,                  void,             0x004E0E30); // internal. you should call the virtual method instead
          DEFINE_MEMBER_FN(GetBaseContainerData,    TESContainer*,    0x004D4A30); // returns &(this->baseForm.container) for NPCs and container references
          DEFINE_MEMBER_FN(GetBodyBodyPartIndex,    SInt32,           0x004D6660); // returns a body part index (for Body) pulled from the race data, or -1 if the reference isn't a valid actor
          DEFINE_MEMBER_FN(GetCurrentEncounterZone, BGSEncounterZone*, 0x004EA990); // checks extra-data, parent cell, and parent world, preferring the first found non-null
@@ -467,6 +467,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
          DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x004D9EE0, uint32_t index, bool useDataHandlerInsteadOfInventory); // (index) is relative to (CountItemTypes) // returns a shallow copy: new entry data, but pointers to the BaseExtraLists of the others
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
+         DEFINE_MEMBER_FN(GetOrCreateRefHandle, ref_handle&, 0x006BD6C0, ref_handle&); // <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
          DEFINE_MEMBER_FN(GetScale,                float,            0x004D5230);
          DEFINE_MEMBER_FN(GetShieldBodyPartIndex,  SInt32,           0x004D6630); // returns a body part index (for Shield) pulled from the race data, or -1 if the reference isn't a valid actor
          DEFINE_MEMBER_FN(GetWeight,               float,            0x004EA180);
@@ -475,6 +476,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetTriggerObjectCount,   SInt32,           0x004DFB90);
          DEFINE_MEMBER_FN(GetWorldspace,           TESWorldSpace*,   0x004D5EB0);
          DEFINE_MEMBER_FN(HasEffectKeyword,        bool,             0x004D57A0, BGSKeyword*);
+         DEFINE_MEMBER_FN(HasWaterCurrents,        bool,             0x006D66F0); // base form IsWaterActivator or HasWaterCurrents
          DEFINE_MEMBER_FN(IsLocked,                bool,             0x004EB5B0); // if the reference is a teleport door, this checks the door on the other side, too
          DEFINE_MEMBER_FN(IsOffLimits,             bool,             0x004DA760);
          DEFINE_MEMBER_FN(IsPerchFurniture,        bool,             0x004E9F20);
@@ -516,7 +518,6 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraLock,         ExtraLock*,       0x004EB5B0);             // <-- Gets the lock data on this reference. If this reference is a teleport door and has no lock, gets the lock on the other end (if any).
          DEFINE_MEMBER_FN(GetExtraMapMarker,    ExtraMapMarker*,  0x004EA3F0);
          DEFINE_MEMBER_FN(GetParentWorldspace,  TESWorldSpace*,   0x004D5EB0);             // <-- Return type confirmed. Purpose assumed based on usage in subroutine 0x0090CC60.
-         DEFINE_MEMBER_FN(GetOrCreateRefHandle, UInt32&,          0x006BD6C0, UInt32& out);// <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
          DEFINE_MEMBER_FN(Subroutine004DFE80,   void,             0x004DFE80, bool);       // <-- Unknown. Not related to un-/re-loading 3D, though. Usually takes false as an argument.
          //
          DEFINE_MEMBER_FN(GetExtraEnableStateChildren,      RE::ExtraEnableStateChildren::Entry*, 0x004EA870);

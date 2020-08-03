@@ -1,8 +1,78 @@
 #pragma once
 #include "objects.h"
 
+class BSShaderMaterialBase;
+class BSLightingShaderMaterial;
 namespace RE {
-   class BSShaderProperty : public NiObjectNET {
+   class NiProperty : public NiObjectNET {
+      public:
+         enum class type : int32_t {
+            alpha = 0,
+            shade = 1,
+         };
+
+         virtual type GetType(void);
+   };
+
+   class NiAlphaProperty : public NiProperty {
+      protected:
+         inline bool _get_flag(uint8_t i) const noexcept { return (this->alphaFlags >> i) & 1; };
+         inline void _mod_flag(uint8_t i, bool s) noexcept { this->alphaFlags = (this->alphaFlags & ~(1 << i)) | ((s ? 1 : 0) << i); }
+         inline uint8_t _get_bits(uint8_t i, uint8_t mask) const noexcept { return (this->alphaFlags >> i) & mask; }
+         inline void    _set_bits(uint8_t i, uint8_t mask, uint8_t v) noexcept { this->alphaFlags = (this->alphaFlags & ~mask) | (v << i); }
+         //
+      public:
+         static constexpr uint32_t vtbl = 0x0107D61C;
+         enum blend_mode {
+            one,
+            zero,
+            source_color,
+            source_color_inverse,
+            destination_color,
+            destination_color_inverse,
+            source_alpha,
+            source_alpha_inverse,
+            destination_alpha,
+            destination_alpha_inverse,
+            source_alpha_saturate,
+         };
+         enum test_mode {
+            always,
+            less,
+            equal,
+            less_or_equal,
+            greater,
+            not_equal,
+            greater_or_equal,
+            never,
+         };
+         //
+         uint16_t alphaFlags;     // 18
+         uint16_t alphaThreshold; // 1A
+         //
+         static NiAlphaProperty* make();
+         //
+         MEMBER_FN_PREFIX(NiAlphaProperty);
+         DEFINE_MEMBER_FN(Constructor, NiAlphaProperty&, 0x00461440);
+         //
+         inline bool get_alpha_blending_enabled() const noexcept { return this->_get_flag(0); }
+         inline void set_alpha_blending_enabled(bool s) noexcept { this->_mod_flag(0, s); }
+         inline blend_mode get_source_blend_mode() const noexcept { return (blend_mode)this->_get_bits(1, 0b1111); }
+         inline void       set_source_blend_mode(blend_mode bm) noexcept { this->_set_bits(1, 0b1111, (uint8_t)bm); }
+         inline blend_mode get_destination_blend_mode() const noexcept { return (blend_mode)this->_get_bits(5, 0b1111); }
+         inline void       set_destination_blend_mode(blend_mode bm) noexcept { this->_set_bits(5, 0b1111, (uint8_t)bm); }
+         inline bool get_alpha_testing_enabled() const noexcept { return this->_get_flag(9); }
+         inline void set_alpha_testing_enabled(bool s) noexcept { this->_mod_flag(9, s); }
+         inline test_mode get_alpha_test_mode() const noexcept { return (test_mode)this->_get_bits(10, 0b111); }
+         inline void      set_alpha_test_mode(test_mode bm) noexcept { this->_set_bits(10, 0b111, (test_mode)bm); }
+         inline bool get_no_sorting() const noexcept { return this->_get_flag(13); }
+         inline void set_no_sorting(bool s) noexcept { this->_mod_flag(13, s); }
+   };
+
+   class NiShadeProperty : public NiProperty {
+   };
+
+   class BSShaderProperty : public NiShadeProperty {
       public:
          static constexpr uint32_t vtbl = 0x0114EB18;
          static constexpr NiRTTI*  rtti = (NiRTTI*)0x01BA743C;
@@ -92,7 +162,7 @@ namespace RE {
          virtual UInt32 Unk_2C(UInt32); // always returns 1
          virtual void   Unk_2D();
          virtual UInt32 Unk_2E(); // always returns 0 on this class; on BSLightingShaderProperty, always returns 0xB
-         virtual UInt32 Unk_2F(UInt32, UInt32, UInt32); // always returns 0
+         virtual UInt32 Unk_2F(NiGeometry* owner, UInt32, UInt32); // always returns 0
          virtual UInt32 Unk_30(); // always returns 0 on this class; on BSLightingShaderProperty, returns this->unk3C->unk3C
          virtual UInt32 Unk_31(UInt32); // always returns 0
          virtual bool   Unk_32(); // always returns false
@@ -101,7 +171,7 @@ namespace RE {
          virtual UInt32 Unk_35(); // always returns 0
          virtual UInt32 Unk_36(); // always returns 0 on this class; on BSLightingShaderProperty, always returns 2
          //
-         float  unk18 = 1.0F;
+         float  alpha = 1.0F; // 18 // confirmed to be emissive alpha. all alpha?
          UInt32 unk1C = 0x7FFFFFFF;
          UInt32 shaderFlags1 = 0; // 20
          UInt32 shaderFlags2 = 0; // 24
@@ -110,7 +180,7 @@ namespace RE {
          BSFadeNode* esp30; // set by the constructor to some unknown node at a static pointer
          UInt32 unk34 = 0;
          tArray<UInt32>* unk38 = nullptr; // BSLightingShaderProperty sets this to its own unk98; BSGrassShaderProperty sets this to its own unkC0
-         BSLightingShaderMaterial* unk3C = nullptr;
+         BSShaderMaterialBase* unk3C = nullptr; // type varies depending on shader type
          UInt32 unk40 = 0;
          UInt32 unk44;
          //
@@ -218,5 +288,13 @@ namespace RE {
          //
          uint32_t unk48 = 0;
          uint32_t unk4C;
+         //
+         static BSEffectShaderProperty* make();
+         NiColorA* GetEmissiveColor();
+         //
+         MEMBER_FN_PREFIX(BSEffectShaderProperty);
+         DEFINE_MEMBER_FN(Constructor, BSEffectShaderProperty&, 0x00C9A890);
    };
+   static_assert(sizeof(BSEffectShaderProperty) >= 0x50, "RE::BSEffectShaderProperty is too small!");
+   static_assert(sizeof(BSEffectShaderProperty) <= 0x50, "RE::BSEffectShaderProperty is too large!");
 }

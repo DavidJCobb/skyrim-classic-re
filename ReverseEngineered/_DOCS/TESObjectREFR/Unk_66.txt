@@ -1,0 +1,143 @@
+inline Actor* TESObjectREFR::AsActor() const noexcept {
+   return (this->formType == form_type::actor) ? (Actor*)this : nullptr;
+}
+
+template<typename T, const NiRTTI& desired_rtti> T* _ni_dynamic_cast(NiObject* p) {
+   auto rtti = p->GetNiRTTI();
+   if (!rtti)
+      return nullptr;
+   do {
+      if (rtti == &desired_rtti)
+         return (T*)p;
+   } while (rtti = rtti->next);
+   return nullptr;
+}
+#define NI_DYNAMIC_CAST(p, from, to) (_ni_dynamic_cast<to, NiRTTI_##from >(p))
+
+virtual void TEOSbjectREFR::Unk_66() {
+   auto esi = this;
+   if (ReferenceIsLargeStatic(this)) {
+      if (!sub004AC5B0(this))
+         return;
+   }
+   auto cell = this->parentCell;
+   if (cell && cell->unk30 != 7 && cell->unk30 != 6)
+      return;
+   NiNode* edi = this->GetNiNode();
+   NiNode* ebx = edi;
+   NiNode* esp20 = edi;
+   NiNode* esp14 = ebx;
+   if (edi) { // at 0x004E504C
+      (*g_TES)->sub00431460(1);
+      bool al = (this->loadedState) ? ((this->loadedState->unk18 & 1) != 0) : false;
+      if (!al) { // at 0x004E506B
+         if (this->IsWaterActivator()) {
+            this->sub004E3490();
+         } else {
+            auto base = this->baseForm;
+            if (base == *ptrCollisionMarkerForm) {
+               this->SetUpCollisionVolume3D();
+            } else if (base->formType == form_type::acoustic_space) {
+               this->sub004E2D10();
+            } else {
+               ExtraPrimitive* ed = this->extraData.GetPrimitiveExtraData();
+               if (ed && base->formType == form_type::activator) {
+                  this->SetUpTriggerVolume3D(); // at 0x004E50C0
+               } else if (base->formType == form_type::statik || base->formType == form_type::movable_static) {
+                  if (this->sub004D66F0()) // base form is a water activator or has water currents
+                     this->sub004E2090(); // sets up a "WaterfallCollisionNode" and other stuff
+               }
+            }
+         }
+      }
+      // at 0x004E50E7
+      auto switchNode = edi->GetAsNiSwitchNode();
+      if (!this->AsActor()) { // at 0x004E50FC
+         auto eax = sub00D151B0(switchNode, 1);
+         esp14 = ebx = eax ? eax->unk08 : edi;
+      }
+      if (ebx && cell) { // circa 0x004E511C
+         bhkWorld* edi = cell->sub004C5430();
+         auto esp18 = sub00588E20(ebx);
+         ebx = esp18 ? esp18->unk10 : nullptr;
+         if (edi) {
+            bool skip = false;
+            if (ebx) {
+               hkpWorld* esp1C = edi->Unk_24();
+               auto eax = ebx->Unk_24();
+               if (eax == esp1C)
+                  skip = true;
+            }
+            if (!skip) {
+               // at 0x004E5180
+               ebx = esp20; // NiNode* effective root node for this reference
+               edi->Unk_32(esp14, ebx);
+               if (this->extraData.TestExtraFlags(2)) {
+                  edi = esp18 ? esp18->unk10 : nullptr;
+                  auto eax  = edi->sub004D6A60();
+                  auto xmm0 = *eax;
+                  skip = false;
+                  if ((BGSSaveLoadManager::get().unk3F0 & 2) || this->flags & 0x00200000) {
+                     if (edi) { // at 0x004E51E0
+                        xmm0 -= 0.0F; // if xmm0 is zero, then we're flipping its sign, I guess?
+                        xmm0 = fabs(xmm1); // by way of AND-ing the sign bit off
+                        xmm0 = (xmmo <= 0.001F) ? 0xFFFFFFFF : 0;
+                        eax  = xmm0 ? 7 : 0; // _mm_movemask_ps(xmm0[4])
+                        skip = eax == 7;
+                     }
+                  }
+                  if (!skip) { // at 0x004E5210
+                     skip = this->sub004D4ED0(); // gets flag 0x100 unless it's a door or light
+                  } else {
+                     skip = false;
+                  }
+                  if (!skip) {
+                     SetNodeMotionType(ebx, 5, true, false, true); // set node to fixed physics
+                  }
+               }
+               // at 0x004E522C
+               auto baseType = this->baseForm->formType; // no nullptr check
+               if (baseType == form_type::statik || baseType == form_type::static_collection) {
+                  SetNodeMotionType(ebx, 5, true, false, true); // set node to fixed physics
+               } else {
+                  // at 0x004E5251
+                  if (this->sub004D4ED0()) { // gets flag 0x100 unless it's a door or light
+                     SetNodeMotionType(ebx, 1, true, true, true); // set to dynamic physics // at 0x004E5269
+                     if (esp18 && esp18->rigidBody && (hkpRigidBody* eax = esp18->rigidBody->wrappedHavokObject)) {
+                        uint32_t edx = eax->unkE0.motionSystem;
+                        if (MotionTypeIsDynamic(edx)) { // at 0x004E52A1
+                           RE::NiPoint3 esp24;
+                           ((RE::NiPoint3*)0x012C52D0)->Multiply(&esp24, -1.0F); // esp24 = (0, 0, 1) * -1;
+                           sub00588D80(ebx, &esp24, 0);
+                        }
+                     }
+                     // at 0x004E52CA
+                     if (!(baseType == form_type::door || baseType == form_type::light)) {
+                        //
+                        // For doors and lights, this flag indicates that they are inaccessible or 
+                        // that they don't light water, respectively. For all other base forms, this 
+                        // reference flag has the same meaning, but that meaning is not known.
+                        //
+                        this->flags &= ~0x100;
+                     }
+                  }
+               }
+            }
+         }
+      } else {
+         // at 0x004E52E1
+         auto treeNode = NI_DYNAMIC_CAST(edi);
+         if (edi && cell) {
+            // at 0x004E5307
+            if (bhkWorld* eax = cell->sub004C5430()) {
+               eax->Unk_31(edi, 0, 0, 0, 0);
+            }
+         }
+      }
+      // at 0x004E5325
+      (*g_TES)->sub00431460(0);
+   }
+   // at 0x004E5332
+   if (this->loadedState)
+      this->loadedState->unk18 |= 1;
+}

@@ -79,4 +79,6 @@ namespace RE {
          // ...?
          //
    };
+
+   static DEFINE_SUBROUTINE(BSXFlags*, GetBSXFlags, 0x00AFD980, NiObjectNET*);
 };
