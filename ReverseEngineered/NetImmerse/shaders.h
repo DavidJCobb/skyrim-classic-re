@@ -47,8 +47,9 @@ namespace RE {
             never,
          };
          //
-         uint16_t alphaFlags;     // 18
-         uint16_t alphaThreshold; // 1A
+         uint16_t alphaFlags = 0xEC; // 18 // Source Blend Mode: Source Alpha; Dest Blend Mode: Source Alpha Inverse; all flags cleared
+         uint8_t  alphaThreshold;    // 1A
+         uint8_t  pad1B;
          //
          static NiAlphaProperty* make();
          //
@@ -259,14 +260,14 @@ namespace RE {
          UInt32 unk1C = 0x7FFFFFFF;
          UInt32 shaderFlags1 = 0; // 20
          UInt32 shaderFlags2 = 0; // 24
-         UInt32 unk28 = 0;
+         void*  unk28 = nullptr;
          UInt32 unk2C = 0;
          BSFadeNode* esp30; // set by the constructor to some unknown node at a static pointer
          UInt32 unk34 = 0;
          tArray<UInt32>* unk38 = nullptr; // BSLightingShaderProperty sets this to its own unk98; BSGrassShaderProperty sets this to its own unkC0
          BSShaderMaterialBase* unk3C = nullptr; // type varies depending on shader type
          UInt32 unk40 = 0;
-         UInt32 unk44;
+         void*  unk44 = nullptr;
          //
          MEMBER_FN_PREFIX(BSShaderProperty);
          DEFINE_MEMBER_FN(Constructor, BSShaderProperty&, 0x00C6F9F0);
@@ -378,6 +379,8 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(BSEffectShaderProperty);
          DEFINE_MEMBER_FN(Constructor, BSEffectShaderProperty&, 0x00C9A890);
+         //
+         // The constructor sets: shader_flag_index_1::zbuffer_test; shader_flag_index_2::z_buffer_write
    };
    static_assert(sizeof(BSEffectShaderProperty) >= 0x50, "RE::BSEffectShaderProperty is too small!");
    static_assert(sizeof(BSEffectShaderProperty) <= 0x50, "RE::BSEffectShaderProperty is too large!");

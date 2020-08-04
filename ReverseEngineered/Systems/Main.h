@@ -67,8 +67,8 @@ namespace RE {
          //  - Either unk05 or unk06 is very likely quitToMainMenuQueued, based on Oblivion RE.
          //
          //
-         bool   queuedForceQuit = false; // 04 // If this is set to true, the game will force-quit to desktop ASAP. This is how the QQQ console command works.
-         bool   unk05 = false; // 05 // the ForceReset console command sets this to true
+         bool   queuedForceQuit      = false; // 04 // If this is set to true, the game will force-quit to desktop ASAP. This is how the QQQ console command works.
+         bool   queuedQuitToMainMenu = false; // 05 // the ForceReset console command sets this to true
          bool   unk06 = false; // 06 // the ForceReset console command sets this to true
          bool   unk07 = false; // 07
          UInt8  unk08 = 0;

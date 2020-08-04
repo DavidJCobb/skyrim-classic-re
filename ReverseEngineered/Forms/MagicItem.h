@@ -1,6 +1,5 @@
 #pragma once
 #include "TESForm.h"
-#include "BaseForms/base.h"
 
 class EffectSetting;
 namespace RE {
