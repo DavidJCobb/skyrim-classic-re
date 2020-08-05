@@ -392,6 +392,10 @@ namespace RE {
 
          Bound boundsMin; // 14
          Bound boundsMax; // 1A
+
+         MEMBER_FN_PREFIX(TESBoundObject);
+         DEFINE_MEMBER_FN(GetEstimatedSize, float, 0x0049E7F0);
+         DEFINE_MEMBER_FN(GetLateralDiagonalLength, float, 0x0049E840); // X/Y diagonal length
    };
    static_assert(sizeof(TESBoundObject) == 0x20, "RE::TESBoundObject is the wrong size.");
 

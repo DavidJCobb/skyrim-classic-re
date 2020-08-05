@@ -336,7 +336,7 @@ namespace RE {
          virtual bool   Unk_7A();
          virtual bool   Unk_7B();
          virtual bool   Unk_7C();
-         virtual void	Unk_7D(UInt32);
+         virtual void	Unk_7D(float);
          virtual ActorWeightModel* GetWeightModel(UInt32 weightModel); // 0 Small 1 Large
          virtual ActorWeightData*  Unk_7F();
          virtual ActorWeightModel* Unk_80(); // seen in use by the code to fire arrows from a (cross)bow.
@@ -468,6 +468,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);
          DEFINE_MEMBER_FN(GetInventoryEntryAt, InventoryEntryData*, 0x004D9EE0, uint32_t index, bool useDataHandlerInsteadOfInventory); // (index) is relative to (CountItemTypes) // returns a shallow copy: new entry data, but pointers to the BaseExtraLists of the others
          DEFINE_MEMBER_FN(GetLinkedRef,            TESObjectREFR*,   0x004EA4B0, BGSKeyword*);
+         DEFINE_MEMBER_FN(GetNiTransform,          void,             0x004D5380, NiTransform& out); // exports position, rotation, and size
          DEFINE_MEMBER_FN(GetOrCreateRefHandle, ref_handle&, 0x006BD6C0, ref_handle&); // <-- Modifies *out; returns out. Calls CreateRefHandleByREFR if the reference's refcount is non-zero.
          DEFINE_MEMBER_FN(GetScale,                float,            0x004D5230);
          DEFINE_MEMBER_FN(GetShieldBodyPartIndex,  SInt32,           0x004D6630); // returns a body part index (for Shield) pulled from the race data, or -1 if the reference isn't a valid actor
@@ -478,6 +479,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetWorldspace,           TESWorldSpace*,   0x004D5EB0);
          DEFINE_MEMBER_FN(HasEffectKeyword,        bool,             0x004D57A0, BGSKeyword*);
          DEFINE_MEMBER_FN(HasWaterCurrents,        bool,             0x006D66F0); // base form IsWaterActivator or HasWaterCurrents
+         DEFINE_MEMBER_FN(IsDisabledDeletedOrDestroyed, bool, 0x004D6280);
          DEFINE_MEMBER_FN(IsLocked,                bool,             0x004EB5B0); // if the reference is a teleport door, this checks the door on the other side, too
          DEFINE_MEMBER_FN(IsOffLimits,             bool,             0x004DA760);
          DEFINE_MEMBER_FN(IsPerchFurniture,        bool,             0x004E9F20);
@@ -488,6 +490,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetDestroyed,            void,             0x00450E30, bool);
          DEFINE_MEMBER_FN(SetDisabledFlag,         void,             0x00450FB0, bool); // sets disabled flag and marks changed; DOES NOT ACTUALLY DISABLE THE REFERENCE
          DEFINE_MEMBER_FN(SetEncounterZone,        void,             0x004EA9E0, BGSEncounterZone*); // also sets the reference's EXTRA_ENCOUNTER_ZONE changeflag
+         DEFINE_MEMBER_FN(SetExtraMultiBoundRef,   void,             0x004EB100, TESObjectREFR*); // validates the other ref's base form and ensures you don't set a ref's multibound ref to itself
          DEFINE_MEMBER_FN(SetOwner,                void,             0x004EC310, void*); // Argument is any form that is a valid owner, e.g. TESFaction. This function sets ownership on the ref; if the ref is a load door, its matching door is also altered.
          DEFINE_MEMBER_FN(SetPitch,                void,             0x004DC9D0, float); // X // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).
          DEFINE_MEMBER_FN(SetRoll,                 void,             0x004DCA60, float); // Y // Does not honor actor-specific limitations like the race "immobile" flag. Does call Unk_54 for actors, though. Sets change-flag 2 (MOVE).

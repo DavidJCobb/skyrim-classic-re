@@ -196,11 +196,11 @@ namespace RE {
          virtual void Unk_25(UInt32 arg0);
          virtual void Unk_26(UInt32 arg0);
          virtual NiAVObject* GetObjectByName(const BSFixedString&); // 27	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type
-         virtual void SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid);
-         virtual void UpdateDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1);
-         virtual void UpdateSelectedDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1);
-         virtual void UpdateRigidDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1);
-         virtual void UpdateWorldBound(void);
+         virtual void SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid); // 28
+         virtual void UpdateDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1); // 29
+         virtual void UpdateSelectedDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1); // 2A
+         virtual void UpdateRigidDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1); // 2B
+         virtual void UpdateWorldBound(void); // 2C
          virtual void UpdateWorldData(ControllerUpdateContext * ctx);
          virtual void UpdateNoControllers(ControllerUpdateContext * ctx);
          virtual void UpdateDownwardPassTempParent(NiNode * parent, ControllerUpdateContext * ctx);
@@ -255,6 +255,59 @@ namespace RE {
    };
    static_assert(sizeof(LoadedAreaBound) == 0x6C, "LoadedAreaBound is the wrong size.");
    static_assert(offsetof(LoadedAreaBound, boundsMax) == 0x44, "LoadedAreaBound::boundsMax is at the wrong offset.");
+
+   class BSMultiBoundShape : public NiObject {
+      public:
+         static constexpr uint32_t vtbl = 0x0111EC34;
+         virtual uint32_t Unk_21(); // pure // returns an enum; probably "get type"
+         virtual float    GetRadius(); // 22 // pure
+         virtual uint32_t Unk_23(uint32_t); // pure
+         virtual bool     Unk_24(uint32_t); // pure
+         virtual bool     Unk_25(uint32_t); // pure
+         virtual bool     Unk_26(); // pure
+         virtual void     ToBound(NiBound& out); // 27 // pure
+         virtual bool     ContainsPoint(const NiPoint3&); // 28
+         virtual void     SetPosition(const NiPoint3&); // 29
+         virtual bool     Unk_2A(uint32_t);
+         //
+         uint32_t unk08 = 0;
+         //
+         MEMBER_FN_PREFIX(BSMultiBoundShape);
+         DEFINE_MEMBER_FN(Constructor, BSMultiBoundShape&, 0x00B0A2C0);
+   };
+   class BSMultiBoundAABB : public BSMultiBoundShape { // sizeof == 0x30
+      public:
+         static constexpr uint32_t vtbl = 0x0107DB4C;
+         //
+         uint32_t unk0C;
+         NiPoint3 position; // 10
+         uint32_t unk1C;
+         NiPoint3 halfwidths; // 20
+         uint32_t unk2C;
+         //
+         MEMBER_FN_PREFIX(BSMultiBoundAABB);
+         DEFINE_MEMBER_FN(Constructor,  BSMultiBoundAABB&, 0x00AFBC20);
+         DEFINE_MEMBER_FN(Constructor2, BSMultiBoundAABB&, 0x00469970, const NiPoint3& position, const NiPoint3& halfwidths);
+   };
+   class BSMultiBoundOBB : public BSMultiBoundAABB { // sizeof == 0x58
+      public:
+         static constexpr uint32_t vtbl = 0x0107DBFC;
+         //
+         NiMatrix33 rotation; // 30
+         //
+         MEMBER_FN_PREFIX(BSMultiBoundOBB);
+         DEFINE_MEMBER_FN(Constructor, BSMultiBoundOBB&, 0x004699D0, const NiPoint3& position, const NiPoint3& halfwidths, const NiMatrix33& rotation);
+   };
+   class BSMultiBoundSphere : public BSMultiBoundShape { // sizeof == 0x1C
+      public:
+         static constexpr uint32_t vtbl = 0x0107DA2C;
+         //
+         NiPoint3 position; // 0C // centerpoint
+         float    radius;   // 18
+         //
+         MEMBER_FN_PREFIX(BSMultiBoundSphere);
+         DEFINE_MEMBER_FN(Constructor, BSMultiBoundSphere&, 0x00B0A470);
+   };
 
    class BSMultiBound : public NiObject { // sizeof == 0x10
       public:

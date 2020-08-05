@@ -31,6 +31,8 @@ namespace RE {
          MEMBER_FN_PREFIX(NiPoint3);
          DEFINE_MEMBER_FN(Add,              NiPoint3*, 0x00420320, NiPoint3& out, const NiPoint3& other);
          DEFINE_MEMBER_FN(Add_B,            NiPoint3&, 0x00420470, const NiPoint3& other); // modifies and returns self
+         DEFINE_MEMBER_FN(CompareDistance,  int,       0x004ADDF0, const NiPoint3& other, float compareTo); // return (*this - other).CompareLength(compareTo);
+         DEFINE_MEMBER_FN(CompareLength,    int,       0x004ADD70, float length); // if this->GetLength() < length, returns -1; if greater, returns 1; if equal, returns 0
          DEFINE_MEMBER_FN(GetLength,        float,     0x0040A4B0);
          DEFINE_MEMBER_FN(GetLengthSquared, float,     0x004310E0); // if you're comparing the length to a constant, it's faster to compare the squared length to the squared constant
          DEFINE_MEMBER_FN(Multiply,         NiPoint3*, 0x004203A0, NiPoint3& out, const float other);

@@ -58,7 +58,7 @@ virtual void TEOSbjectREFR::Unk_66() {
       }
       if (ebx && cell) { // circa 0x004E511C
          bhkWorld* edi = cell->sub004C5430();
-         auto esp18 = sub00588E20(ebx);
+         bhkCollisionObject* esp18 = sub00588E20(ebx);
          ebx = esp18 ? esp18->unk10 : nullptr;
          if (edi) {
             bool skip = false;

@@ -42,7 +42,7 @@ namespace RE {
                statik,
                active,
                unk_06,
-               rooms, // BSMultiBoundRoom*
+               rooms, // children are BSMultiBoundRoom*
                unk_08, // collision markers?
             };
          };
@@ -234,10 +234,14 @@ namespace RE {
          DEFINE_MEMBER_FN(AddRefToList,      void, 0x004D3EA0, RE::TESObjectREFR* reference, UInt32 unknown); // Second argument is zero. You need to call CellRefLockEnter before, and CellRefLockExit after.
          DEFINE_MEMBER_FN(RemoveRefFromList, void, 0x004CB7B0, RE::TESObjectREFR* reference); // Calls CellRefLockEnter and CellRefLockExit for you.
          //
+         DEFINE_MEMBER_FN(CreateCellNodes, void, 0x004CFBE0); // used internally; listed here for documentation; do not call
          DEFINE_MEMBER_FN(GetUsablePortalGraph, BSPortalGraph*, 0x004C2020); // gets the cell's BSPortalGraph if the cell is loaded, or one from the parent world if any
          DEFINE_MEMBER_FN(GetRootNode,   BSMultiBoundNode*, 0x004C2230); // gets the cell's root 3D node; each child has a special purpose; you probably shouldn't append to it directly
          DEFINE_MEMBER_FN(GetCellNode,   NiNode*, 0x00432BD0, cell_node_type::type which); // GetNode()->children[which]
-         DEFINE_MEMBER_FN(GetMarkerNode, NiNode*, 0x00432C00); // GetNode()->children[1]; apparently used during the weapon-firing process
+         DEFINE_MEMBER_FN(GetActorNode,  NiNode*, 0x004C3FC0); // GetNode()->children[cell_node_type::actor];
+         DEFINE_MEMBER_FN(GetMarkerNode, NiNode*, 0x00432C00); // GetNode()->children[cell_node_type::marker]; apparently used during the weapon-firing process
+         DEFINE_MEMBER_FN(GetWaterNode,  NiNode*, 0x004C3FF0); // GetNode()->children[cell_node_type::water];
+         DEFINE_MEMBER_FN(GetStaticNode, NiNode*, 0x004C4020); // GetNode()->children[cell_node_type::statik];
          //
          DEFINE_MEMBER_FN(GetAcousticSpace,    BGSAcousticSpace*, 0x004C0760);
          DEFINE_MEMBER_FN(GetEncounterZone,    BGSEncounterZone*, 0x004C2240); // checks unk88::unkA8, extra data, and parent worldspace

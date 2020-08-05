@@ -239,6 +239,7 @@ namespace RE {
          MEMBER_FN_PREFIX(BSTArray);
          DEFINE_MEMBER_FN(construct_elements, void, 0x00736600, uint32_t start, uint32_t amount, BSString& value); // for BSTArray<BSString> // default-constructs elements in the given range (if they already exist, destructors are not called) and then sets them to (value) by way of BSString::assign
    };
+   static DEFINE_SUBROUTINE(void, append_dword_to_array, 0x005FF766, BSTArray<uint32_t>& arr, uint32_t value); // for arrays templated on four-byte values; listed here for documentation purposes only
 
    template<class T> struct tList {
       //

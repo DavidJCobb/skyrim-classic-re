@@ -33,7 +33,7 @@ namespace RE {
       public:
          NiPointer<BSMultiBound> unkB8 = nullptr;
          uint32_t unkBC = 0;
-         uint32_t unkC0 = 0;
+         float    unkC0 = 0.0F;
          //
          MEMBER_FN_PREFIX(BSMultiBoundNode);
          DEFINE_MEMBER_FN(Constructor, BSMultiBoundNode&, 0x00B16110);
