@@ -262,7 +262,7 @@ namespace RE {
          virtual bool Unk_21(uint32_t);
          virtual void SetPosition(const NiPoint3&); // 22 // no-op
          //
-         uint32_t unk08 = 0;
+         BSMultiBoundNode* unk08 = nullptr; // possibly "owner"; NOT a smart pointer
          NiPointer<BSMultiBoundShape> shape = nullptr; // 0C
          //
          MEMBER_FN_PREFIX(BSMultiBound);

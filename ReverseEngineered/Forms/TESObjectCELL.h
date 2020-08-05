@@ -21,7 +21,31 @@ namespace RE {
    class TESObjectCELL : public TESForm {
       public:
          operator ::TESObjectCELL*() const { return (::TESObjectCELL*) this; }
-         enum { kTypeID = kFormType_Cell };
+         enum { kTypeID = kFormType_Cell }; // needed for SKSE Papyrus compatibility
+         static constexpr form_type_t form_type = form_type::cell;
+         //
+         struct cell_node_type {
+            //
+            // Cells have a root node, and a small number of child nodes, each of which is responsible 
+            // for handling different types of objects. TESObjectCELL is careful to check that a given 
+            // child node exists before using it, but does NOT run correctness checks on their contents.
+            //
+            // These indices also line up with the enum used for the ToggleCellNode console command, 
+            // which no doubt is deliberate.
+            //
+            cell_node_type() = delete;
+            enum type : uint32_t {
+               actor,
+               marker,
+               land,
+               water,
+               statik,
+               active,
+               unk_06,
+               rooms, // BSMultiBoundRoom*
+               unk_08, // collision markers?
+            };
+         };
          //
          struct UnknownData {
             UInt32 unk00;
@@ -151,7 +175,7 @@ namespace RE {
             BGSEncounterZone* unkA8 = nullptr; // A8
             void*    unkAC;
             uint32_t unkB0 = 0;
-            uint32_t unkB4 = 0;
+            uint32_t unkB4 = 0; // atomic?
             uint32_t unkB8 = 0;
             uint32_t unkBC = 0xFFFFFFFF;
             uint8_t  unkC0 = 0;
@@ -201,6 +225,7 @@ namespace RE {
                return data->data;
             return nullptr;
          };
+         NiNode* GetMultiBoundRoomContainer() noexcept; // every child of this node is guaranteed to be a BSMultiBoundRoom*
          //
          MEMBER_FN_PREFIX(TESObjectCELL);
          //
@@ -210,7 +235,9 @@ namespace RE {
          DEFINE_MEMBER_FN(RemoveRefFromList, void, 0x004CB7B0, RE::TESObjectREFR* reference); // Calls CellRefLockEnter and CellRefLockExit for you.
          //
          DEFINE_MEMBER_FN(GetUsablePortalGraph, BSPortalGraph*, 0x004C2020); // gets the cell's BSPortalGraph if the cell is loaded, or one from the parent world if any
-         DEFINE_MEMBER_FN(GetNode, BSMultiBoundNode*, 0x004C2230); // gets the cell's root 3D node; anything you want to render in the cell should be attached here
+         DEFINE_MEMBER_FN(GetRootNode,   BSMultiBoundNode*, 0x004C2230); // gets the cell's root 3D node; each child has a special purpose; you probably shouldn't append to it directly
+         DEFINE_MEMBER_FN(GetCellNode,   NiNode*, 0x00432BD0, cell_node_type::type which); // GetNode()->children[which]
+         DEFINE_MEMBER_FN(GetMarkerNode, NiNode*, 0x00432C00); // GetNode()->children[1]; apparently used during the weapon-firing process
          //
          DEFINE_MEMBER_FN(GetAcousticSpace,    BGSAcousticSpace*, 0x004C0760);
          DEFINE_MEMBER_FN(GetEncounterZone,    BGSEncounterZone*, 0x004C2240); // checks unk88::unkA8, extra data, and parent worldspace
