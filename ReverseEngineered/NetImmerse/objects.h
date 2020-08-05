@@ -5,11 +5,14 @@
 #include "skse/Utilities.h"
 #include "ReverseEngineered/Shared.h"
 
+class BGSPrimitive;
 class bhkAabbPhantom;
+class BSMultiBoundShape;
 namespace RE {
    class bhkCollisionObject;
    class bhkRigidBody;
    class BSFadeNode;
+   class BSMultiBoundNode;
    class NiExtraData;
    class NiGeometry;
    class NiNode;
@@ -66,7 +69,7 @@ namespace RE {
          virtual NiNode*			GetAsNiNode(); // 03
          virtual NiSwitchNode*	GetAsNiSwitchNode(); // 04
          virtual BSFadeNode*		GetAsBSFadeNode(); // 05
-         virtual UInt32			   Unk_06();
+         virtual BSMultiBoundNode* GetAsBSMultiBoundNode(); // 06
          virtual NiGeometry*		GetAsNiGeometry(); // 07
          virtual NiTriBasedGeom*	GetAsNiTriBasedGeom(); // 08
          virtual NiTriStrips*		GetAsNiTriStrips(); // 09
@@ -145,8 +148,28 @@ namespace RE {
                selective_update              = 0x00000002,
                update_property_controllers   = 0x00000004,
                selective_update_rigid        = 0x00000010,
+               display_object                = 0x00000020, // UI?
+               disable_sorting               = 0x00000040,
                override_selective_transforms = 0x00000080,
-               always_draw                   = 0x00020000,
+               //
+               save_external_geom_data       = 0x00000200,
+               no_decals                     = 0x00000400,
+               always_draw                   = 0x00000800,
+               mesh_lod                      = 0x00001000,
+               fixed_bound                   = 0x00002000,
+               top_fade_node                 = 0x00004000,
+               ignore_fade                   = 0x00008000,
+               no_anim_sync_x                = 0x00010000,
+               no_anim_sync_y                = 0x00020000,
+               no_anim_sync_z                = 0x00040000,
+               no_anim_sync_s                = 0x00080000,
+               no_dismember                  = 0x00100000,
+               no_dismember_validity         = 0x00200000,
+               render_use                    = 0x00400000,
+               materials_applied             = 0x00800000,
+               high_detail                   = 0x01000000,
+               force_update                  = 0x02000000,
+               preprocessed_node             = 0x04000000,
             };
          };
          using flags_t = std::underlying_type_t<flag::type>;
@@ -232,6 +255,20 @@ namespace RE {
    };
    static_assert(sizeof(LoadedAreaBound) == 0x6C, "LoadedAreaBound is the wrong size.");
    static_assert(offsetof(LoadedAreaBound, boundsMax) == 0x44, "LoadedAreaBound::boundsMax is at the wrong offset.");
+
+   class BSMultiBound : public NiObject { // sizeof == 0x10
+      public:
+         static constexpr uint32_t vtbl = 0x0111D954;
+         virtual bool Unk_21(uint32_t);
+         virtual void SetPosition(const NiPoint3&); // 22 // no-op
+         //
+         uint32_t unk08 = 0;
+         NiPointer<BSMultiBoundShape> shape = nullptr; // 0C
+         //
+         MEMBER_FN_PREFIX(BSMultiBound);
+         DEFINE_MEMBER_FN(Constructor, BSMultiBound&, 0x00AFA620);
+         DEFINE_MEMBER_FN(SetShape, void, 0x0046ACC0, BSMultiBoundShape*); // refcounted class?
+   };
 
    DEFINE_SUBROUTINE_EXTERN(bhkCollisionObject*, GetBhkCollisionObjectForNiObject, 0x0046A240, NiObject* obj); // returns obj->unk1C ? obj->unk1C : obj->GetAsBhkCollisionObject();
    DEFINE_SUBROUTINE_EXTERN(bool,                NiObjectIs,                       0x0042A960, const NiRTTI*, const NiObject*);

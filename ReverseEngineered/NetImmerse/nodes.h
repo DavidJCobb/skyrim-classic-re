@@ -3,6 +3,8 @@
 #include "objects.h"
 
 namespace RE {
+   class BSMultiBound;
+
    class NiNode : public NiAVObject { // sizeof == 0xB8
       public:
          virtual void AttachChild(NiAVObject* obj, bool firstAvail); // 33 // if (obj) has a parent node, it will be removed from that parent by way of parent::RemoveChild
@@ -29,12 +31,32 @@ namespace RE {
 
    class BSMultiBoundNode : public NiNode { // sizeof == 0xC4
       public:
-         uint32_t unkB8 = 0;
+         NiPointer<BSMultiBound> unkB8 = nullptr;
          uint32_t unkBC = 0;
          uint32_t unkC0 = 0;
          //
          MEMBER_FN_PREFIX(BSMultiBoundNode);
          DEFINE_MEMBER_FN(Constructor, BSMultiBoundNode&, 0x00B16110);
+         DEFINE_MEMBER_FN(SetMultiBound, void, 0x004291E0, BSMultiBound*);
+   };
+
+   class BSMultiBoundRoom : public BSMultiBoundNode { // sizeof == 0xF4
+      public:
+         static constexpr uint32_t vtbl = 0x0111DA1C;
+         //
+         uint32_t unkC4 = 0;
+         uint32_t unkC8 = 0;
+         uint32_t unkCC = 0;
+         uint32_t unkD0 = 0;
+         uint32_t unkD4 = 0;
+         uint32_t unkD8 = 0;
+         uint32_t unkDC = 0;
+         uint32_t unkE0 = 0;
+         uint32_t unkE4 = 0;
+         tArray<uint32_t> unkE8;
+         //
+         MEMBER_FN_PREFIX(BSMultiBoundRoom);
+         DEFINE_MEMBER_FN(Constructor, BSMultiBoundRoom&, 0x00AFCD30);
    };
 
    class BSFadeNode : public NiNode { // sizeof == 0xE4

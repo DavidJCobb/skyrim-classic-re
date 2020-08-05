@@ -1,5 +1,5 @@
 #pragma once
-#include "skse/GameForms.h"
+#include "ReverseEngineered/Forms/TESForm.h"
 
 class BGSLoadFormBuffer;
 namespace RE {

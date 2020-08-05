@@ -30,6 +30,7 @@ namespace RE {
    //
    // Forward declarations, so the compiler doesn't choke:
    //
+   class BSMultiBoundRoom;
    class DecalGroup;
    class ExtraDataList;
    class InventoryChanges;
@@ -525,7 +526,7 @@ namespace RE {
          ExtraPrimitive();
          virtual ~ExtraPrimitive();
          //
-         ::BGSPrimitive* primitive = NULL;
+         ::BGSPrimitive* primitive = nullptr;
          //
          // The primitive data only contains the size and type. For the collision 
          // layer, you also need a ExtraCollisionData.
@@ -542,6 +543,14 @@ namespace RE {
          float radiusModifier;
          //
          static ExtraRadius* Create();
+   };
+   class ExtraRoom : public BSExtraData { // sizeof == 0xC
+      //
+      // This extra-data is assigned to a TESObjectREFR that is a room marker, and allows 
+      // that reference to find its room node.
+      //
+      public:
+         NiPointer<BSMultiBoundRoom> unk08; // 08
    };
    class ExtraRunOncePacks : public BSExtraData {
       public:
@@ -777,6 +786,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetExtraRank,                     UInt32,  0x0040C110); // Returns rank (or -1 if no extra data) directly, without using the FPU stack. Not sure if float.
          DEFINE_MEMBER_FN(GetExtraReferenceHandle,          ref_handle&, 0x004110F0, ref_handle& out); // Never modify *retval. Usually retval == out; sometimes it == g_invalidRefHandle.
          DEFINE_MEMBER_FN(GetExtraRegionList,               void*,   0x0040CD90); // Return type not verified.
+         DEFINE_MEMBER_FN(GetExtraRoomNode,                 BSMultiBoundRoom*,   0x0040D6E0);
          DEFINE_MEMBER_FN(GetExtraScale,                    float,   0x0040C220); // Returns scale (or 1.0 if no extra data) via the FPU stack.
          DEFINE_MEMBER_FN(GetExtraSceneData,                void*,   0x0040D800); // Return type not verified. Returns NULL/zero if no extra data.
          DEFINE_MEMBER_FN(GetExtraShouldWear,               bool,    0x0040C480, ExtraShouldWear::Data* out);
@@ -832,6 +842,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetExtraItemDropper, void, 0x00415420, TESObjectREFR*); // Set who dropped this item.
          DEFINE_MEMBER_FN(SetExtraLock,                     ExtraLock*,       0x0040C560, void*);        // Deletes the unk08 on any existing lock data, and then sets a new unk08 pointer. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraMapMarkerData,            void,             0x0040F960, ExtraMapMarker::Data*); // If argument is NULL, deletes existing data.
+         DEFINE_MEMBER_FN(SetExtraMultiBoundRef, void, 0x00412860, uint32_t); // during load, receives a ref form ID; not sure if it needs a form post-load. if ref A sets ref B as its "extra multibound ref," then A will render from B's room marker regardless of its own position
          DEFINE_MEMBER_FN(SetExtraRadius,                   void,             0x00412A70, float value);  // Sets radius data. Creates new data if needed, or destroys it if setting to 0.
          DEFINE_MEMBER_FN(SetExtraSoul,                     ExtraSoul*,       0x0040C820, UInt8 value);  // Sets soul data. Creates the new extra-data if needed.
          DEFINE_MEMBER_FN(SetExtraStartingWorldOrCell,      void,             0x00414DA0, void* startingWorldOrCell); // If argument is NULL, deletes existing data.

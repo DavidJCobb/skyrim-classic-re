@@ -84,6 +84,7 @@ namespace RE {
          //
          MEMBER_FN_PREFIX(DecalGroup);
          DEFINE_MEMBER_FN(Constructor, DecalGroup&, 0x004DADD0, bool, bool);
+         DEFINE_MEMBER_FN(Subroutine0045D0F0, void, 0x0045D0F0); // teardown?
    };
 
    class Singleton012E5B8C {

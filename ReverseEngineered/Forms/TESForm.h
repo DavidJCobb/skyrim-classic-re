@@ -161,8 +161,10 @@ namespace RE {
 class BGSLoadFormBuffer;
 class BGSSaveFormBuffer;
 class BSString;
+class EnchantmentItem;
 class TESForm;
 namespace RE {
+   class BaseExtraList;
    class BSFadeNode;
    class TESObjectREFR;
 
@@ -401,6 +403,7 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(::BGSKeywordForm*, GetKeywordListFor, 0x0044B2D0, ::TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipSlot*, GetEquipSlotFor, 0x0044AB00, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BGSEquipType*, GetEquipTypeFor, 0x0044AA10, TESForm*);
+   static DEFINE_SUBROUTINE(EnchantmentItem*, GetFirstEnchantmentForForm, 0x0044FF90, TESForm*, BaseExtraList*);
    static DEFINE_SUBROUTINE(const char*, GetFormName, 0x00452300, TESForm*);
    DEFINE_SUBROUTINE_EXTERN(BOOL, FormHasModel, 0x00453EF0, TESForm*); // checks the model path in TESModel and returns the length or, if there's no TESModel: checks if the form is a TESObjectREFR, and then things get complicated
    static DEFINE_SUBROUTINE(bool, FormHasName, 0x004522D0, TESForm*);

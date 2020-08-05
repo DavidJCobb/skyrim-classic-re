@@ -462,6 +462,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetCurrentLocation,      BGSLocation*,     0x004D83C0);
          DEFINE_MEMBER_FN(GetDistance,             float,            0x004D7ED0, TESObjectREFR* other, bool evenIfDisabled, bool oftenFalse);
          DEFINE_MEMBER_FN(GetDistanceSquared,      float,            0x004D7ED0, TESObjectREFR* other, bool evenIfDisabled, bool oftenFalse);
+         DEFINE_MEMBER_FN(GetExtraMultiBoundRef,   TESObjectREFR*,   0x004EA490); // if A uses B as its multibound ref, then A will render from B's roombound regardless of its own coordinates
          DEFINE_MEMBER_FN(GetFormWeight,           float,            0x004EA1A4); // == GetFormWeight(this->baseForm);
          DEFINE_MEMBER_FN(GetHealth,               float,            0x004E9F90);
          DEFINE_MEMBER_FN(GetHealthPercent,        float,            0x004EA050);

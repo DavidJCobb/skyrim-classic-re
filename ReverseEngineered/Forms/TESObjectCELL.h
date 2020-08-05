@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ReverseEngineered/ExtraData.h"
+#include "ReverseEngineered/Types.h"
 #include "ReverseEngineered/Forms/TESForm.h"
 #include "ReverseEngineered/Forms/BGSLightingTemplate.h"
 
@@ -135,21 +136,20 @@ namespace RE {
             NiNode*  unk08; // 08
             NiNode*  unk0C; // 0C
             uint32_t unk10 = 0;
-            tList<uint32_t> unk14; // cleared by TESObjectCELL::Subroutine004D3250
-            tArray<uint32_t> unk1C;
-            tArray<uint32_t> unk28;
+            tList<uint32_t> unk14; // entries removed by TESObjectCELL::Subroutine004D3250. either is a list of ref_handle, or a list of structs that contain handles
+            tArray<ref_handle> unk1C; // lots of entries
+            tArray<ref_handle> unk28; // possibly room and portal markers?
             NiTMap<TESForm*, ref_handle> unk34; // 34 // type confirmed via RTTI // related to ExtraEmittanceSource on refs? see TESObjectCELL::Subroutine004D2110
             NiTMap<ref_handle, NiNode*>  unk44; // 44 // type confirmed via RTTI; this specifically uses a bare node pointer
             NiTMap<ref_handle, NiPointer<BSMultiBoundNode>> unk54; // 54 // type confirmed via RTTI; this specifically uses a smart node pointer
             NiTMap<BSMultiBoundNode*, ref_handle> unk64; // 64 // type confirmed via RTTI; this specifically uses a bare node pointer
             tList<uint64_t> unk74; // 74 // sizeof(item) == 8
-            uint32_t unk7C = 0;
-            uint32_t unk80 = 0;
+            tList<ref_handle> unk7C; // 7C // see TESObjectCELL::Subroutine004D1810
             tArray<uint32_t> unk84;
-            tArray<uint32_t> unk90; // very likely an array of ref_handles
+            tArray<uint32_t> unk90; // very likely an array of ref_handles. related to decals.
             tArray<ref_handle> unk9C; // 9C
             BGSEncounterZone* unkA8 = nullptr; // A8
-            uint32_t unkAC;
+            void*    unkAC;
             uint32_t unkB0 = 0;
             uint32_t unkB4 = 0;
             uint32_t unkB8 = 0;
@@ -209,6 +209,7 @@ namespace RE {
          DEFINE_MEMBER_FN(AddRefToList,      void, 0x004D3EA0, RE::TESObjectREFR* reference, UInt32 unknown); // Second argument is zero. You need to call CellRefLockEnter before, and CellRefLockExit after.
          DEFINE_MEMBER_FN(RemoveRefFromList, void, 0x004CB7B0, RE::TESObjectREFR* reference); // Calls CellRefLockEnter and CellRefLockExit for you.
          //
+         DEFINE_MEMBER_FN(GetUsablePortalGraph, BSPortalGraph*, 0x004C2020); // gets the cell's BSPortalGraph if the cell is loaded, or one from the parent world if any
          DEFINE_MEMBER_FN(GetNode, BSMultiBoundNode*, 0x004C2230); // gets the cell's root 3D node; anything you want to render in the cell should be attached here
          //
          DEFINE_MEMBER_FN(GetAcousticSpace,    BGSAcousticSpace*, 0x004C0760);
@@ -258,6 +259,12 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004C2B00, char*,  0x004C2B00); // returns the cell's name(?), or "Wilderness" if it's a nameless exterior cell
          DEFINE_MEMBER_FN(Subroutine004C31B0, void,   0x004C31B0, UInt32, UInt32, UInt32); // something to do with whether the cell's been seen; nearby subroutines (scroll up) also are related
          DEFINE_MEMBER_FN(Subroutine004C32C0, void,   0x004C32C0); // loops over all objects in cell; performs unknown operation them
+         DEFINE_MEMBER_FN(Subroutine004D1810, void,   0x004D1810, ref_handle);
+         DEFINE_MEMBER_FN(Subroutine004D2110, void,   0x004D2110, ref_handle);
+         DEFINE_MEMBER_FN(Subroutine004D2A80, BSMultiBoundRoom*, 0x004D2A80, ref_handle); // calls Subroutine004D2760
+         DEFINE_MEMBER_FN(Subroutine004D2760, BSMultiBoundRoom*, 0x004D2760, ref_handle, bool); // GetOrCreateRoomNode?
+         DEFINE_MEMBER_FN(Subroutine004D2C80, void,   0x004D2C80, ref_handle); // related to decals
+         DEFINE_MEMBER_FN(Subroutine004D3250, void,   0x004D3250, ref_handle);
          //
          DEFINE_MEMBER_FN(ModifyPersistentFlag, void, 0x004C0CC0, bool); // persistent flag?
    };
