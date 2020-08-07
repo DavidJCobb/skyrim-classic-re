@@ -17,6 +17,12 @@ namespace RE {
             continue;
          if (child->m_name && strcmp(child->m_name, name) == 0)
             return child;
+         auto next = child->GetAsNiNode();
+         if (next) {
+            auto result = next->FindObjectByName(name);
+            if (result)
+               return result;
+         }
       }
       return nullptr;
    }

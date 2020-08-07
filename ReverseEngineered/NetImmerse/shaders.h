@@ -11,7 +11,8 @@ namespace RE {
             shade = 1,
          };
 
-         virtual type GetType(void);
+         virtual type GetType(void); // 21
+         virtual void UpdateControllers(void*); // 22 // may only exist on subclasses; need to find NiProperty's vtbl to check
    };
 
    class NiAlphaProperty : public NiProperty {

@@ -12,7 +12,7 @@ template<typename T, const NiRTTI& desired_rtti> T* _ni_dynamic_cast(NiObject* p
    } while (rtti = rtti->next);
    return nullptr;
 }
-#define NI_DYNAMIC_CAST(p, from, to) (_ni_dynamic_cast<to, NiRTTI_##from >(p))
+#define NI_DYNAMIC_CAST(p, to) (_ni_dynamic_cast<to, NiRTTI_##to >(p))
 
 virtual void TEOSbjectREFR::Unk_66() {
    auto esi = this;
@@ -126,7 +126,7 @@ virtual void TEOSbjectREFR::Unk_66() {
          }
       } else {
          // at 0x004E52E1
-         auto treeNode = NI_DYNAMIC_CAST(edi);
+         auto treeNode = NI_DYNAMIC_CAST(edi, BSTreeNode);
          if (edi && cell) {
             // at 0x004E5307
             if (bhkWorld* eax = cell->sub004C5430()) {

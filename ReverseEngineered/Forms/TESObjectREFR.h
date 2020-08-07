@@ -202,7 +202,7 @@ namespace RE {
          //
 
          virtual bool   Unk_01(UInt32);
-         virtual bool   Unk_02(UInt32);
+         virtual bool   Unk_02(void* outSmartPtr);
          virtual bool   Unk_03(UInt32);
          virtual bool   Unk_04(UInt32);
          virtual bool   Unk_05(UInt32);
@@ -477,6 +477,7 @@ namespace RE {
          DEFINE_MEMBER_FN(GetRotationAsMatrix,     NiMatrix33*,      0x004D5300, NiMatrix33* out);
          DEFINE_MEMBER_FN(GetTriggerObjectCount,   SInt32,           0x004DFB90);
          DEFINE_MEMBER_FN(GetWorldspace,           TESWorldSpace*,   0x004D5EB0);
+         DEFINE_MEMBER_FN(HasAnimations, bool, 0x004E88B0); // tests animation graph holder and, if necessary, searches for any NiController anywhere in the reference's node
          DEFINE_MEMBER_FN(HasEffectKeyword,        bool,             0x004D57A0, BGSKeyword*);
          DEFINE_MEMBER_FN(HasWaterCurrents,        bool,             0x006D66F0); // base form IsWaterActivator or HasWaterCurrents
          DEFINE_MEMBER_FN(IsDisabledDeletedOrDestroyed, bool, 0x004D6280);

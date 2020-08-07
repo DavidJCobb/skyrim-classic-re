@@ -141,5 +141,6 @@ namespace RE {
          DEFINE_MEMBER_FN(Apply, NiTransform&, 0x004EC9C0, NiTransform& out, const NiTransform& other); // parent_world.Apply(scrap, child_local);
          //
          inline static NiTransform& from(::NiTransform& out) { return *(RE::NiTransform*)(&out); }
+         inline static NiTransform& from(NiTransform& out) { return out; }
    };
 }

@@ -4,6 +4,7 @@
 #include "skse/NiObjects.h"
 #include "skse/Utilities.h"
 #include "ReverseEngineered/Shared.h"
+#include "ReverseEngineered/Types.h"
 
 class BGSPrimitive;
 class bhkAabbPhantom;
@@ -19,22 +20,8 @@ namespace RE {
    class TESObjectREFR;
 
    struct NiCloningProcess {
-      UInt32 unk00;
-      UInt32 unk04;
-      UInt32 unk08 = 0;
-      UInt32 unk0C = 0;
-      UInt32 unk10 = 0;
-      UInt32 unk14 = 0x01240434; // pointer to 0xDEADBEEF
-      UInt32 unk18;
-      UInt32 unk1C;
-      UInt32 unk20;
-      UInt32 unk24;
-      UInt32 unk28 = 0;
-      UInt32 unk2C = 0;
-      UInt32 unk30 = 0;
-      UInt32 unk34 = 0x01240434; // pointer to 0xDEADBEEF
-      UInt32 unk38;
-      UInt32 unk3C = 0;
+      BSTHashMap<uint32_t, uint32_t> unk00;
+      BSTHashMap<uint32_t, uint32_t> unk20;
       UInt32 unk40;
       UInt8  unk44 = '$';
       UInt8  pad45[3];
@@ -118,7 +105,7 @@ namespace RE {
          //
       public:
          const char*       m_name; // 08
-         NiTimeController* m_controller; // 0C next pointer at +0x30
+         NiTimeController* m_controller; // 0C next pointer at +0x30 // NiPointer?
          NiExtraData**     m_extraData;  // 10 extra data
          UInt16 m_extraDataLen;      // 14 max valid entry
          UInt16 m_extraDataCapacity; // 16 array len
@@ -134,6 +121,7 @@ namespace RE {
          DEFINE_MEMBER_FN(AddExtraData, bool, 0x00AB44C0, NiExtraData*);
          DEFINE_MEMBER_FN(DynamicCastController, void*, 0x00AB40C0, const NiRTTI*); // dynamic-casts this->m_controller
          DEFINE_MEMBER_FN(SetName, void, 0x00AB4020, StringCache::Ref*);
+         DEFINE_MEMBER_FN(ControllerCount, uint32_t, 0x00ABF6D0); // returns the number of NiControllers present
    };
    static_assert(sizeof(NiObjectNET) == 0x18, "RE::NiObjectNET is not the right size!");
 
@@ -189,12 +177,12 @@ namespace RE {
             flags_t flags = flag::none;
          };
          //
-         virtual void UpdateControllers(ControllerUpdateContext * ctx); // 21	// calls controller vtbl+0x8C
+         virtual void UpdateControllers(ControllerUpdateContext * ctx); // 21	// calls virtual NiTimeController::Update
          virtual void UpdateNodeBound(ControllerUpdateContext * ctx); // 22
          virtual void ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform); // 23
          virtual void SetNiProperty(NiProperty * prop); // 24
-         virtual void Unk_25(UInt32 arg0);
-         virtual void Unk_26(UInt32 arg0);
+         virtual void Unk_25(UInt32 arg0); // no-op on NiNode
+         virtual void Unk_26(UInt32 arg0); // no-op on NiNode
          virtual NiAVObject* GetObjectByName(const BSFixedString&); // 27	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type
          virtual void SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid); // 28
          virtual void UpdateDownwardPass(ControllerUpdateContext * ctx, UInt32 unk1); // 29
@@ -205,8 +193,8 @@ namespace RE {
          virtual void UpdateNoControllers(ControllerUpdateContext * ctx);
          virtual void UpdateDownwardPassTempParent(NiNode * parent, ControllerUpdateContext * ctx);
          virtual void Unk_30(void);	// calls virtual function on parent
-         virtual void Unk_31(UInt32 arg0);
-         virtual void Unk_32(UInt32 arg0);
+         virtual void Unk_31(UInt32 arg0); // NiNode: calls Unk_12 on all non-culled children
+         virtual void Unk_32(void* arg0); // NiNode: calls Unk_32 on all children
          //
          NiNode*     parent = nullptr; // 18
          bhkCollisionObject* collision = nullptr; // 1C
@@ -327,4 +315,10 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(bool,                NiObjectIs,                       0x0042A960, const NiRTTI*, const NiObject*);
    DEFINE_SUBROUTINE_EXTERN(bool,                NodeTreeContainsGeomMorpherController, 0x00B06360, NiNode* obj);
    static DEFINE_SUBROUTINE(float, GetMassOfNiObject, 0x00588C40, NiObject*);
+   static DEFINE_SUBROUTINE(bool, NiObjectContainsAController, 0x004D79A0, NiObjectNET*); // tests if the argument or any descendants/properties have a controller
+
+   // calls NiTimeController::Start for the object's controller and any controllers in its tree
+   // seems to be called on NiControllerManagers; tests on other objects e.g. nodes don't work
+   static DEFINE_SUBROUTINE(void, StartAllNiControllersInObject, 0x00ABF960, NiAVObject*);
+   static DEFINE_SUBROUTINE(void, StartAllNiControllersInObjectWithTime, 0x00ABFA20, NiAVObject*, float startTime);
 };

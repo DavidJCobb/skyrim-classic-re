@@ -2,10 +2,10 @@
 #include <cstdint>
 #include "skse/GameAPI.h"
 #include "skse/GameTypes.h"
-#include "NetImmerse/objects.h"
 #include "NetImmerse/types.h"
 #include "Miscellaneous.h"
 
+class NiRefObject;
 namespace RE {
    class TESObjectREFR;
 
@@ -271,6 +271,7 @@ namespace RE {
          return node ? node->data : nullptr;
       }
    };
+
    class SimpleLockReversed {
       private:
          UInt32 lockCount = 0;
@@ -374,8 +375,8 @@ namespace RE {
          uint32_t unk00;           // 00
 		   uint32_t _size       = 0; // 04
 		   uint32_t _freeCount  = 0; // 08
-		   uint32_t _freeOffset = 0; // 1C
-         entry_t* _end        = sentinel_entry_pointer; // 10
+		   uint32_t _freeOffset = 0; // 0C
+         const entry_t* _end = sentinel_entry_pointer; // 10
 		   uint32_t unk14;           // 14
          entry_t* _entries    = nullptr; // 18
          //
