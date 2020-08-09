@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "ReverseEngineered/Types.h"
 #include "ReverseEngineered/Shared.h"
+#include "skse/ScaleformCallbacks.h"
 #include "skse/ScaleformTypes.h"
 #include "skse/Utilities.h"
 
@@ -9,6 +10,40 @@ namespace RE {
    static DEFINE_SUBROUTINE(void, PlayUISound, 0x00899620, const char* editorID);
 
    DEFINE_SUBROUTINE_EXTERN(void, ShowNotification, 0x008997A0, const char* message, const char* soundEditorID, bool one);
+
+   class FxResponseArgsBase {
+      public:
+         virtual ~FxResponseArgsBase() {};
+         virtual uint32_t GetValues(GFxValue*& params) { return 0; } // pure in vanilla; dummy here, to allow construction. params is set to the first of (args); the return value is (curArg)
+   };
+   template <UInt32 arg_count> class FxResponseArgs : public FxResponseArgsBase { // sizeof == 0xC + ((arg_count + 1) * 0x10)
+      protected:
+         template<int I> static constexpr typename std::enable_if_t<I == 0, uint32_t> _get_vtbl_address() { return 0x010E37A4; }
+         template<int I> static constexpr typename std::enable_if_t<I == 1, uint32_t> _get_vtbl_address() { return 0x010E37B0; }
+         //
+         // Destructors listed here for reference purposes only. In some cases they're inlined into the 
+         // virtual Dispose method and thus can't be listed separately.
+         //
+         template<int I> static constexpr typename std::enable_if_t<I == 1, uint32_t> _get_destructor_address() { return 0x00841B00; }
+         //
+      public:
+         static constexpr uint32_t vtbl = _get_vtbl_address<arg_count>();
+         //
+         FxResponseArgs() {
+            *(uint32_t*)this = vtbl;
+            this->curArg = 1;
+         }
+         virtual ~FxResponseArgs() {}
+
+         uint32_t align04;             // 04 // needed because GFxValue contains a double and so must be 8-byte-aligned
+         GFxValue args[arg_count + 1];	// 08
+         uint32_t curArg;              // n8 // offsets assume one argument
+
+         MEMBER_FN_PREFIX(FxResponseArgs);
+         DEFINE_MEMBER_FN(Destructor, void, _get_destructor_address()); // for documentation purposes only
+   };
+
+   static DEFINE_SUBROUTINE(void, Subroutine00A63C40, 0x00A63C40, GFxMovieView*, const char*, FxResponseArgsBase&);
 
    template<typename type> class scaleform_ptr {
       protected:
@@ -74,27 +109,7 @@ namespace RE {
          }
          static void operator delete(void* ptr, void* place) {} // called if placement new throws an exception; shouldn't do anything
    };
-   class MessageBoxData { // sizeof == 0x2C, constructed on the game heap
-      public:
-         static constexpr uint32_t vtbl = 0x010E452C;
-         virtual ~MessageBoxData();
-         //
-         uint8_t  unk04 = 0;
-         uint8_t  unk05 = 0;
-         uint8_t  pad06[2];
-         BSString text; // 08
-         tArray<BSString> buttons; // 10
-         uint32_t unk1C = 0;
-         scaleform_ptr<IMessageBoxCallback> callback; // 20 // smart pointer to a callback
-         uint32_t unk24 = 0xA; // callers often set this to 4
-         uint8_t  unk28 = 0;
-         uint8_t  unk29 = 0;
-         uint8_t  pad2A[2];
-         //
-         MEMBER_FN_PREFIX(MessageBoxData);
-         DEFINE_MEMBER_FN(Constructor, MessageBoxData&, 0x00852530);
-         DEFINE_MEMBER_FN(Constructor_5, MessageBoxData&, 0x0087A940, BSString& text, scaleform_ptr<IMessageBoxCallback>&, uint32_t, uint32_t, uint32_t, BSTArray<BSString>& buttons); // used by Papyrus
-   };
+   class MessageBoxData; // see "Messages.h"
    static DEFINE_SUBROUTINE(void, SendMessageBoxData, 0x0087A9D0, MessageBoxData&);
    static DEFINE_SUBROUTINE(void, ShowMessage, 0x0087ABA0, BSString& text, scaleform_ptr<IMessageBoxCallback>&, uint32_t papyrusUses0, uint32_t papyrusUses0x19, uint32_t papyrusUses4, BSTArray<BSString>& buttons); // same args as MessageBoxData::Constructor_5; constructs and then calls SendMessageBoxData
 };

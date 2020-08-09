@@ -276,7 +276,7 @@ namespace RE {
          virtual void	Unk_3E(UInt32, UInt32); // possibly SetEditorCoordinates
          virtual void	Unk_3F(bool);
          virtual void	Unk_40();
-         virtual void	Unk_41(bool, UInt32, UInt32); // seems to handle GMST:fAIInDialogueModewithPlayerTimer
+         virtual void	Unk_41(bool, UInt32, UInt32); // related to dialogue. seems to handle GMST:fAIInDialogueModewithPlayerTimer
          virtual void	Unk_42(float, UInt32); // related to destructible objects' health
          virtual bool	Unk_43(); // Checks flag 0x10000 for non-actor, non-light refs only; returns false for actors and lights.
          virtual void	Unk_44(bool); // Modifies flag 0x10000 for non-actor, non-light refs. If the flag is set to true, the reference will also be made persistent. Does nothing if the reference is not in a loaded cell.

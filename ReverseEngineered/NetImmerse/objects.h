@@ -93,9 +93,10 @@ namespace RE {
          virtual UInt32			Unk_20(void); // 20
          //
          MEMBER_FN_PREFIX(NiObject);
-         DEFINE_MEMBER_FN(Constructor, NiObject&, 0x00AAFD30);
-         DEFINE_MEMBER_FN(Clone,       NiObject*, 0x00AAFC00, NiCloningProcess*);
-         DEFINE_MEMBER_FN(VerifyType,  void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
+         DEFINE_MEMBER_FN(Constructor,   NiObject&, 0x00AAFD30);
+         DEFINE_MEMBER_FN(Clone,         NiObject*, 0x00AAFC00, NiCloningProcess*);
+         DEFINE_MEMBER_FN(Clone_Default, NiObject*, 0x00AAFF30); // literally just constructs its own NiCloningProcess and does the same things as Clone
+         DEFINE_MEMBER_FN(VerifyType,    void*,     0x004202E0, const NiRTTI*); // If object is of type, returns self; otherwise returns NULL.
    };
    static_assert(sizeof(NiObject) == 0x08, "RE::NiObject is not the right size!");
 
@@ -316,6 +317,7 @@ namespace RE {
    DEFINE_SUBROUTINE_EXTERN(bool,                NodeTreeContainsGeomMorpherController, 0x00B06360, NiNode* obj);
    static DEFINE_SUBROUTINE(float, GetMassOfNiObject, 0x00588C40, NiObject*);
    static DEFINE_SUBROUTINE(bool, NiObjectContainsAController, 0x004D79A0, NiObjectNET*); // tests if the argument or any descendants/properties have a controller
+   static DEFINE_SUBROUTINE(void, RemoveCollisionFromNiAVObject, 0x00588BB0, NiAVObject*); // removes collision; if object is a node, also removes collision from all descendants
 
    // calls NiTimeController::Start for the object's controller and any controllers in its tree
    // seems to be called on NiControllerManagers; tests on other objects e.g. nodes don't work

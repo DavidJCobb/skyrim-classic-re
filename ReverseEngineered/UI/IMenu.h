@@ -5,20 +5,15 @@
 #include "skse/Utilities.h"
 
 namespace RE {
+	struct BSUIScaleformData;
+	//
 	class IMenu : public FxDelegateHandler { // sizeof == 0x1C
-		struct BSUIScaleformData {
-			virtual ~BSUIScaleformData() {}
-
-			//	void	** _vtbl;		// 00
-			UInt32 unk04; // 04
-			void*  unk08; // 08
-		};
 		struct UnkData1 {
-			BSFixedString name;	// 00
+			BSFixedString name;	// 00 // menu name?
 			UInt32        unk04;	// 04
 			BSUIScaleformData* data;	// 08 - BSUIScaleformData
 		};
-
+		//
 	public:
 		IMenu();
 

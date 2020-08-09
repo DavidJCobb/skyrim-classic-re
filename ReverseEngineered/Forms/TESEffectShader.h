@@ -1,6 +1,7 @@
 #pragma once
 #include "skse/GameForms.h"
 #include "ReverseEngineered\Shared.h"
+#include "ReverseEngineered\Forms\TESForm.h"
 
 namespace RE {
    class TESEffectShader;
@@ -17,7 +18,8 @@ namespace RE {
 
    class TESEffectShader : public TESForm {
       public:
-         enum { kTypeID = kFormType_EffectShader };
+         enum { kTypeID = kFormType_EffectShader }; // needed for SKSE Papyrus integration
+         static constexpr form_type_t form_type = form_type::effect_shader;
 
          enum BlendMode : UInt32 {
             kBlendMode_Unused0 = 0,

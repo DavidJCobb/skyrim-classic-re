@@ -4,7 +4,8 @@
 namespace RE {
    class TESGlobal : public TESForm {
       public:
-         enum { kTypeID = kFormType_Global };
+         enum { kTypeID = kFormType_Global }; // needed for SKSE Papyrus integration
+         static constexpr form_type_t form_type = form_type::global;
          //
          BSString editorID; // 14
          UInt8    unk1C;    // 1C - type?

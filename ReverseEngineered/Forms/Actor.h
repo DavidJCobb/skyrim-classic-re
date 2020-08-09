@@ -359,7 +359,7 @@ namespace RE {
                DEFINE_MEMBER_FN(Subroutine006BA9F0, void, 0x006BA9F0, void*);
             };
 
-            UInt32 unk0000 = 0;
+            void*  unk0000 = nullptr; // first member of target is a const char*
             UInt32 unk0004 = 0;
             SInt32 shoutVariation = -1; // 08
             UInt32 unk000C = 0;
@@ -451,7 +451,7 @@ namespace RE {
             UInt32 unk018C = 0;
             UInt32 unk0190 = 0;
             UInt32 unk0194 = 0;
-            UInt32 unk0198 = 0;
+            BSFixedString unk0198 = nullptr; // 198 // related to dialogue; maybe subtitle of line being spoken?
             Unk019C actorsWeDetect; // 019C
             tArray<UInt32> unk01A8;
             void*  unk01B4 = nullptr; // 1B4 // start of a sub-struct; getter for that sub-struct is ActorProcessManager::Subroutine006FCE10; sizeof >= 0x28
@@ -1084,7 +1084,7 @@ namespace RE {
          virtual void Unk_A9(void);
          virtual void Unk_AA(UInt32, UInt32); // a total reset -- behavior graph, spells, everything
          virtual void Unk_AB(void);
-         virtual void Unk_AC(void); // args are at least one float
+         virtual void Unk_AC(float); // args are at least one float
          virtual void Unk_AD(float);
          virtual void Unk_AE(void*);
          virtual void Unk_AF();
