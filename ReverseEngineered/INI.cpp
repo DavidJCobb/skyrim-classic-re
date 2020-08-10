@@ -13,5 +13,9 @@ namespace RE {
       namespace General {
          Setting* const bUseBodyMorphs = (Setting*)0x01240DE4;
       }
+      namespace Interface {
+         Setting* const bDialogueSubtitles        = (Setting*)0x012B44C4;
+         Setting* const iSubtitleSpeakerNameColor = (Setting*)0x012B44E8;
+      }
    }
 }

@@ -14,5 +14,9 @@ namespace RE {
       namespace General {
          extern Setting* const bUseBodyMorphs;
       }
+      namespace Interface {
+         extern Setting* const bDialogueSubtitles;
+         extern Setting* const iSubtitleSpeakerNameColor;
+      }
    }
 }

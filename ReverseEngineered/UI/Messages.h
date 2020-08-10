@@ -19,9 +19,9 @@ namespace RE {
 			uint8_t  unk04 = 0;
 			uint8_t  unk05 = 0;
 			uint16_t pad06;
-			refr_ptr unk08 = nullptr;
-			BSFixedString unk0C = nullptr;
-			uint32_t unk10 = 0;
+			BSString*     unk08 = nullptr; // allocated on the game heap; owned by the BSUIMessageData. essentially a parameter, e.g. subtitle text for DialogueMenu "Show Text"
+			BSFixedString unk0C = nullptr; // essentially a message type, e.g. "Show Text" or "Hide Text" for DialogueMenu.
+			uint32_t      unk10 = 0;
 	};
 	class ConsoleData : public IUIMessageData { // sizeof == 0x18
 		public:
@@ -58,11 +58,17 @@ namespace RE {
 	class HUDData : public IUIMessageData { // sizeof == 0x28
 		public:
 			static constexpr uint32_t vtbl = 0x010E8D4C;
+			enum class type_t : uint32_t {
+				unk_00 = 0,
+				show_notification = 1,
+				update_subtitle   = 5,
+				unk_06 = 6, // always sent with a nullptr string
+			};
 			//
 			uint8_t  unk04 = 0;
 			uint8_t  unk05 = 0;
 			uint16_t pad06;
-			uint32_t unk08 = 0;
+			type_t   unk08 = type_t::unk_00;
 			BSString unk0C;
 			uint32_t unk14 = 0;
 			uint32_t unk18 = 0;
@@ -73,6 +79,11 @@ namespace RE {
 			//
 			MEMBER_FN_PREFIX(HUDData);
 			DEFINE_MEMBER_FN(Constructor, HUDData&, 0x00897640); // one of the few that didn't get inlined (all of these message-data objects are constructed by factories)
+			//
+			inline static HUDData* make_with_string(type_t t, const char* s = nullptr) {
+				DEFINE_SUBROUTINE(HUDData*, CreateHUDDataWithString, 0x00897480, type_t, const char*);
+				return (CreateHUDDataWithString)(t, s);
+			}
 	};
 	class InventoryUpdateData : public IUIMessageData { // sizeof == 0x10
 		public:

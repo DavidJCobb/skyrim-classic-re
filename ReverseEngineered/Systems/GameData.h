@@ -18,6 +18,7 @@ class BGSPrimitive;
 class TESObjectCELL;
 
 namespace RE {
+   struct CellAttachDetachEvent;
    struct NiCloningProcess;
    class  NiNode;
    struct PositionPlayerEvent;
@@ -89,18 +90,7 @@ namespace RE {
             ActorBaseDeathCount* next;
          };
          //
-         UInt32 unk04;
-         UInt32 unk08;
-         UInt32 unk0C;
-         UInt32 unk10;
-         UInt32 unk14;
-         UInt32 unk18;
-         UInt32 unk1C;
-         UInt32 unk20;
-         UInt32 unk24;
-         UInt32 unk28;
-         UInt32 unk2C;
-         UInt32 unk30;
+         BSTEventSource<CellAttachDetachEvent> unk04; // NOT TESCellAttachDetachEvent, which apparently is a different thing. source is 01B410B8+4? relied upon by pathing, movement, and maybe some other things
          BSTEventSink<BSResource::ArchiveStreamOpenedEvent> unk34;
          BSTEventSink<PositionPlayerEvent> unk38;
          UInt32 unk3C;

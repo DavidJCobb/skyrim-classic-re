@@ -1,6 +1,7 @@
 #pragma once
 #include "ReverseEngineered/UI/IMenu.h"
 #include "ReverseEngineered/Systems/BSTEvent.h"
+#include "ReverseEngineered/Shared.h"
 
 namespace RE {
    class DialogueMenu : public IMenu { // sizeof == 0x2C
@@ -22,4 +23,11 @@ namespace RE {
    // Related addresses:
    // 0x01B3E8B0  Bool. Meaning unknown. Menu constructor sets it to false.
    //
+   static DEFINE_SUBROUTINE(void, SetCurrentDialogueMenuSubtitle, 0x008980D0, const char* text);
+
+   static DEFINE_SUBROUTINE(bool, AreSubtitlesEnabled, 0x00892710);
+
+   inline constexpr char* dialogue_subtitle_format = "<font color='#%.6X'>%s</font>: %s"; // stored at 0x010E7E64. params: subtitle color RGB as 0x00RRGGBB; speaker name; dialogue text
+   void SetHUDSubtitle(const char* full_text);
+   void SetHUDSubtitle(const char* speaker, const char* text);
 };

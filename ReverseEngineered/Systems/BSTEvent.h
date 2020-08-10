@@ -54,6 +54,39 @@ namespace RE {
    static_assert(sizeof(BSTEventSource<UInt32>) >= 0x30, "BSTEventSource is too small!");
    static_assert(sizeof(BSTEventSource<UInt32>) <= 0x30, "BSTEventSource is too large!");
 
+   // RTTI confirms that the following events exist as structs named "Event" inside of 
+   // namespaces with specific names. Unknown if the functions or BSTEventSources were 
+   // also nested in them; I'm doing it that way for simplicity.
+   namespace BooksRead {
+      struct Event; // TODO
+      //
+      static DEFINE_SUBROUTINE(void, AddSink, 0x004A3A00, BSTEventSink<Event>*); // constructs the event source if it hasn't been constructed yet
+   }
+   namespace DefaultObjectsReadyEvent {
+      struct Event; // TODO
+      static auto ptrEventSource = (BSTEventSource<Event>*)0x01B107B4;
+      //
+      static DEFINE_SUBROUTINE(void, AddSink, 0x004F91A0, BSTEventSink<Event>*); // constructs the event source if it hasn't been constructed yet
+   }
+   namespace LocationCleared {
+      struct Event; // TODO
+      static auto ptrEventSource = (BSTEventSource<Event>*)0x012E736C;
+      //
+      static DEFINE_SUBROUTINE(void, AddSink, 0x004B0730, BSTEventSink<Event>*); // constructs the event source if it hasn't been constructed yet
+   }
+   namespace ObjectiveState {
+      struct Event; // TODO
+      static auto ptrEventSource = (BSTEventSource<Event>*)0x01B10FE0;
+      //
+      static DEFINE_SUBROUTINE(void, AddSink, 0x00552110, BSTEventSink<Event>*); // constructs the event source if it hasn't been constructed yet
+   }
+   namespace QuestStatus {
+      struct Event; // TODO
+      static auto ptrEventSource = (BSTEventSource<Event>*)0x01B113A0;
+      //
+      static DEFINE_SUBROUTINE(void, AddSink, 0x0056E820, BSTEventSink<Event>*); // constructs the event source if it hasn't been constructed yet
+   }
+
    struct BGSActorCellEvent { // fired by PlayerCharacter::Unk_98; likely doesn't exist on other actors
       enum Type : UInt32 {
          kType_EnteringCell = 0,
@@ -68,7 +101,8 @@ namespace RE {
       UInt8  unk04;
    };
    struct PositionPlayerEvent {
-   }; // TODO
+      uint32_t unk00; // enum. if == 3, an event listener asks the garbage collector to ClearAll. highest value checked for in code is 4.
+   };
    struct TESActivateEvent {
       TESObjectREFR* target;        // 00
       TESObjectREFR* whoInteracted; // 04
