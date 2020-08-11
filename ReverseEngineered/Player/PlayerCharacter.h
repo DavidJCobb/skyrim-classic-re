@@ -9,6 +9,7 @@ namespace RE {
    class  bhkMouseSpringAction;
    class  PlayerCharacter;
    extern PlayerCharacter** const g_thePlayer;
+   struct PositionPlayerEvent;
 
    class PlayerCharacter : public Character { // sizeof == 0x72C
       public:
@@ -58,7 +59,7 @@ namespace RE {
          BSTEventSink<void*>   userEventEnabledEvent;		// 1A4 .?AV?$BSTEventSink@VUserEventEnabledEvent@@@@
          BSTEventSource<void*> actorCellEventSource;		// 1A8 .?AV?$BSTEventSource@UBGSActorCellEvent@@@@
          BSTEventSource<void*> actorDeathEventSource;		// 1D8 .?AV?$BSTEventSource@UBGSActorDeathEvent@@@@
-         BSTEventSource<void*> positionPlayerEventSource;	// 208 .?AV?$BSTEventSource@UPositionPlayerEvent@@@@
+         BSTEventSource<PositionPlayerEvent> positionPlayerEventSource;	// 208 .?AV?$BSTEventSource@UPositionPlayerEvent@@@@
 
          UInt32	pad238[(0x2A4 - 0x238) >> 2];	// 238
 
