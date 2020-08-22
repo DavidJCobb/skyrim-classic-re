@@ -28,7 +28,7 @@ virtual void TEOSbjectREFR::Unk_66() {
    NiNode* esp20 = edi;
    NiNode* esp14 = ebx;
    if (edi) { // at 0x004E504C
-      (*g_TES)->sub00431460(1);
+      (*g_TES)->sub00431460(true); // enter lock
       bool al = (this->loadedState) ? ((this->loadedState->unk18 & 1) != 0) : false;
       if (!al) { // at 0x004E506B
          if (this->IsWaterActivator()) {
@@ -57,9 +57,9 @@ virtual void TEOSbjectREFR::Unk_66() {
          esp14 = ebx = eax ? eax->unk08 : edi;
       }
       if (ebx && cell) { // circa 0x004E511C
-         bhkWorld* edi = cell->sub004C5430();
-         bhkCollisionObject* esp18 = sub00588E20(ebx);
-         ebx = esp18 ? esp18->unk10 : nullptr;
+         bhkWorld* edi = cell->GetHavokWorld();
+         bhkCollisionObject* esp18 = GetCollisionObjectFromNiObject(ebx);
+         ebx = esp18 ? esp18->rigidBody : nullptr;
          if (edi) {
             bool skip = false;
             if (ebx) {
@@ -135,7 +135,7 @@ virtual void TEOSbjectREFR::Unk_66() {
          }
       }
       // at 0x004E5325
-      (*g_TES)->sub00431460(0);
+      (*g_TES)->sub00431460(false); // exit lock
    }
    // at 0x004E5332
    if (this->loadedState)

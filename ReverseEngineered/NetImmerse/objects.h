@@ -14,6 +14,7 @@ namespace RE {
    class bhkRigidBody;
    class BSFadeNode;
    class BSMultiBoundNode;
+   class NiCollisionObject;
    class NiExtraData;
    class NiGeometry;
    class NiNode;
@@ -198,7 +199,7 @@ namespace RE {
          virtual void Unk_32(void* arg0); // NiNode: calls Unk_32 on all children
          //
          NiNode*     parent = nullptr; // 18
-         bhkCollisionObject* collision = nullptr; // 1C
+         NiCollisionObject* collision = nullptr; // 1C
          NiTransform	localTransform;  // 20
          NiTransform	worldTransform;  // 54
          NiBound  unk88;        // 88 // world bound?
@@ -209,6 +210,7 @@ namespace RE {
          UInt8		unkA5;				// A5 - bitfield
          //
          MEMBER_FN_PREFIX(NiAVObject);
+         DEFINE_MEMBER_FN(SetCollisionObject, void, 0x0046AC60, NiCollisionObject*);
          DEFINE_MEMBER_FN(UpdateNode, void, 0x00AAF320, ControllerUpdateContext * ctx);
          DEFINE_MEMBER_FN(UpdateWorldTransformFromParent, void, 0x00AB5370);
          //

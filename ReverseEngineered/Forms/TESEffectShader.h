@@ -2,6 +2,7 @@
 #include "skse/GameForms.h"
 #include "ReverseEngineered\Shared.h"
 #include "ReverseEngineered\Forms\TESForm.h"
+#include "ReverseEngineered\Forms\FormComponents\TESTexture.h"
 
 namespace RE {
    class TESEffectShader;
@@ -86,8 +87,8 @@ namespace RE {
             float  fillAlphaRatioPersistent = 0;   // 020
             float  fullAlphaPulseAmplitude  = 0;   // 024
             float  fillAlphaPulseFrequency  = 1.0; // 028
-            UInt32 fillTextureSpeedU        = 0;   // 02C
-            UInt32 fillTextureSpeedV        = 0;   // 030
+            float  fillTextureSpeedU        = 0;   // 02C
+            float  fillTextureSpeedV        = 0;   // 030
             float  edgeFalloff              = 1.0; // 034
             UInt32 edgeColor                = 0;   // 038 // 0xAABBGGRR, alpha unused
             float  edgeAlphaTimeFadeIn      = 0;   // 03C

@@ -33,7 +33,7 @@ namespace RE {
       UInt16 size;
       UInt16 unk08;
    };
-   struct hkVector4 { // found RTTI mentioning it; todo: investigate further
+   struct alignas(16) hkVector4 { // found RTTI mentioning it; todo: investigate further // alignment required due to use of MOVAPS in various places
       float a; // 00
       float b; // 04
       float c; // 08
@@ -45,12 +45,12 @@ namespace RE {
       DEFINE_MEMBER_FN(Subroutine00D5C490, void, 0x00D5C490, void*, void*);
 
       static void ConstructFromNiPoint3(hkVector4& out, const NiPoint3& position) {
-         DEFINE_SUBROUTINE(void, f, 0x0045C770, hkVector4 & out, const NiPoint3& position);
+         DEFINE_SUBROUTINE(void, f, 0x0045C770, hkVector4& out, const NiPoint3& position);
          f(out, position);
       }
    };
 
-   struct Struct00DC50C0 { // sizeof == 0xC4
+   struct alignas(16) Struct00DC50C0 { // sizeof == 0xC4 // alignment required due to use of MOVAPS to initialize members
       uint32_t unk00;
       uint32_t unk04;
       uint32_t unk08;
@@ -112,7 +112,7 @@ namespace RE {
       MEMBER_FN_PREFIX(Struct00DC50C0);
       DEFINE_MEMBER_FN(Constructor, Struct00DC50C0&, 0x00DC50C0);
    };
-   struct Struct00D378B0 {
+   struct alignas(16) Struct00D378B0 { // sizeof == 0xE4 // alignment required due to Struct00DC50C0 member
       uint32_t unk00 = 0;
       float    unk04 = 0;
       uint8_t  unk08 = 1;
@@ -553,6 +553,7 @@ namespace RE {
          virtual void Unk_28(void);
          virtual void Unk_29(void);
          virtual void SetMotionSystem(UInt32 motionSystemToSet, NiObject* rigidBody_optional, UInt32 unkBool);
+         virtual bool Unk_2B(); // checks the motion system
          //
          static bhkCollisionObject* make(NiNode*);
    };
@@ -605,7 +606,7 @@ namespace RE {
          virtual bool   Unk_2F(Struct0045C7E0&); // 2F // involved in raycasting
          virtual bool   Unk_30();
          virtual bool   Unk_31(UInt32, UInt32, UInt32, UInt32, UInt32);
-         virtual bool   Unk_32(UInt32, NiNode*);
+         virtual bool   Unk_32(NiAVObject*, NiNode*);
          //
          // ...
    };
@@ -741,4 +742,6 @@ namespace RE {
          MEMBER_FN_PREFIX(bhkMouseSpringAction);
          DEFINE_MEMBER_FN(Constructor, bhkMouseSpringAction&, 0x00732EB0, Struct00734540&);
    };
+
+   static DEFINE_SUBROUTINE(bhkCollisionObject*, GetCollisionObjectFromNiObject, 0x00588E20, NiObject*);
 };

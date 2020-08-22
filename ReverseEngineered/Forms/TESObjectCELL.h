@@ -10,6 +10,7 @@ class BGSMusicType;
 class TESImageSpace;
 class TESObjectCELL;
 namespace RE {
+   class  bhkWorld;
    class  BSMultiBoundNode;
    class  BSPortalGraph; // constructor: 0x00B03E00
    struct MapMarkerOperation; // see TESWorldSpace.h
@@ -68,7 +69,7 @@ namespace RE {
 
          struct MaxHeightData { // MHDT subrecord
             float offset; // 00
-            UInt8 data[32][32]; // 04
+            UInt8 data[32][32]; // 04 // a grid, though i don't know whether it's [x][y] or [y][x]
          };
 
          struct CellData {};
@@ -242,6 +243,8 @@ namespace RE {
          DEFINE_MEMBER_FN(GetMarkerNode, NiNode*, 0x00432C00); // GetNode()->children[cell_node_type::marker]; apparently used during the weapon-firing process
          DEFINE_MEMBER_FN(GetWaterNode,  NiNode*, 0x004C3FF0); // GetNode()->children[cell_node_type::water];
          DEFINE_MEMBER_FN(GetStaticNode, NiNode*, 0x004C4020); // GetNode()->children[cell_node_type::statik];
+         //
+         DEFINE_MEMBER_FN(GetHavokWorld, bhkWorld*, 0x004C5430);
          //
          DEFINE_MEMBER_FN(GetAcousticSpace,    BGSAcousticSpace*, 0x004C0760);
          DEFINE_MEMBER_FN(GetEncounterZone,    BGSEncounterZone*, 0x004C2240); // checks unk88::unkA8, extra data, and parent worldspace
