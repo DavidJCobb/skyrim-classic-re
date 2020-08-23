@@ -52,7 +52,7 @@ namespace RE {
 
    struct alignas(16) Struct00DC50C0 { // sizeof == 0xC4 // alignment required due to use of MOVAPS to initialize members
       uint32_t unk00;
-      uint32_t unk04;
+      void*    unk04 = 0;
       uint32_t unk08;
       uint8_t  unk0C = 1;
       uint8_t  unk0D;
@@ -86,7 +86,7 @@ namespace RE {
       float    unk78 = 1.0F;
       uint32_t unk7C = 0;
       uint32_t unk80;
-      float    unk84;
+      uint32_t unk84;
       uint32_t unk88;
       uint32_t unk8C;
       float    unk90 = 1.0F;
@@ -114,7 +114,7 @@ namespace RE {
    };
    struct alignas(16) Struct00D378B0 { // sizeof == 0xE4 // alignment required due to Struct00DC50C0 member
       uint32_t unk00 = 0;
-      float    unk04 = 0;
+      void*    unk04 = 0;
       uint8_t  unk08 = 1;
       uint8_t  pad09[3];
       uint32_t unk0C = 0;
@@ -246,14 +246,18 @@ namespace RE {
 
          UInt16 memSize;  // 04
          UInt16 refCount; // 06
+
+         MEMBER_FN_PREFIX(hkReferencedObject);
+         DEFINE_MEMBER_FN(DecRef, void, 0x00D0C830); // destroys object if refcount hits zero
+         DEFINE_MEMBER_FN(IncRef, void, 0x00D0C790); // does nothing if refcount is at zero
    };
    class bhkRefObject : public NiObject {
       public:
          enum { kVTBL = 0x01164848 };
-         virtual void Unk_21(UInt32); // 21
-         virtual void Unk_22(UInt32);
+         virtual void SetWrappedObject(hkReferencedObject*); // 21
+         virtual void ModifyWrappedObjectRefcount(bool inc); // 22
 
-         void* wrappedHavokObject; // 08 // probably wrapped object i.e. decltype(bhkSomething::unk08) == hkpSomething*
+         hkReferencedObject* wrappedHavokObject; // 08 // probably wrapped object i.e. decltype(bhkSomething::unk08) == hkpSomething*
 
          MEMBER_FN_PREFIX(bhkRefObject);
          DEFINE_MEMBER_FN(Constructor, bhkRefObject&, 0x00D39470);
@@ -402,99 +406,60 @@ namespace RE {
    static_assert(sizeof(RE::hkpRigidBody) == 0x220, "RE::hkpRigidBody is not the right size!");
 
    class bhkSerializable : public bhkRefObject {
-      //
-      // VTBL: 0x01088364
-      //
       public:
+         static constexpr uint32_t vtbl = 0x01088364;
          //
          // Argument signatures assumed to match bhkRigidBody, but none of these have been analyzed yet. 
          // Remember: any methods we rename in one of these classes must be renamed in all of them.
          //
-         virtual void Unk_21(void);
-         virtual void Unk_22(void);
          virtual UInt32 Unk_23();
-         virtual UInt32 Unk_24();
-         virtual bool Unk_25(void);
+         virtual void* Unk_24(); // returns this->wrappedHavokObject->unk08;
+         virtual bool Unk_25(void*); // argument is bhkWorld*? return value isn't always used
          virtual void Unk_26(void);
          virtual void Unk_27(bool);
          virtual UInt32 Unk_28();
          virtual void Unk_29();
-         virtual void Unk_2A(void*);
+         virtual void Unk_2A(void*); // pure
          virtual void Unk_2B(void);
          virtual void Unk_2C();
          virtual void Unk_2D(UInt32 unk);
    };
    class bhkWorldObject : public bhkSerializable {
-      //
-      // VTBL: 0x010884FC
-      //
       public:
-         //hkpWorldObject* myHkpObject; // 08 // mimics the owner class, e.g. hkpRigidBody* for a bhkRigidBody
+         static constexpr uint32_t vtbl = 0x010884FC;
          //
          // Argument signatures assumped to match bhkRigidBody, but none of these have been analyzed yet. 
          // Remember: any methods we rename in one of these classes must be renamed in all of them.
          //
-         virtual void Unk_21(void);
-         virtual void Unk_22(void);
-         virtual UInt32 Unk_23();
-         virtual UInt32 Unk_24();
-         virtual bool Unk_25(void);
-         virtual void Unk_26(void);
-         virtual void Unk_27(bool);
-         virtual UInt32 Unk_28();
-         virtual void Unk_29();
-         virtual void Unk_2A(void*);
-         virtual void Unk_2B(void);
-         virtual void Unk_2C();
-         virtual void Unk_2D(UInt32 unk);
          virtual void Unk_2E(void);
 
          inline hkpWorldObject* asHkpWorldObject() { return (hkpWorldObject*) this->wrappedHavokObject; };
    };
    class bhkEntity : public bhkWorldObject {
-      //
-      // VTBL: 0x010885BC
-      // Doesn't add any new virtual methods, though it may override existing ones.
-      //
+      public:
+         static constexpr uint32_t vtbl = 0x010885BC;
+         //
+         // Doesn't add any new virtual methods, though it may override existing ones.
    };
    class bhkRigidBody : public bhkEntity { // sizeof == 0x24
-      //
-      // VTBL: 0x01089214
-      //
       public:
-         //
-         UInt32 unk0C = 0; // could belong to bhkWorldObject
-         UInt16 unk10 = 0;
-         UInt16 unk12 = 0;
-         SInt32 unk14 = 0;
-         UnkArray unk18;
-         //
-         // Remember: if you rename these virtual methods, rename their counterparts (if any) in the superclasses.
-         //
-         virtual void Unk_21(void);
-         virtual void Unk_22(void);
-         virtual UInt32 Unk_23(); // returns this->wrappedHavokObject ? this->wrappedHavokObject->unk08 : nullptr;
-         virtual UInt32 Unk_24(); // same as Unk_23, but it checks if this exists first
-         virtual bool Unk_25(bhkWorld*);
-         virtual void Unk_26(); // does stuff (not sure what) and then recursively executes self on all unk18 elements
-         virtual void Unk_27(bool);
-         virtual UInt32 Unk_28(); // returns 0xF0
-         virtual void Unk_29();
-         virtual void Unk_2A(void*);
-         virtual void Unk_2B(void);
-         virtual void Unk_2C();
-         virtual void Unk_2D(UInt32 unk); // returns Unk_27(1);
-         virtual void Unk_2E(void);
+         static constexpr uint32_t vtbl = 0x01089214;
          virtual void Unk_2F(void);
          virtual void Unk_30(void);
          virtual void Unk_31(const hkVector4& position); // fourth vector component is zero
          virtual void Unk_32(const hkVector4& rotation); // quaternion
          // ...?
 
+         UInt32 unk0C = 0; // could belong to bhkWorldObject
+         UInt16 unk10 = 0;
+         UInt16 unk12 = 0;
+         SInt32 unk14 = 0;
+         UnkArray unk18;
+
          MEMBER_FN_PREFIX(bhkRigidBody);
          DEFINE_MEMBER_FN(Constructor, bhkRigidBody&, 0x004E06D0, Struct00D378B0& params);
          DEFINE_MEMBER_FN(GetMotionSystem, UInt8, 0x004A5040); // const // returns 5 as a default
-         DEFINE_MEMBER_FN(Subroutine00D0D3C0, void, 0x00D0D3C0, NiNode*, UInt32 zero);
+         DEFINE_MEMBER_FN(Subroutine00D0D3C0, void, 0x00D0D3C0, NiNode*, NiRTTI* zero);
 
          float GetMass() {
             auto* hkp = (hkpRigidBody*) this->wrappedHavokObject;
@@ -562,12 +527,37 @@ namespace RE {
       // bhkRigidBody* unk2A8;
    };
 
-   class bhkBoxShape : public NiRefObject { // sizeof == 0x14
+   class bhkShape : public bhkRefObject {
+      public:
+         static constexpr uint32_t vtbl = 0x01088424;
+         //
+         virtual uint32_t Unk_23();
+         virtual uint32_t Unk_24();
+         virtual bool     Unk_25(uint32_t);
+         virtual bool     Unk_26();
+         virtual void     Unk_27(uint32_t); // exactly the same as bhkAction::Unk_27
+         virtual uint32_t Unk_28();
+         virtual uint32_t Unk_29(uint32_t); // exactly the same as bhkAction::Unk_29
+         virtual void     Unk_2A(); // pure
+         virtual void     Unk_2B(); // pure
+         virtual void     Unk_2C(); // exactly the same as bhkAction::Unk_2C
+         virtual void     Unk_2D(uint32_t);
+         virtual void     Unk_2E(uint32_t, uint32_t);
+         virtual uint32_t Unk_2F(uint32_t);
+         virtual uint32_t Unk_30();
+         virtual bool     Unk_31(void*);
+         //
+         // This function shares virtual methods with bhkAction despite not having a common superclass. I 
+         // suspect there may have been some templating going on, so that Bethesda wouldn't constantly 
+         // have to cast the wrapped object pointer on bhkRefObject, but why that wouldn't have produced 
+         // a common superclass with a VTBL and RTTI is... unclear.
+         //
+   };
+   class bhkBoxShape : public bhkShape { // sizeof == 0x14
       //
-      // Multiple inheritance? from bhkSphereRepShape and bhkConvexShape?
+      // Inheritance: bhkBoxShape -> bhkSphereRepShape -> bhkConvexShape -> bhkBoxShape
       //
       public:
-         UInt32 unk08 = 0;
          UInt32 unk0C = 0;
          UInt32 unk10 = 0;
          //
@@ -576,12 +566,11 @@ namespace RE {
          //
          static bhkBoxShape* make(const hkVector4&);
    };
-   class bhkSphereShape : public NiRefObject {
+   class bhkSphereShape : public bhkShape {
       //
       // Multiple inheritance? from bhkSphereRepShape and bhkConvexShape?
       //
       public:
-         UInt32 unk08 = 0;
          UInt32 unk0C = 0;
          UInt32 unk10 = 0;
          //
@@ -591,8 +580,8 @@ namespace RE {
    class bhkWorld : public bhkRefObject { // sizeof == 0x6320
       public:
          virtual ~bhkWorld();
-         virtual UInt32 Unk_23() const; // 23 // returns this->wrappedHavokObject
-         virtual UInt32 Unk_24() const; // 24 // returns this->wrappedHavokObject
+         virtual UInt32 Unk_23() const; // 23
+         virtual void*  Unk_24() const; // 24 // is consistent with bhkSerializable::Unk_24
          virtual bool   Unk_25();
          virtual bool   Unk_26();
          virtual void   Unk_27(UInt32);

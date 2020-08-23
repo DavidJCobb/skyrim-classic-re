@@ -325,4 +325,6 @@ namespace RE {
    // seems to be called on NiControllerManagers; tests on other objects e.g. nodes don't work
    static DEFINE_SUBROUTINE(void, StartAllNiControllersInObject, 0x00ABF960, NiAVObject*);
    static DEFINE_SUBROUTINE(void, StartAllNiControllersInObjectWithTime, 0x00ABFA20, NiAVObject*, float startTime);
+
+   static DEFINE_SUBROUTINE(void, FlagCollisionForReset, 0x00D171D0, NiAVObject*, bool one); // finds all NiCollisionObjects and sets the "reset" flag on them
 };

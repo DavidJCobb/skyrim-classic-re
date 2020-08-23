@@ -155,7 +155,7 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004320C0,      void*,   0x004320C0, TESObjectCELL*, UInt32);
          DEFINE_MEMBER_FN(Subroutine00432070,      UInt32,  0x00432070, NiPointer<NiNode>&, NiCloningProcess&);
          //
-         DEFINE_MEMBER_FN(Subroutine00431460, void, 0x00431460, bool); // maintains some kind of counter/lock
+         DEFINE_MEMBER_FN(Subroutine00431460, void, 0x00431460, bool); // maintains some kind of counter/lock related to physics
          //
          ::TESObjectCELL** CopyGridCells(UInt32* count) const;
    };

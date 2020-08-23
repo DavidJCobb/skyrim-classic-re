@@ -1,0 +1,72 @@
+void TESObjectREFR::SetUpCollisionVolume3D() {
+   BGSPrimitive* edi = this->extraData.GetPrimitiveExtraData();
+   if (!this->parentCell)
+      return;
+   bhkWorld* esp34 = this->parentCell->GetHavokWorld();
+   if (!esp34 || !edi)
+      return;
+   this->SetScale(1.0F);
+   auto  esp28 = this->GetNiNode();
+   float esp1C = TESV_00F531CC(1.0);
+   esp28->m_localTransform.scale = esp1C;
+   NiAVObject::ControllerUpdateContext esp38 = {0.0F, 0};
+   this->GetNiNode()->UpdateNode(&esp38); // at 0x004E29DD
+   //
+   NiPoint3  esp28;
+   bhkShape* esp18; // bhkShape?
+   switch (edi->type) {
+      case kPrimitive_Box:
+         esp28 = edi->halfwidths;
+         // at 0x004E2AAF
+         hkVector4 esp70;
+         hkVector4::ConstructFromNiPoint3(esp70, esp28);
+         esp18 = new bhkBoxShape(&esp70);
+         break;
+      case kPrimitive_Sphere:
+         esp18 = new bhkSphereShape(edi->unk08 * 0.01428750F, 0);
+         break;
+      case kPrimitive_Plane: // at 0x004E2A10
+         esp28 = edi->halfwidths;
+         if (0.001 > esp28.x)
+            esp28.x = 1.0F;
+         if (0.001 > esp28.z)
+            esp28.z = 1.0F;
+         esp28.y = 0.01F;
+         // jumped to 0x004E2AAF
+         hkVector4 esp70;
+         hkVector4::ConstructFromNiPoint3(esp70, esp28);
+         esp18 = new bhkBoxShape(&esp70);
+         break;
+   }
+   // at 0x004E2AEF
+   Struct00D378B0 esp80; 
+   hkpShape* eax = esp18 ? esp18->wrappedHavokObject : nullptr;
+   esp80.unk04 = esp80.unk20.unk04 = eax;
+   //
+   auto cd = this->extraData.GetExtraCollisionData();
+   uint32_t eax = (cd ? cd->collisionLayer : 3) | 0x00030000;
+   esp80.unk00 = esp80.unk20.unk00 = eax;
+   //
+   auto bsx = new BSXFlags();
+   bsx->flags |= 2; // set "Havok" flag
+   this->GetNiNode()->AddExtraData(bsx); // at 0x004E2B94
+   //
+   auto body = new bhkRigidBody(&esp80); // circa 0x004E2BBD
+   NiQuaternion esp50;
+   hkVector4    esp40;
+   esp50.FromMatrix(&this->GetNiNode()->m_localTransform.rot);
+   esp40.a = esp50.x;
+   esp40.b = esp50.y;
+   esp40.c = esp50.z;
+   esp40.d = esp50.w;
+   NiPoint3 esp60 = this->pos * 0.01428750F;
+   body->Unk_31(&esp60);
+   body->Unk_32(&esp40); // at 0x004E2C48
+   body->Subroutine00D0D3C0(this->GetNiNode(), (NiRTTI*)nullptr);
+   body->Unk_25(esp34);
+   //
+   auto coll = new bhkNiCollisionObject(this->GetNiNode());
+   coll->SetRigidBody(body);
+   //
+   // implicit: esp80.~Struct00D378B0();
+}

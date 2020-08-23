@@ -57,7 +57,7 @@ void MoveRefrToPosition(
             NiMatrix33 esp1C;
             ebx->m_localTransform.pos = subject->pos;
             ebx->m_localTransform.rot = subject->GetRotationAsMatrix(esp1C); // pass-by-reference
-            sub00D171D0(ebx, 1); // related to collision?
+            FlagCollisionForReset(ebx, true); // related to collision?
             NiAVObject::ControllerUpdateContext esp14;
             ebx->UpdateNode(&esp14);
          }
