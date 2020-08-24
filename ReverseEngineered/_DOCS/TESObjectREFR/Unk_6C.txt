@@ -1,0 +1,289 @@
+inline NiNode* TESObjectREFR::_get_my_node() const noexcept {
+   if (_thread_local_storage->unk2F4 == this)
+      return _thread_local_storage->unk2F0;
+   auto ls = this->loadedState;
+   return ls ? ls->node : nullptr;
+}
+
+void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
+   NiNode* esi = Arg1;
+   auto    ebp = this;
+   uint8_t bl  = this->unk52;
+   if (!Arg1)
+      this->unk52 = 0;
+   if (this->_get_my_node() == Arg1) {
+      if (Arg1)
+         return; // at 0x004E7710
+      auto singleton = *(void*)0x012E3534;
+      if (ecx && bl != 1)
+         ecx->sub00430160(this);
+      this->sub004DFE80(0);
+      return;
+   }
+   // at 0x004E773E
+   if (this->_get_my_node()) {
+      if (!this->_get_my_node()->parent) {
+         if (bl != 2) {
+            auto singleton = *(void*)0x012E3534;
+            singleton->sub00430160(this);
+         }
+      }
+   }
+   if (this->loadedState && this->loadedState->node && !Arg1) { // at 0x004E7796
+      if (this->formType == form_type::actor) {
+         auto thisActor = (Actor*)this;
+         if (auto pm = thisActor->processManager) {
+            auto eax = pm->GetProcessManagerUnk9B();
+            if (eax <= 1) {
+               pm->sub0071FD00(0); // set pm->unk04->unkE0
+               pm->ClearBodyPartNodes();
+            }
+         }
+      }
+   }
+   // at 0x004E77D0
+   if (eax = this->loadedState)
+      eax->unk1A = 0;
+   BGSPrimitive* eax = this->extraData.GetPrimitiveExtraData();
+   auto ebx = Arg1;
+   if (!Arg1) {
+      if (eax)
+         eax->NoOp_void_0a_006C50E0();
+      this->Unk_6B();
+   }
+   NiPoint3 esp30 = this->pos;
+   float    esp18 = (float)this->scale / 100.0F;
+   if (auto ecx = this->baseForm) { // at 0x004E7837
+      if (ecx->formType == 0x2B) {
+         esp18 *= ((TESNPC*)ecx)->GetHeight();
+      }
+   }
+   Actor* esp1C = this->formType == form_type::actor ? (Actor*)this : nullptr;
+   if (this->_get_my_node() && Arg1) { // at 0x004E788C
+      auto eax = this->baseForm;
+      if (eax && eax->formType == form_type::tree)
+         return;
+   }
+   if (this->flags & 0x01000000) { // at 0x004E78A3
+      if (this->extraData.GetExtraDataObjectHealth() != 0.0F) {
+         auto esi = GetBGSDestructibleObjectForm(this->baseForm);
+         if (esi) {
+            auto node = this->GetNiNode(); // direct call, not virtual
+            if (node && !Arg1) {
+               esi->sub00448360();
+            } else if (!Arg1 && !node) {
+               esi->sub0044A8A0(this->baseForm);
+            }
+         }
+      }
+   }
+   // at 0x004E78FB
+   auto esp14 = esp18 = edi = this->_get_my_node(); // inlined; done by 004E7923
+   if (edi) { // at 0x004E7929
+      NiPointer<NiNode> unnamed = edi; // inc refcount
+      bool bl;
+      if (auto eax = this->parentCell) {
+         bl = (eax->unk30 == 7) && ShouldUseBSTaskPoolForTask();
+      } else
+         bl = false;
+      esp20 = edi->parent;
+      if (edi->parent) { // at 0x004E795E
+         bool a = this->flags & 0x00004000;
+         if ((this->flags & 0x00004000) || !this->baseFOrm || this->baseForm->formType != 0x26) {
+            if (bl) {
+               ptrBSTaskPool->QueueTaskType05(edi);
+            } else {
+               ecx->RemoveChild(edi);
+            }
+         }
+         // at 0x004E7994
+         NiPoint3   esp30 = esp14->localTransform.pos;
+         NiMatrix33 esp3C = esp14->localTransform.rot;
+         float      esp24 = esp14->localTransform.scale;
+      }
+      // at 0x004E79C4
+      // esi = 0;
+      if (bl) { // at 0x004E79C9
+         ptrBSTaskPool->QueueTaskType06(edi);
+      } else {
+         ptrShadowSceneNode->sub00C77EB0(edi, 1);
+      }
+      if (esp64 == 0) { // at 0x004E79EB
+         bool esp13 = false;
+         auto eax   = edi->GetAsBSFadeNode();
+         if (eax) {
+            eax->unkA0 = nullptr; // clear TESObjectREFR* pointer
+            esp13 = eax->flags & 0x00020000; // NifSkope identifies this flag as no_anim_sync_y???
+         }
+         if (edi->flags & 0x00020000) {
+            sub004D87A0(edi->GetAsNiNode());
+         }
+         this->sub004E9ED0(); // at 0x004E7A39
+         if (auto singleton = *(void*)0x012E7560)
+            singleton->sub007A7250(this);
+         //
+         bool     cl = this->flags & 0x20;
+         uint32_t cf;
+         if (!cl) { // at 0x004E7A5B
+            cf = 4;
+            bool al = BGSSaveLoadManager::Get()->sub006781E0(this, &cf);
+            if (al) {
+               if (esp1C && !esp1C->sub006AA360() && !this->IsLimbSevered(1)) {
+                  this->UnmarkChanged(4);
+               } else {
+                  dword esp18 = 0;
+                  esp18.sub006862B0(this); // either is or inlines BGSLoadGameSubBuffer::SaveAnimation
+                  this->baseExtraList.SetSavedHavokData(&esp18); // at 0x004E7AB8
+               }
+            }
+            // at 0x004E7ABD
+            cf = 0x10000000;
+            bool al = BGSSaveLoadManager::Get()->sub006781E0(this, &cf);
+            if (al) { // at 0x004E7AD4
+               if (BGSSaveLoadManager::Get()->unk3F0 & 2) {
+                  this->UnmarkChanged(0x10000000); // jumped to 004E7B31
+               } else {
+                  bool al = this->Unk_7A(); // at 0x004E7AF3
+                  if (!al) {
+                     this->UnmarkChanged(0x10000000); // jumped to 004E7B31
+                  } else {
+                     BGSLoadGameSubBuffer esp18{0};
+                     esp18.SaveAnimation(this); // either is or inlines BGSLoadGameSubBuffer::SaveAnimation
+                     if (!esp18.unk00) {
+                        this->UnmarkChanged(0x10000000); // jumped to 004E7B31
+                     } else {
+                        this->extraData.SetSavedAnimation(&esp18);
+                     }
+                  }
+               }
+            }
+         } else {
+            // at 0x004E7B1C
+            cf = 0x10000000;
+            bool al = BGSSaveLoadManager::Get()->sub006781E0(this, &cf);
+            if (al)
+               this->UnmarkChanged(0x10000000);
+         }
+         sub0075ED90(this); // at 0x004E7B40
+         auto esi = this->extraData.GetExtraLightFOVModifier();
+         if (esi) { // at 0x004E7B57
+            auto eax = *esi;
+            if (eax) {
+               ptrShadowSceneNode->sub00C78DA0(eax);
+               *esi = nullptr; // (esi) is a NiPointer
+            }
+            // at 0x004E7B8E
+            this->extraData.sub00410690();
+         }
+         // at 0x004E7B9C
+         void* esp18 = nullptr; // some kind of smart pointer
+         if (this->animGraphHolder.Unk_02(&esp18)) { // call at 0x004E7BB0; branch at 0x004E7BB4
+            TESObjectREFR* esp28 = this;
+            esp18->sub004E1D30(&esp28);
+         }
+         esi->sub00650CE0();
+         if (esp18 is a valid smart pointer) {
+            GarbageCollector::get()->Add(&esp18); // at 0x004E7BEC
+         }
+         // inlined smart pointer destructor for esp18
+         ActorWeightData* esp18_b = nullptr;
+         this->Unk_81(&esp18_b); // at 0x004E7C27
+         esi = eax = esp18_b;
+         if (eax)
+            eax->DecRef(); // including deletion if warranted
+         this->Unk_69();
+         auto eax = edi->GetAsNiNode()->sub00AB45F0(stringcache_ref_BSX); // &StringCache::ref is kinda-sorta the same type as const char**, so this is &("BSX")
+         bool cl = (eax && (eax->unk0C & 0x10));
+         if (this->loadedState) {
+            if (cl)
+               this->loadedState->unk18 |= 2;
+            else
+               this->loadedState->unk18 &= ~2;
+         }
+         if (cl)
+            sub004DA480(edi);
+         Actor* esi = esp1C; // (Actor*)this
+         if (esi) {
+            auto eax = esi->GetCharacterProxy();
+            if (eax)
+               eax->sub00D19530(0);
+            if (esi->processManager)
+               esi->processManager->sub0071FA50(0); // set processManager->unk04->unkE8
+            void* esp18 = nullptr; // smart pointer
+            if (esi->sub006AA780(&esp18))
+               esp18->sub00D2D930();
+            // esp18 smart pointer destructor
+         }
+         // at 0x004E7CF9
+         if (!esp13) {
+            auto eax = this->Unk_8F();
+            if (!eax) {
+               if (this->formType == form_type::actor)
+                  jump to 0x004E7D3C;
+            }
+         }
+         // at 0x004E7D1D
+         uint32_t temp = 0;
+         auto a = GetUnknown01B9ED08Instance->sub00B99AB0(this->GetNiNode(), &temp, 0);
+         // at 0x004E7D3C:
+         this->sub004DCEE0(1); // at 0x004E7D40
+      }
+      // at 0x004E7D45
+      if (esp1C && esp1C != *g_thePlayer) {
+         if (auto pm = esp1C->processManager)
+            pm->sub00720B30(0);
+         GarbageCollector::Get()->Add(edi);
+      }
+      bool bl = (this->loadedState & (this->loadedState->unk18 & 4));
+      // Above line is interrupted by the unk18 &= ~2 thing from above -- weirdly-compiled branches
+      // smart pointer destructor: esp14
+      esp18 = 0;
+      this->sub004D6D40(0); // at 0x004E7DBB
+      // at 0x004E7E0B:
+      auto esi = esp64; // TODO: is this an argument?
+      if (!esi && this->baseForm) {
+         if (!(this->flags & 0x00080000)) {
+            if (!bl)
+               this->baseForm->Unk_41(this);
+         } else {
+            (*(void*)0x012E3534)->sub00430160(this);
+         }
+      }
+      if (this->unk10 & 4)
+         this->sub004EBC30();
+      if (esi) { // at 0x004E7E09
+         esi = esp64;
+         this->sub004E6D40(esi);
+      } else {
+         // at 0x004E7E1B
+         this->sub004DFE80(0);
+         if (!esp64)
+            jump to 0x004E7EE1;
+      }
+      ebx = esp64;
+      if (esp20) {
+         ebx->localTransform.pos = esp30; // NiPoint3 assign
+         ebx->localTransform.rot = esp3C; // NiMatrix33 assign
+         ebx->SetScale(esp24);
+         esp20->AttachChild(ebx, true);
+         FlagCollisionForReset(ebx, 1);
+         NiAVObject::ControllerUpdateContext esp30{0, 0};
+         ebx->UpdateNode(&esp30);
+      }
+      // at 0x004E7E9E
+      if (!ebx)
+         jump to 0x004E7EE1;
+      if (this->baseForm && this->baseForm->formType != 0x26) {
+         ebx->GetAsBSFadeNode()->unkA0 = this;
+      }
+      jump to 0x004E7F15;
+   } else {
+      // at 0x004E7EC0
+      if (ebx)
+         jump to 0x004E7E0B; // jump up
+      this->sub004E6D40(ebx); // at 0x004E7ECB
+      (*(void*)0x012E3534)->sub004E0160(this);
+      jump to 0x004E7E1B;
+   }
+   
+}
