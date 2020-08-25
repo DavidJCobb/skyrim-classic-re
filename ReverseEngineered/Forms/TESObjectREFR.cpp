@@ -97,6 +97,17 @@ namespace RE {
    // -----------------------------------------------------------------------------------------------------------------------------------
 
    #pragma region Ref handle system
+   bool RefHandleSystem::is_handle_valid(const ref_handle& handle) {
+      auto esi = handle.index();
+      auto ecx = RefHandleSystem::GetEntries()[esi].refHandle;
+      if (!ecx.is_in_use())
+         return false;
+      if (ecx ^ handle & ref_handle::mask_reuse)
+         return false;
+      auto ref = RefHandleSystem::GetEntries()[esi].refObject;
+      return ref->GetRefHandle() == handle.index();
+
+   }
    bool RefHandleSystem::ExchangeHandleForRef(ref_handle* refHandlePtr, refr_ptr& out) {
       auto handle = *refHandlePtr;
       if (handle) {

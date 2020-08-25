@@ -32,6 +32,7 @@ namespace RE {
 
       MEMBER_FN_PREFIX(NiCloningProcess);
       DEFINE_MEMBER_FN(Constructor, NiCloningProcess&, 0x0046DF40, float);
+      DEFINE_MEMBER_FN(Destructor, void, 0x00677F00);
 
       NiCloningProcess(float a) {
          CALL_MEMBER_FN(this, Constructor)(a);
@@ -213,6 +214,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetCollisionObject, void, 0x0046AC60, NiCollisionObject*);
          DEFINE_MEMBER_FN(UpdateNode, void, 0x00AAF320, ControllerUpdateContext * ctx);
          DEFINE_MEMBER_FN(UpdateWorldTransformFromParent, void, 0x00AB5370);
+         DEFINE_MEMBER_FN(SetIsCulled, void, 0x0042A5E0, bool); // just here for documentation purposes. don't bother using it; faster to just set the flag yourself
          //
          void RemoveFromNodeTree();
    };

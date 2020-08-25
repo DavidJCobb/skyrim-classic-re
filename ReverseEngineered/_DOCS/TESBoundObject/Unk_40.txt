@@ -1,0 +1,263 @@
+NiNode* TESBoundObject::Unk_40(TESObjectREFR* Arg1, bool Arg2) {
+   auto esp28 = this;
+   auto ebp   = 0;
+   TESObjectREFR* edi;
+   if (this == *ptrDoorMarkerForm || this == *ptrTravelMarkerForm)
+      edi = nullptr;
+   else
+      edi = Arg1;
+   BSFadeNode* esp20 = ebx = this->Unk_48(edi); // at 0x0049ECEB
+   if (!INI::Display::bLoadMarkers) {
+      if (edi && edi->baseForm) {
+         if (edi->baseForm->Unk_42()) { // TESObject virtual method; apparently tests whether the form is a marker
+            if (edi->baseForm->formType != form_type::light)
+               return ebx;
+         }
+      }
+   }
+   if (!ebx)
+      return nullptr;
+   if (this->flags & 0x10 && edi)
+      edi->ModifyFlag00000010(true);
+   if (Arg2 && ebx->m_uiRefcount == 1) {
+      
+      // TODO: this is a really weirdly-compiled switch-case and our current 
+      // translation is missing a case that falls through to 0x0049EECF, ugh
+      
+      if (this->formType == form_type::activator) {
+         if (NodeTreeContainsGeomMorpherControl(ebx)) // why is this specific to activators?
+            Arg2 = true;
+      } else if (this->formType == form_type::door) {
+         // at 0x0049EE5E
+         esi = ebx->GetAsNiNode();
+         if (esi) {
+            if (esi->GetChild(0)) { // call at 0x0049EE71
+               if (auto eax = esi->children[0]->controller) {
+                  auto esi = DoNiRTTICast(NiRTTI_NiControllerManager, eax);
+                  if (esi) {
+                     auto eax = esi->sub0044BC70(GetBoneNames()->unequip); // oh. okay.
+                     if (eax)
+                        jump to 0x0049ED9D;
+                  }
+               }
+            }
+         }
+         // at 0x0049EECF
+         auto eax = ebx->sub00AB45F0(stringcache_ref_BSX);
+         if (eax) {
+            if (eax->flags & 0x10) // "addon" flag
+               jump to 0x0049ED9D;
+         }
+         if (sub00454DA0(this, edi))
+            jump to 0x0049ED9D;
+         if (ebx->SelfOrAnyDescendantHasExternalEmittanceShaderFlag()) // call at 0x0049EF04
+            jump to 0x0049ED9D;
+         if (edi) {
+            if (ebx->localTransform.scale != edi->GetScale())
+               jump to 0x0049ED9D;
+         }
+         ebp = ebx;
+         jump to 0x0049F5CA;
+      }
+   }
+   // at 0x0049ED9D
+   float esp24 = 1.0F;
+   if (edi)
+      esp24 = edi->GetScale();
+   float esp14 = ebx->localTransform.scale;
+   if (esp24 >= esp14)
+      esp24 = 1.0F;
+   if (0.0F >= esp24)
+      esp24 = 1.0F;
+   auto esp94 = NiCloningProcess(esp24);
+   if (Arg2) { // at 0x0049EE00
+      auto esi = (*g_TES)->sub00432070(ebx, &esp94);
+      bool needs_wrap = true;
+      if (esi) {
+         ebp = esi->GetAsNiNode();
+         if (ebp)
+            needs_wrap = false;
+      }
+      if (needs_wrap) {
+         //
+         // Essentially, if (esi) somehow isn't a node, then we wrap it in one.
+         //
+         ebp = new NiNode(0);
+         // jumped to 0x0049EF40
+         ebp->AttachChild(esi, true);
+      }
+   } else {
+      // at 0x0049EF52
+      ebp = ebx->Clone(&esp94);
+      //
+      // Let's get the editor ID or model path (preferring the former), so we can 
+      // immediately throw it away! :D
+      //
+      auto eax = this->sub00447BE0(); // returns strlen(this->GetEditorID()) but does some weird stuff with recursion as well
+      if (eax) {
+         eax = this->GetEditorID();
+      } else {
+         if (FormHasName(this)) {
+            eax = GetFormName(this);
+         } else {
+            if (edi)
+               eax = edi->sub004D9A80();
+            else
+               eax = sub00453F40(this);
+         }
+      }
+   }
+   bool bl  = false; // at 0x0049EFAB
+   auto esi = 0;
+   bool esp1F = false;
+   bool esp34 = false;
+   bool esp13 = false;
+   auto esp14 = 0;
+   TESForm* eax = edi ? edi->baseForm : nullptr;
+   if (eax && eax->formType == form_type::statik) {
+      esp1F = bl = !!this->unk3C.unk04;
+      auto  esi = this->unk3C.unk04 ? &this->unk3C.unk04->unk28 : 0;
+      float ecx = eax->unk3C.unk00;
+      esp14 = ecx;
+      if (bl && esi && esi->unk30) { // at 0x0049F012
+         //
+         // ... stuff involving angles. directional materials, maybe? ...
+         //
+      }
+   }
+   // at 0x0049F09F
+   if (1.0F != esp24) {
+      if (esp20->localTransform.scale == 1.0F) {
+         ebp->SetScale(esp24);
+         if (bl && esi) {
+            this->sub0049E510(edi, &esp49C); // snprintf(buffer, MAX_PATH, "%s.%.2f", some_string, edi->GetScale())
+            this->sub0049E630(edi, &esp398, esp34); // copies model path
+            bool al = sub00AF5030(&esp398, &esp2C);
+            esp34 = 0;
+            esp38 = 0;
+            if (al) {
+               // jumped to 0x0049F2FF
+               NiPointer<NiRefObject> esp30 = esp2C->unk1C;
+               if (esp24 ?? esp30->localTransform.scale)
+                  jump to 0x0049F2E4;
+               this->Unk_40(edi, Arg2); // how strange.
+               // esp30.~NiPointer();
+               // esp2C.sub00407EC0(); // unknown destructor
+               // esp94.sub00677F00(); // unknown destructor
+               return esi;
+            }
+            this->sub0049E570(edi, &esp190, ebx);
+            al = sub00AF5030(&esp190, &esp2C);
+            if (al) {
+               if (ebp)
+                  ebp->Dispose(true);
+               auto espE8 = NiCloningProcess(esp24);
+               ebp = esp2C->unk1C->Clone(&espE8);
+               ebp->SetScale(esp24);
+               if (esp34 != 0) { // bool
+                  //
+                  // ... angle math ...
+                  //
+               }
+               // at 0x0049F23A
+               // espE8.~NiCloningProcess()
+            }
+            // at 0x0049F246
+            *(uint32_t*)0x012E72E8 += 1;
+            NiPointer<NiRefObject> esp30 = ebp;
+            if (esp34 == 0) { // at 0x0049F25B
+               NiTransform esp60;
+               edi->GetNiTransform(esp60); // pass-by-reference
+               esp13 = sub00B11F00(esp30, &esp60, esi, /*float*/esp18); // bool
+            }
+            // at 0x0049F288
+            sub00AF54C0(&esp398, &esp30, &esp2C, 1);
+            auto esp13C = NiCloningProcess(1.0F);
+            ebp = ebp->Clone(&esp13C);
+            if (edi)
+               edi->sub0049EC50(&esp2C);
+            // esp13C.~NiCloningProcess();
+            // at 0x0049F2E4
+            // esp30.~NiPointer();
+            // esp2C.sub00407EC0(); // unknown destructor
+            bl = esp1F;
+            jump to 0x0049F55A;
+         }
+         // at 0x0049F380
+         this->sub0049E510(edi, &esp294);
+         esp14.unk00 = 0;
+         esp14.unk04 = nullptr; // NiPointer
+         bool al = sub00AF5030(&esp294, &esp14);
+         if (!al) { // at 0x0049F3B7
+            esp14.unk04 = ebp; // NiPointer::operator=
+            sub00AF54C0(&esp294, &esp18, &esp14, 1);
+            *(uint32_t*)0x012E72E8 += 1;
+            auto espE8 = NiCloningProcess(1.0F);
+            ebp = ebp->Clone(&espE8); // at 0x0049F3FE
+            if (edi)
+               edi->sub0049EC50(&esp14);
+            // espE8.~NiCloningProcess();
+            // esp14.unk04.~NiPointer();
+            // esp14.sub00407EC0(); // unknown destructor
+            jump to 0x0049F55A;
+         }
+         // at 0x0049F438
+         esp14.unk04 = esp14->unk00.unlC; // NiPointer::operator=. Not sure if I have the RHS correct.
+         if (esp24 ?? esp14.unk04->localTransform.scale) // at 0x0049F45F
+            jump to 0x0049F421;
+         this->Unk_40(edi, Arg2);
+         // esp14.unk04.~NiPointer();
+         // esp14.sub00407EC0(); // unknown destructor
+         // esp94.~NiCloningProcess();
+         return esi; // circa 0x0049F4A7
+      }
+   }
+   // at 0x0049F4B5 or 0x0049F4B7 (just FPU manip)
+   if (bl) {
+      if (esi) {
+         this->sub0049E570(edi, &esp190, esp34);
+         bool al = sub00AF5030(&esp190, &esp18);
+         if (!al) {
+            if (!esp34) {
+               NiTransform esp60;
+               edi->GetNiTransform(&esp60);
+               esp13 = sub00B11F00(ebp, &esp60, esi, /*float*/esp14);
+            }
+            // at 0x0049F52C
+            if (edi)
+               edi->sub0049EC50(&esp18);
+         } else
+            esp13 = true; // at 0x0049F53E
+         eax = esp18; // at 0x0049F543
+         if (eax) {
+            Singleton012E2CF8->unk68.sub006483F0(eax);
+         }
+      }
+      // at 0x0049F55A
+      if (bl && !esp34 && esp13) {
+         sub00B121D0(ebp, esi);
+         NiTransform esp60;
+         edi->GetNiTransform(&esp60);
+         NiPoint3 esp40 = esi->unk14;
+         sub00B120C0(ebp, &esp40, &esp60); // possibly related to snow?
+      }
+   }
+   // at 0x0049F5AA
+   // esp98.~NiCloningProcess(); // inlined
+   // at 0x0049F5CA
+   if (ebp && this->formType == form_type::actor_base) { // at 0x0049F5D2
+      auto eax = GetNodeByName(ebp, GetBoneNames()->root, 1);
+      if (eax && eax != ebp) {
+         sub00ABE4D0(eax); // subroutine is related to BSFlattenedBoneTree and may construct one as part of its operation
+      }
+   }
+   // at 0x0049F656
+   float esp28 = sub00F531CC(1.0); // double-to-float cast?
+   ebp->flags &= ~1; // clear "culled" flag
+   ebp->localTransform.scale = esp28;
+   ebp->localTransform.pos = NiPoint3(0, 0, 0);
+   ebp->localTransform.rot = NiMatrix33(); // default
+   if (ebp->parent)
+      ebp->parent = nullptr; // whoa there buddy isnt this a little risky?
+   return ebp;
+}

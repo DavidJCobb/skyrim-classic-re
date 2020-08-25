@@ -38,7 +38,7 @@ namespace RE {
          armor,                    // ARMO: TESObjectARMO
          book,                     // BOOK: TESObjectBOOK
          container,                // CONT: TESObjectCONT
-         door,                     // DOOR: TESObjectDOOR
+         door              = 0x1D, // DOOR: TESObjectDOOR
          ingredient,               // INGR: IngredientItem
          light             = 0x1F, // LIGH: TESObjectLIGH
          misc_item         = 0x20, // MISC: TESObjectMISC
@@ -154,7 +154,7 @@ namespace RE {
          active_magic_effect,      //       ActiveMagicEffect
       };
    };
-   using form_type_t = form_type::type;
+   using form_type_t = std::underlying_type_t<form_type::type>;
 }
 #pragma endregion
 
@@ -162,6 +162,7 @@ class BGSLoadFormBuffer;
 class BGSSaveFormBuffer;
 class BSString;
 class EnchantmentItem;
+class TESBipedModelForm;
 class TESForm;
 namespace RE {
    class BaseExtraList;
@@ -298,7 +299,7 @@ namespace RE {
          virtual bool         Unk_29(); // 29
          virtual bool         IsWaterActivator(); // 2A // returns true if the form (or its base) is a TESObjectACTI with a water type
          virtual TESObjectREFR* Unk_2B(); // 2B // Appears to be a cast of some kind. Identical to 2C for most subclasses I've checked.
-         virtual TESObjectREFR* Unk_2C(); // 2C // Appears to be a cast of some kind. 2C is usually used; what's the difference between it and 2B?
+         virtual TESObjectREFR* GetAsObjectReference(); // 2C // A cast.
          virtual UInt32       Unk_2D(); // 2D
          virtual const char*  GetFullName(UInt32 arg); // 2E
          virtual void         CopyFrom(TESForm* srcForm); // 2F // guessed
@@ -342,10 +343,20 @@ namespace RE {
          DEFINE_MEMBER_FN(GetBodyPartsMask,   UInt32, 0x00475280);
          DEFINE_MEMBER_FN(ModifyFlag00000008, void,   0x004507F0, bool clearOrSet);
          DEFINE_MEMBER_FN(SetFormHighFlags,   void,   0x00450A60, UInt32 flagsMask, bool clearOrSet);
+         DEFINE_MEMBER_FN(GetBipedModel, TESBipedModelForm*, 0x0044F070);
          //
          // Maybe avoid calling these:
          //
          DEFINE_MEMBER_FN(LoadVMAD, void, 0x00451760, BGSLoadFormBuffer*);
+
+         //
+         // This call is used by UI functions that create temporary TESObjectREFRs for various reasons, apparently 
+         // to ensure that those TESObjectREFRs aren't actually written to the savegame. It also seems to make the 
+         // form's ID available for use by other forms, if the ID is a temporary (0xFF) one. It doesn't appear to 
+         // clear the form's ID field, but it does set a flag which apparently tells the rest of the savedata code 
+         // to ignore this form.
+         //
+         DEFINE_MEMBER_FN(Subroutine00451D20, void, 0x00451D20);
    };
    class TESObject : public TESForm {
       public:
@@ -358,7 +369,7 @@ namespace RE {
          virtual UInt32 Unk_3D(); // 3D // no-op on TESObject; returns null
          virtual bool   Unk_3E(); // 3E // no-op on TESObject; returns false
          virtual void   Unk_3F(void* arg); // 3F // no-op on TESObject
-         virtual UInt32 Unk_40(void*, void*); // 40 // no-op on TESObject; returns null
+         virtual NiNode* Unk_40(TESObjectREFR*, bool); // 40 // no-op on TESObject; overridden on TESBoundObject
          virtual void   Unk_41(void*); // 41
          virtual bool   Unk_42(); // 42 // returns true if the "is marker" flag is set. otherwise, returns true for all form_types in the range of [texture_set, idle_marker] EXCEPT lights with models, activators with the "EditorMarker.NIF" model, and statics
          virtual bool   Unk_43(); // 43 // checks if the TESObject is a Static and is one of three executable-defined forms
@@ -366,7 +377,7 @@ namespace RE {
          virtual void   Unk_45(UInt32 arg0, UInt32 arg1); // 45 // no-op on TESObject
          virtual UInt32 Unk_46(); // 46 // no-op on TESObject; returns null
          virtual UInt32 Unk_47(); // 47 // no-op on TESObject; returns null
-         virtual BSFadeNode* Unk_48(void*); // 48
+         virtual BSFadeNode* Unk_48(TESObjectREFR*); // 48
    };
    class TESBoundObject : public TESObject {
       public:
@@ -380,7 +391,7 @@ namespace RE {
          //
          virtual void   Unk_49(UInt32 arg); // 49
          virtual UInt32 Unk_4A(void); // 4A
-         virtual UInt32 Unk_4B(UInt32 arg); // 4B	// return Unk_40(arg, 0);
+         virtual NiNode* Unk_4B(TESObjectREFR*); // 4B	// return Unk_40(arg, 0);
          virtual bool   Unk_4C(UInt32 arg); // 4C
          virtual bool   Unk_4D(void* arg0, BSString* dst, void*); // 4D // steal/take string // assumes that it's working with a TESObjectREFR*
          virtual bool   Unk_4E(void* arg0, UInt8 arg1, UInt32 arg2, float arg3); // 4E

@@ -18,6 +18,7 @@ namespace RE {
    class TESWorldSpace;
 
    enum TaskType : UInt32 {
+      kTaskType_RemoveNodeFromScene = 0x05, // remove NiNode from its parent (and from the ShadowSceneNode?)
       kTaskType_10            = 0x10, // Actor::ProcessIncomingAttack
       kTaskType_34            = 0x34, // for created water ref? and three other things
       kTaskType_35            = 0x35, // related to magic; acts on a single ActiveEffect; possibly dispels an individual effect

@@ -122,6 +122,7 @@ namespace RE {
          static bool lookup(UInt32 handle, refr_ptr& p) {
             return lookup(ref_handle(handle), p);
          }
+         static bool is_handle_valid(const ref_handle&); // seen inlined in Actor::Unk_6C
          //
          // SKSE identifies this as "LookupREFRByHandle." If the handle you pass in is 
          // invalid, then the handle will be destroyed (i.e. set to zero).
@@ -386,7 +387,7 @@ namespace RE {
             float    unk10;	// 10 // related to cell water levels; see subroutine 004D9FE0 // can be FLT_MIN
             float    unk14;	// 14
             UInt16   unk18;   // 18 // bitmask
-            UInt16   pad1A;
+            UInt16   unk1A;   // 1A // int? tested by TESObjectREFR::Subroutine004D6320
             void*    unk1C;	// 1C
             NiNode*  node;    // 20 // This is what is returned by TESObjectREFR::GetNiNode.
             UInt32   unk24;   // 24
@@ -512,6 +513,8 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004D9CF0,   bool,             0x004D9CF0);
          DEFINE_MEMBER_FN(Subroutine00450F60,   void,             0x00450F60, UInt32);
          DEFINE_MEMBER_FN(Subroutine004D6140,   void,             0x004D6140, char*);      // <-- Sets non-persistent activate prompt? I've seen it used to set "Open" or "Close".
+         DEFINE_MEMBER_FN(Subroutine004D7D20,   TESModel*,        0x004D7D20);
+         DEFINE_MEMBER_FN(Subroutine004D9A80,   const char*,      0x004D9A80); // returns a model path from 4D7D20, or nullptr
          DEFINE_MEMBER_FN(Subroutine004DBDB0,   void,             0x004DBDB0, TESForm* baseTorch, bool isShieldBodyPart);
          DEFINE_MEMBER_FN(Subroutine004EC4E0,   void,             0x004EC4E0, UInt32, UInt32); // <-- related to "used" and "reserved" furniture markers
          DEFINE_MEMBER_FN(SetFlag00000002State, void,             0x00450ED0, bool);       // <-- Setter for flag 0x02, wrapped in TLS stuff.

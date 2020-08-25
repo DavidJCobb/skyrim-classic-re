@@ -148,4 +148,5 @@ namespace RE {
 
    DEFINE_SUBROUTINE_EXTERN(bool, InterpolateWeightModels, 0x00B0EEF0, NiPointer<NiNode> minWeightModel, NiPointer<NiNode> maxWeightModel, float weight, NiPointer<NiNode>& out);
    static DEFINE_SUBROUTINE(void, SetNodeMotionType, 0x00D11180, NiNode*, uint32_t motionSystem, bool iterateObjectChildren, bool skipBSXFlagsCheck, bool allowActivate);
+   static DEFINE_SUBROUTINE(void, RemoveWeaponScabbardNode, 0x004739E0, NiNode* weaponRootNode); // used for showing weapons in the inventory UI
 }

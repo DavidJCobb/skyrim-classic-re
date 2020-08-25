@@ -1289,7 +1289,7 @@ namespace RE {
          ActorMagicCaster*	unk108[4]; // 108
          TESForm* equippedItems[4]; // 118 // equipped items or spells; see 0x006ED753
          TESForm* equippedShout; // 128 // not validated by the game after being loaded from the savegame; if the player were to equip a shout, upgrade the mod it came from, and the upgrade removed the shout and put something else in that form ID, you'd run into problems
-         UInt32	unk12C; // 12C
+         ref_handle unk12C; // 12C
          TESRace* race;   // 130
          float 	unk134; // 134 // total weight of all equipped items; a two-handed weapon is counted twice; armor has a perk entry point taken into account; computed by Actor::Subroutine006A8630
          UInt32	flags2; // 138

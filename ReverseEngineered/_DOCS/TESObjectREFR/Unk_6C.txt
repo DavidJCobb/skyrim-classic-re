@@ -5,7 +5,7 @@ inline NiNode* TESObjectREFR::_get_my_node() const noexcept {
    return ls ? ls->node : nullptr;
 }
 
-void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
+void TESObjectREFR::Unk_6C(NiNode* Arg1, [[maybe_unused]] unknown_t Arg2) {
    NiNode* esi = Arg1;
    auto    ebp = this;
    uint8_t bl  = this->unk52;
@@ -105,6 +105,11 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
       // esi = 0;
       if (bl) { // at 0x004E79C9
          ptrBSTaskPool->QueueTaskType06(edi);
+         //
+         // Same as task type 05 except that (edi) is not removed from its parent; 
+         // also redundant with task type 05, in that both tasks 05 and 06 call 
+         // ShadowSceneNode::sub00C77EB0.
+         //
       } else {
          ptrShadowSceneNode->sub00C77EB0(edi, 1);
       }
@@ -122,6 +127,7 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
          if (auto singleton = *(void*)0x012E7560)
             singleton->sub007A7250(this);
          //
+         #pragma region savedata shenanigans
          bool     cl = this->flags & 0x20;
          uint32_t cf;
          if (!cl) { // at 0x004E7A5B
@@ -164,7 +170,8 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
             if (al)
                this->UnmarkChanged(0x10000000);
          }
-         sub0075ED90(this); // at 0x004E7B40
+         #pragma endregion
+         sub0075ED90(this); // at 0x004E7B40 // related to ExtraAction
          auto esi = this->extraData.GetExtraLightFOVModifier();
          if (esi) { // at 0x004E7B57
             auto eax = *esi;
@@ -193,7 +200,7 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
             eax->DecRef(); // including deletion if warranted
          this->Unk_69();
          auto eax = edi->GetAsNiNode()->sub00AB45F0(stringcache_ref_BSX); // &StringCache::ref is kinda-sorta the same type as const char**, so this is &("BSX")
-         bool cl = (eax && (eax->unk0C & 0x10));
+         bool cl = (eax && (eax->flags & BSXFlags::flag::addon)); // flag 0x10
          if (this->loadedState) {
             if (cl)
                this->loadedState->unk18 |= 2;
@@ -224,7 +231,7 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
          }
          // at 0x004E7D1D
          uint32_t temp = 0;
-         auto a = GetUnknown01B9ED08Instance->sub00B99AB0(this->GetNiNode(), &temp, 0);
+         auto a = GetUnknown01B9ED08Instance->sub00B9AAB0(this->GetNiNode(), &temp, 0);
          // at 0x004E7D3C:
          this->sub004DCEE0(1); // at 0x004E7D40
       }
@@ -239,8 +246,7 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
       // smart pointer destructor: esp14
       esp18 = 0;
       this->sub004D6D40(0); // at 0x004E7DBB
-      // at 0x004E7E0B:
-      auto esi = esp64; // TODO: is this an argument?
+      auto esi = Arg1; // TODO: is this an argument?
       if (!esi && this->baseForm) {
          if (!(this->flags & 0x00080000)) {
             if (!bl)
@@ -252,16 +258,21 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
       if (this->unk10 & 4)
          this->sub004EBC30();
       if (esi) { // at 0x004E7E09
-         esi = esp64;
+         // at 0x004E7E0B:
+         esi = Arg1;
          this->sub004E6D40(esi);
       } else {
          // at 0x004E7E1B
          this->sub004DFE80(0);
-         if (!esp64)
+         if (!Arg1)
             jump to 0x004E7EE1;
       }
-      ebx = esp64;
-      if (esp20) {
+      // at 0x004E7E2F
+      //
+      // By this point, we have definitely finished discarding our old node.
+      //
+      ebx = Arg1;
+      if (esp20) { // our old node's parent
          ebx->localTransform.pos = esp30; // NiPoint3 assign
          ebx->localTransform.rot = esp3C; // NiMatrix33 assign
          ebx->SetScale(esp24);
@@ -276,14 +287,111 @@ void TESObjectREFR::Unk_6C(NiNode* Arg1, unknown_t Arg2) {
       if (this->baseForm && this->baseForm->formType != 0x26) {
          ebx->GetAsBSFadeNode()->unkA0 = this;
       }
-      jump to 0x004E7F15;
+      return; // via jump to 0x004E7F15
+   }
+   if (Arg1) {
+      // at 0x004E7E0B:
+      esi = Arg1;
+      this->sub004E6D40(esi);
+      if (!esi) {
+         this->sub004DFE80(0);
+         if (!Arg1)
+            jump to 0x004E7EE1;
+      }
+      jump to 0x004E7E2F;
    } else {
       // at 0x004E7EC0
-      if (ebx)
-         jump to 0x004E7E0B; // jump up
       this->sub004E6D40(ebx); // at 0x004E7ECB
       (*(void*)0x012E3534)->sub004E0160(this);
-      jump to 0x004E7E1B;
+      // jumped to 0x004E7E1B
+      this->sub004DFE80(0);
+      if (Arg1)
+         jump to 0x004E7E2F; // implicit
    }
-   
+   // at 0x004E7EE1:
+   if (auto td = this->GetExtraTeleportData()) {
+      // redundant call to GetExtraTeleportData
+      if (auto eax = td->sub0042A2B0()) {
+         eax->sub004C5990(0);
+      }
+   }
+   // at 0x004E7F15
+   // smart pointer destructor: esp18
+   return;
+}
+
+void Actor::Unk_6C(NiNode* Arg1, [[maybe_unused]] unknown_t Arg2) override {
+   auto edi = Arg1;
+   bool bl  = !!this->GetNiNode();
+   TESObjectREFR::Unk_6C(Arg1, Arg2); // call super
+   if (!Arg1) { // at 0x006C20FA
+      if (bl) {
+         this->sub006AA800(&Arg2);
+         if (!(BGSSaveLoadManager::Get()->unk3F0 & 2)) {
+            this->unk68 &= 0x0FFFFFFF;
+            this->unk64.Unk_15(Arg1);
+         }
+         ExtraSound::Data esp0C;
+         esp0C.unk00 = -1; // dword
+         esp0C.unk04 =  0; // byte
+         esp0C.unk08 =  0; // dword
+         this->extraData.sub0040C2E0(&esp0C);
+         esp0C.sub00B99F40();
+         esp0C.sub00B9A210();
+         this->extraData.sub0040FFC0(&esp0C);
+         this->extraData.RemoveExtra(0x98);
+         this->extraData.RemoveExtra(0xB1);
+         this->unk138 &= 0xFFFFFFF7;
+         if (auto pm = this->processManager) {
+            if (pm->unk9B <= 1 && pm->unk9B >= 0) {
+               pm->sub00720130();
+            }
+         }
+         // at 0x006C21CE
+         this->sub006E1730(0); // kills actor?
+         bool a = (this == *(Actor*)0x01310588); // if we are the player
+         bool b = DataHandler::get() && DataHandler::get()->unkAA1 == 0;
+         if (!a || !b) {
+            for(uint32_t i = 0; i < 4; ++i)
+               this->sub006ED740(i, 0);
+            this->sub006ED7B0(0); // at 0x006C220B
+            this->sub006EADD0();
+         }
+      }
+   } else {
+      // at 0x006C221C
+      if (!bl) {
+         if (!this->IsDead(0)) {
+            auto ecx   = this->unk130->unkCC;
+            auto esp20 = ecx;
+            if (0.0F < esp20) {
+               float esp1C = this->GetActorValuePercentage(0x18); // health
+               if (esp20 > esp1C) {
+                  if (this->sub006A6F20(*g_thePlayer) && !this->IsHorse()) {
+                     (*g_thePlayer)->sub00736270(1);
+                  } else {
+                     // at 0x006C22A3
+                     this->sub006BB2D0(1);
+                  }
+               }
+            }
+            // at 0x006C22AC
+            this->sub006EA9F0(0, 1, 1, 1);
+            if (this != *(Actor*)0x01310588) { // if we are not the player
+               auto pm = this->processManager;
+               if (pm)
+                  pm->sub007262A0();
+               this->Unk_100();
+            }
+         }
+      }
+   }
+   // at 0x006C22DE
+   bool al = TESObjectREFRHandleInterface::is_handle_valid(this->unk12C); // inlined
+   if (!al)
+      return;
+   if (!this->GetNiNode())
+      return;
+   ref_handle copy = this->unk12C;
+   sub006AAC40(this, &copy);
 }

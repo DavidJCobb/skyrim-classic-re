@@ -171,7 +171,7 @@ namespace RE {
       T& operator[](UInt32 index) { return this->items()[index]; }
       const T& operator[](UInt32 index) const { return this->items()[index]; }
 
-      T* end() const noexcept {
+      T* last() const noexcept {
          auto i = this->items();
          if (!i)
             return nullptr;
