@@ -102,7 +102,7 @@ namespace RE {
       auto ecx = RefHandleSystem::GetEntries()[esi].refHandle;
       if (!ecx.is_in_use())
          return false;
-      if (ecx ^ handle & ref_handle::mask_reuse)
+      if (ecx ^ (uint32_t)handle & ref_handle::mask_reuse)
          return false;
       auto ref = RefHandleSystem::GetEntries()[esi].refObject;
       return ref->GetRefHandle() == handle.index();
@@ -470,7 +470,7 @@ namespace RE {
       if (item->formType == form_type::formlist) {
          return ((RE::BGSListForm*)item)->CountMatchingItemsInInventory(*data);
       }
-      auto cast = item->Unk_2C();
+      auto cast = item->GetAsObjectReference();
       if (cast) {
          ref_handle my_handle;
          ref_handle check;
@@ -693,11 +693,18 @@ namespace RE {
       }
    };
 
+   TESObjectREFR* TESObjectREFR::make() {
+      auto buffer = FormHeap_Allocate(sizeof(TESObjectREFR));
+      auto ref    = (TESObjectREFR*) buffer;
+      CALL_MEMBER_FN(ref, Constructor)();
+      return ref;
+   }
+
    TESObjectREFR* refr_ptr::operator->() {
       return ref;
    }
    refr_ptr::operator RE::TESObjectREFR*() const { return ref; }
-   refr_ptr refr_ptr::operator=(RE::TESObjectREFR* rhs) {
+   refr_ptr& refr_ptr::operator=(RE::TESObjectREFR* rhs) {
       _dec();
       if (ref != rhs) {
          ref = rhs;
@@ -705,7 +712,7 @@ namespace RE {
       }
       return *this;
    }
-   refr_ptr refr_ptr::operator=(const refr_ptr& rhs) {
+   refr_ptr& refr_ptr::operator=(const refr_ptr& rhs) {
       _dec();
       if (ref != rhs.ref) {
          ref = rhs.ref;

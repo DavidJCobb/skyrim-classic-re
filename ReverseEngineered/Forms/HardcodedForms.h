@@ -1,18 +1,19 @@
 #pragma once
 
-class BGSBodyPartData;
 class BGSExplosion;
 class BGSVoiceType;
 class TESEyes;
-class TESObjectACTI;
 class TESObjectCONT;
 class TESObjectDOOR;
 class TESObjectMISC;
-class TESObjectSTAT;
-class TESObjectWEAP;
 class TESWaterForm;
-class TESWorldSpace;
 namespace RE {
+   class BGSBodyPartData;
+   class TESObjectACTI;
+   class TESObjectSTAT;
+   class TESObjectWEAP;
+   class TESWorldSpace;
+   //
    extern BGSVoiceType**  const ptrAdultFemaleVoice1Form;
    extern BGSVoiceType**  const ptrAdultMaleVoice1Form;
    extern TESObjectMISC** const ptrBobbyPinForm; // lockpick

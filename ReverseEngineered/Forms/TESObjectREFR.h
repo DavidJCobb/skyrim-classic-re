@@ -115,14 +115,21 @@ namespace RE {
             DEFINE_SUBROUTINE(bool, f, 0x004A9180, const ref_handle&, refr_ptr&);
             return f(handle, p);
          }
-         static bool lookup(ref_handle& handle, refr_ptr& p) {
+         static inline bool lookup(ref_handle& handle, refr_ptr& p) {
             DEFINE_SUBROUTINE(bool, f, 0x004951F0, const ref_handle&, refr_ptr&);
             return f(handle, p);
          }
-         static bool lookup(UInt32 handle, refr_ptr& p) {
+         static inline bool lookup(UInt32 handle, refr_ptr& p) {
             return lookup(ref_handle(handle), p);
          }
          static bool is_handle_valid(const ref_handle&); // seen inlined in Actor::Unk_6C
+         static inline void release(const ref_handle& handle) {
+            DEFINE_SUBROUTINE(void, f, 0x0043C400, const ref_handle&);
+            f(handle);
+         }
+         //
+      protected:
+         #pragma region Subroutines recreated for documentation
          //
          // SKSE identifies this as "LookupREFRByHandle." If the handle you pass in is 
          // invalid, then the handle will be destroyed (i.e. set to zero).
@@ -168,6 +175,7 @@ namespace RE {
          // Don't use this! It's just here for documentation.
          //
          static void ReleaseAndLoseHandle(ref_handle& refHandlePtr); // at 0x0079DDF0
+         #pragma endregion
    };
    typedef TESObjectREFRHandleInterface RefHandleSystem;
    class BSHandleRefObject : public NiRefObject {
@@ -447,8 +455,11 @@ namespace RE {
          }
 
          inline bool IsEnabled() const noexcept { return !(this->flags & kFlag_Disabled); }
-         //
+
+         static TESObjectREFR* make(); // creates a TESObjectREFR with a refhandle and a refcount of 1
+         
          MEMBER_FN_PREFIX(TESObjectREFR);
+         DEFINE_MEMBER_FN(Constructor, TESObjectREFR&, 0x004E6930);
          DEFINE_MEMBER_FN(Activate,                void,             0x004E4230, TESObjectREFR* activatedBy, UInt32 Arg2_papyrusUses0, UInt32 Arg3_papyrusUses0, UInt32 Arg4_papyrusUses1, bool defaultOnly);
          DEFINE_MEMBER_FN(IsLimbSevered,           bool,             0x004D5B90, BGSBodyPartData::PartType limb);
          DEFINE_MEMBER_FN(ClearDestruction,        void,             0x00449630);
@@ -555,10 +566,10 @@ namespace RE {
          //
          RE::TESObjectREFR* operator->(); // implies comparison operators with pointers, because it allows for an implicit cast
          operator RE::TESObjectREFR*() const;
-         refr_ptr operator=(RE::TESObjectREFR* rhs);
-         refr_ptr operator=(const refr_ptr& rhs);
-         inline refr_ptr operator=(::TESObjectREFR* rhs) { return *this = (RE::TESObjectREFR*)rhs; }
-         inline refr_ptr operator=(std::nullptr_t rhs) { return *this = (RE::TESObjectREFR*) rhs; }
+         refr_ptr& operator=(RE::TESObjectREFR* rhs);
+         refr_ptr& operator=(const refr_ptr& rhs);
+         inline refr_ptr& operator=(::TESObjectREFR* rhs) { return *this = (RE::TESObjectREFR*)rhs; }
+         inline refr_ptr& operator=(std::nullptr_t rhs) { return *this = (RE::TESObjectREFR*) rhs; }
          //
          /*//
          inline bool operator==(const refr_ptr& rhs) { return this->ref == rhs.ref; }

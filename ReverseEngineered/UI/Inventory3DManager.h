@@ -93,10 +93,10 @@ namespace RE {
 //
 //  - There are "Menu" and "Menu3D" scene graphs, but the game doesn't appear to use them at all; I wouldn't 
 //    be surprised if they were Oblivion leftovers. Instead, Inventory3DManager's nodes are appended to an 
-//    unnamed child node of the ShadowSceneNode. All ItemData nodes share that same parent, that same node 
-//    without a name, and the ones not in use are just culled.
+//    unnamed hardcoded node. All ItemData nodes share that same parent, that same node without a name, and 
+//    the ones not in use are just culled.
 //
-//     - That nameless node? Seems like it's pointed to by Singleton01B2E998::get()->unk24.
+//     - That nameless node? Seems like it's pointed to by Singleton01B2E998::get()->unk1C[2].
 //
 //        - Inventory3DManager::Subroutine008672E0 calls Singleton01B2E998::AppendNode.
 //

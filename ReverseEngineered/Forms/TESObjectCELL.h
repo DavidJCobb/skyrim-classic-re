@@ -299,7 +299,13 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine004D2760, BSMultiBoundRoom*, 0x004D2760, ref_handle, bool); // GetOrCreateRoomNode?
          DEFINE_MEMBER_FN(Subroutine004D2C80, void,   0x004D2C80, ref_handle); // related to decals
          DEFINE_MEMBER_FN(Subroutine004D3250, void,   0x004D3250, ref_handle);
+
          //
+         // Adds a reference to the cell's object list and, if the reference has a node, calls its Unk_66 
+         // to perform setup on that node.
+         //
+         DEFINE_MEMBER_FN(TakeReference, void, 0x004D3EA0, TESObjectREFR*, uint32_t zero);
+         
          DEFINE_MEMBER_FN(ModifyPersistentFlag, void, 0x004C0CC0, bool); // persistent flag?
    };
    static_assert(offsetof(TESObjectCELL, parentWorld) >= 0x84, "RE::TESObjectCELL::parentWorld is too early.");
