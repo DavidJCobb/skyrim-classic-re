@@ -269,14 +269,36 @@ namespace RE {
          operator ::TESObjectREFR*() const { return (::TESObjectREFR*) this; }
          enum { kTypeID = kFormType_Reference };
          //
-         enum { // see TESForm.h enums
-            kFlag_MarkedForDelete = 0x000020,
-            kFlag_Disabled        = 0x000800, // same flag is used in ESPs for "initially disabled"
-            kFlag_Harvested       = 0x002000,
-            kFlag_Unknown00004000 = 0x004000, // if this flag is set, Papyrus "Enable" aborts immediately, citing that the object is "temporary"
-            kFlag_DisabledSKSE    = 0x010000, // not sure what this is (it's from SKSE), but I've confirmed that 0x800 is the REAL disabled flag
-            kFlag_IgnoringFriendlyHits = 0x100000,
-            kFlag_Destroyed       = 0x800000,
+         struct form_flag : public TESForm::form_flag {
+            enum type : form_flags_t {
+               marked_for_delete      = 0x00000020, // this is just another name for TESForm::form_flag::deleted, intended to clarify how "deletion" of TESObjectREFR at run-time works
+               hide_from_local_map    = 0x00000040,
+               has_flames             = 0x00000080, // see the two function calls at 004E729A
+               inaccessible           = 0x00000100, // for DOOR references
+               dont_light_water       = 0x00000100, // for LIGH references
+               unknown_00000100       = 0x00000100, // for anything that isn't a DOOR or a LIGH. gets modified (can be set or cleared) on all created refs after they're created
+               motion_blur            = 0x00000200, // for MSTT references
+               casts_shadows          = 0x00000200, // for LIGH references
+               persistent             = 0x00000400,
+               disabled               = 0x00000800, // same flag is used in ESPs for "initially disabled"
+               //
+               light_never_fades      = 0x00010000, // also gets set on references when Papyrus marks them for deletion?
+               dont_light_landscape   = 0x00020000, // for LIGH references
+               unknown_00040000       = 0x00040000, // possibly "marked for disable"? maybe?
+               unknown_00080000       = 0x00080000, // getter at 00401A60
+               ignoring_friendly_hits = 0x00100000, // actor only?
+               //
+               unknown_00400000       = 0x00400000, // always set on ash piles when they're created; can be set on references when Papyrus marks them for deletion
+               destroyed              = 0x00800000,
+               unknown_01000000       = 0x01000000, // always set on ash piles when they're created
+               no_ai_acquire          = 0x02000000, // for item references
+               //
+               unknown_08000000       = 0x08000000,
+               //
+               dont_havok_settle      = 0x20000000,
+               no_respawn             = 0x40000000,
+               multibound             = 0x80000000
+            };
          };
          //
          virtual void	Unk_3B(); // sets the baseForm and parentCell to nullptr, among so many other things... "unload" method?
@@ -454,7 +476,7 @@ namespace RE {
             return CALL_MEMBER_FN(this, GetOrCreateRefHandle)(handle);
          }
 
-         inline bool IsEnabled() const noexcept { return !(this->flags & kFlag_Disabled); }
+         inline bool IsEnabled() const noexcept { return !(this->flags & form_flag::disabled); }
 
          static TESObjectREFR* make(); // creates a TESObjectREFR with a refhandle and a refcount of 1
          

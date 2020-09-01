@@ -677,11 +677,11 @@ namespace RE {
       // They literally just disable and enable the reference to reload its 3D. Like, there isn't a more direct 
       // way of going about it at all. I'm kind of astounded.
       //
-      if ((this->flags & 0x800) != 0) { // do not act on disabled references
+      if ((this->flags & form_flag::disabled) != 0) { // do not act on disabled references
          return;
       }
       this->Unk_6C(0, 0); // unloads 3D
-      this->flags |= 0x800;
+      this->flags |= form_flag::disabled;
       CALL_MEMBER_FN(this, Subroutine004E0E30)();
    };
    void __declspec(noinline) TESObjectREFR::SetMotionType(uint8_t motionType, bool simulateImmediately, bool markChanged) {

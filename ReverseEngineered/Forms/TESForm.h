@@ -202,6 +202,17 @@ namespace RE {
          operator ::TESForm*() const { return (::TESForm*) this; }
          enum { kTypeID = 0 };	// special-case
          //
+         struct form_flag {
+            form_flag() = delete;
+            enum type : uint32_t {
+               deleted      = 0x00000020,
+               player_knows = 0x00000040,
+               temporary    = 0x00004000, // forms with this flag are created for internal use only (e.g. cell water, 3D inventory previews). they are never written to the save and should not be touched by game systems or the debug console
+               is_marker    = 0x00800000,
+            };
+         };
+         using form_flags_t = std::underlying_type_t<form_flag::type>;
+         //
          enum {
             kFormFlag_Unk00000001 = 0x00000001, // set when marking for delete, but could be more general
             kFormFlag_Unk00000002 = 0x00000002, // "modified?" // setting this on a REFR also sets it on its CELL, if the refr doesn't have flag 0x8000; setting it on a CELL sets it on the cell's parent WRLD
@@ -333,7 +344,7 @@ namespace RE {
          void CopyFromEx(TESForm * rhs);
 
          void*    unk04;    // 04
-         UInt32   flags;    // 08
+         form_flags_t flags; // 08
          UInt32   formID;   // 0C
          UInt16   unk10;    // 10 // more flags // TESLoadScreen treats this as a counter, though?
          UInt8    formType;	// 12
