@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "TESForm.h"
 #include "skse/GameForms.h"
 #include "skse/Utilities.h"
@@ -20,10 +21,21 @@ namespace RE {
          DEFINE_MEMBER_FN(RemoveFormFromList,  void,   0x004FB4A0, TESForm* form);
          DEFINE_MEMBER_FN(RevertList,          void,   0x004FB2F0);
 
-         using Visitor = ::BGSListForm::Visitor;
+         class visitor {
+            //
+            // A mechanism for iterating over a BGSListForm's contents and optionally testing for the 
+            // presence of a list item matching some criteria.
+            //
+            public:
+               virtual ~visitor() {}
+               virtual void greet(BGSListForm&) {}; // the BGSListForm makes itself known to the visitor
+               virtual bool test(TESForm*) = 0; // the BGSListForm asks the visitor whether an entry matches. return true to stop looping.
+         };
+         bool visit(visitor&); // returns (true) if visitor::test returned true.
 
-         //bool Visit(Visitor& visitor);
-
+         //
+         // Bethesda visitors:
+         //
          struct CountMatchingItemsInInventoryVisitor {
             uint32_t          count = 0;
             InventoryChanges& inventory;
@@ -32,5 +44,16 @@ namespace RE {
          };
          DEFINE_MEMBER_FN(CountMatchingItemsInInventory, void, 0x00905F30, CountMatchingItemsInInventoryVisitor&);
          SInt32 CountMatchingItemsInInventory(InventoryChanges&);
+   };
+
+   class RecursiveFormListSearch : public BGSListForm::visitor {
+      protected:
+         std::vector<BGSListForm*> seen;
+         //
+      public:
+         TESForm* desired = nullptr;
+         //
+         virtual void greet(BGSListForm&) override;
+         virtual bool test(TESForm* form) override;
    };
 }
