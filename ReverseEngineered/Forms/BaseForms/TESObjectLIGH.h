@@ -64,6 +64,10 @@ namespace RE {
          float    fade;    // A0 // are we sure this isn't part of the previous member? minor quibble, though
          UInt32   unkA4;   // A4
          DataA8   unkA8;   // A8
+
+         inline bool IsCarryable() const noexcept {
+            return !!(this->unk78.flags & RE::TESObjectLIGH::kFlag_Carryable);
+         }
    };
    static_assert(sizeof(TESObjectLIGH) == 0xB4, "RE::TESObjectLIGH is not the right size.");
 }

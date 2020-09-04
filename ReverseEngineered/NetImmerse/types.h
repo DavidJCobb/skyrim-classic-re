@@ -42,9 +42,27 @@ namespace RE {
          DEFINE_MEMBER_FN(VectorNormalize,  void,      0x00420500);
          DEFINE_MEMBER_FN(VectorNormalize2, float,     0x00431120); // returns old length
 
-         NiPoint3& operator+(const NiPoint3& other) {
-            return CALL_MEMBER_FN(this, Add_B)(other);
-         };
+         inline NiPoint3 operator-(const NiPoint3& other) const noexcept {
+            NiPoint3 out = *this;
+            out.x -= other.x;
+            out.y -= other.y;
+            out.z -= other.z;
+            return out;
+         }
+         inline NiPoint3& operator+=(const NiPoint3& other) noexcept {
+            this->x += other.x;
+            this->y += other.y;
+            this->z += other.z;
+            return *this;
+         }
+         inline bool operator==(const NiPoint3& other) const noexcept {
+            return this->x == other.x && this->y == other.y && this->z == other.z;
+         }
+         inline bool operator!=(const NiPoint3& other) const noexcept { return !(*this == other); }
+
+         inline float length_squared() const noexcept {
+            return x*x + y*y + z*z;
+         }
    };
 
    class NiBound { // sizeof == 0x10

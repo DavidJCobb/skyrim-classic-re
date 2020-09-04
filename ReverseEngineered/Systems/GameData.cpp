@@ -35,6 +35,24 @@ namespace RE {
       return list;
    };
 
+   void TES::ForEachCurrentCell(std::function<bool(TESObjectCELL*)> functor) const {
+      if (this->currentCell) {
+         functor(this->currentCell);
+         return;
+      }
+      if (!this->gridCellArray)
+         return;
+      auto&    list = *this->gridCellArray;
+      uint32_t size = list.size();
+      for (uint32_t i = 0; i < size; ++i) {
+         auto cell = list[i];
+         if (!cell)
+            continue;
+         if (!(functor)(cell))
+            break;
+      }
+   }
+
    DataHandler* TESDataHandler::GetSingleton() {
       return *((TESDataHandler**)0x012E2CB8);
    };

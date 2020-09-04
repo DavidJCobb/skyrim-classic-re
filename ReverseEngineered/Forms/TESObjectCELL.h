@@ -25,6 +25,16 @@ namespace RE {
          enum { kTypeID = kFormType_Cell }; // needed for SKSE Papyrus compatibility
          static constexpr form_type_t form_type = form_type::cell;
          //
+         struct form_flag : public TESForm::form_flag {
+            enum type : form_flags_t {
+               persistent       = 0x00000400,
+               //
+               off_limits       = 0x00020000,
+               //
+               disallow_waiting = 0x00080000,
+            };
+         };
+         //
          struct cell_node_type {
             //
             // Cells have a root node, and a small number of child nodes, each of which is responsible 
@@ -310,4 +320,16 @@ namespace RE {
    };
    static_assert(offsetof(TESObjectCELL, parentWorld) >= 0x84, "RE::TESObjectCELL::parentWorld is too early.");
    static_assert(offsetof(TESObjectCELL, parentWorld) <= 0x84, "RE::TESObjectCELL::parentWorld is too late.");
+
+   class cell_reference_lock_guard {
+      protected:
+         TESObjectCELL& cell;
+      public:
+         cell_reference_lock_guard(RE::TESObjectCELL& c) : cell(c) {
+            CALL_MEMBER_FN(&cell, CellRefLockEnter)();
+         }
+         ~cell_reference_lock_guard() {
+            CALL_MEMBER_FN(&cell, CellRefLockExit)();
+         }
+   };
 };

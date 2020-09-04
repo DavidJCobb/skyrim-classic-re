@@ -284,7 +284,7 @@ namespace RE {
    struct TESInitScriptEvent {
       TESObjectREFR* ref; // 00
    };
-   struct TESLoadGameEvent {
+   struct TESLoadGameEvent { // OnPlayerLoadGame
       // This is a zero-size struct. Skyrim allocates a single byte for it in order to obey specific 
       // C/C++ standards (i.e. zero-size structs must be compiled to have size, so that they can be 
       // allocated).

@@ -268,6 +268,7 @@ namespace RE {
       public:
          operator ::TESObjectREFR*() const { return (::TESObjectREFR*) this; }
          enum { kTypeID = kFormType_Reference };
+         static constexpr form_type_t form_type = form_type::reference;
          //
          struct form_flag : public TESForm::form_flag {
             enum type : form_flags_t {

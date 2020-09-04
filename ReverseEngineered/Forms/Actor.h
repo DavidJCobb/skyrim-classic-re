@@ -949,8 +949,16 @@ namespace RE {
    class Actor : public TESObjectREFR {
       public:
          enum { kTypeID = kFormType_Character };
+         static constexpr form_type_t form_type = form_type::actor;
          operator ::Actor*() const { return (::Actor*) this; }
          operator ::TESObjectREFR*() const { return (::TESObjectREFR*) this; }
+         //
+         struct form_flag : public TESObjectREFR::form_flag {
+            enum type : form_flags_t {
+               talked_to_player       = 0x00000040,
+               ignoring_friendly_hits = 0x00100000,
+            };
+         };
          
          //
          // The stuff below describes the internals for ActorValues and how they're stored 

@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 
 #include "skse/GameData.h"
 #include "skse/GameEvents.h"
@@ -65,6 +66,11 @@ namespace RE {
                return nullptr;
             return &(this->cells[(x * length) + y]);
          };
+         //
+         TESObjectCELL* operator[](int i) const noexcept {
+            return this->cells[i];
+         }
+         uint32_t size() const noexcept { return this->length * this->length; }
          //
          MEMBER_FN_PREFIX(GridCellArray);
          DEFINE_MEMBER_FN(GetItem,        TESObjectCELL**, 0x004743F0, UInt32 x, UInt32 y);
@@ -158,6 +164,8 @@ namespace RE {
          DEFINE_MEMBER_FN(Subroutine00431460, void, 0x00431460, bool); // maintains some kind of counter/lock related to physics
          //
          ::TESObjectCELL** CopyGridCells(UInt32* count) const;
+         //
+         void ForEachCurrentCell(std::function<bool(TESObjectCELL*)>) const; // runs on the current interior cell, or on all exterior cells in the attached grid. return false to stop looping early
    };
    extern TES** g_TES;
 

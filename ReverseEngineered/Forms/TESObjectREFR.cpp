@@ -685,7 +685,7 @@ namespace RE {
       CALL_MEMBER_FN(this, Subroutine004E0E30)();
    };
    void __declspec(noinline) TESObjectREFR::SetMotionType(uint8_t motionType, bool simulateImmediately, bool markChanged) {
-      NiPointer<NiNode> node = this->GetNiNode();
+      NiPointer<NiNode> node = this->GetNiNode(); // use a smart pointer so the node isn't deleted out from under us
       if (node.m_pObject) {
          SetNodeMotionType(node.m_pObject, motionType, true, false, simulateImmediately);
          if (markChanged)
