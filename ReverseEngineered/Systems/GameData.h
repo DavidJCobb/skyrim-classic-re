@@ -160,6 +160,7 @@ namespace RE {
          DEFINE_MEMBER_FN(SetCellBordersVisible,   void,    0x00433460, bool visible); // used by the ToggleBorders command
          DEFINE_MEMBER_FN(Subroutine004320C0,      void*,   0x004320C0, TESObjectCELL*, UInt32);
          DEFINE_MEMBER_FN(Subroutine00432070,      UInt32,  0x00432070, NiPointer<NiNode>&, NiCloningProcess&);
+         DEFINE_MEMBER_FN(ToggleCollision,         void,    0x00434CC0)
          //
          DEFINE_MEMBER_FN(Subroutine00431460, void, 0x00431460, bool); // maintains some kind of counter/lock related to physics
          //
