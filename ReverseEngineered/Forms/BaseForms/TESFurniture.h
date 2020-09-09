@@ -84,30 +84,31 @@ namespace RE {
          UInt32                  furnFlags;       // 7C // MNAM
          SpellItem*              associatedSpell; // 80
          //
-         bool IsMarkerEnabled(UInt8 markerIndex) {
+         inline bool IsMarkerEnabled(UInt8 markerIndex) const noexcept {
             if (markerIndex >= 25)
                return false;
             return (this->furnFlags & (1 << markerIndex)) != 0;
          };
-         BGSKeyword* GetMarkerKeyword(UInt8 markerIndex) {
+         BGSKeyword* GetMarkerKeyword(UInt8 markerIndex) const noexcept {
             if (markerIndex >= 24)
-               return NULL;
-            for (UInt32 i = 0; i < this->markers.count; i++)
-               if (this->markers[i].furnitureMarkerIndex == markerIndex)
-                  return this->markers[i].keyword;
-            return NULL;
+               return nullptr;
+            uint32_t size = this->markers.count;
+            for (uint32_t i = 0; i < size; i++)
+               if (this->markers.arr.entries[i].furnitureMarkerIndex == markerIndex)
+                  return this->markers.arr.entries[i].keyword;
+            return nullptr;
          };
 
-         inline void GetEnabledMarkers(std::vector<uint8_t>& out) {
+         inline void GetEnabledMarkers(std::vector<uint8_t>& out) const noexcept {
             out.clear();
             for (uint8_t i = 0; i < 25; ++i)
                if (this->IsMarkerEnabled(i))
                   out.push_back(i);
          }
-         ModifiedMarker* GetMarkerChanges(uint32_t i) const noexcept {
+         ModifiedMarker* GetMarkerChanges(uint32_t m) const noexcept {
             uint32_t size = this->markers.count;
             for (uint32_t i = 0; i < size; ++i) {
-               if (this->markers.arr.entries[i].furnitureMarkerIndex == i)
+               if (this->markers.arr.entries[i].furnitureMarkerIndex == m)
                   return &this->markers.arr.entries[i];
             }
             return nullptr;
